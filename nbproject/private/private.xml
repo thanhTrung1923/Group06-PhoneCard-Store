@@ -3,12 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/New%20folder/CardPhone/src/java/model/Card.java</file>
-            <file>file:/D:/New%20folder/CardPhone/src/java/dao/ProductDAO.java</file>
-            <file>file:/D:/New%20folder/CardPhone/src/java/model/Inventory.java</file>
-            <file>file:/D:/New%20folder/CardPhone/web/home.jsp</file>
-            <file>file:/D:/New%20folder/CardPhone/src/java/controller/HomeController.java</file>
-            <file>file:/D:/New%20folder/CardPhone/web/header.jsp</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/OrderDAO.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/web/WEB-INF/web.xml</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/DBConnect.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/model/CardProduct.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/UserDAO.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminCardProductListController.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminUserFormController.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/web/product-list.jsp</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminUserListController.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/CardProductDAO.java</file>
         </group>
     </open-files>
 </project-private>
