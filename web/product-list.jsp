@@ -10,8 +10,16 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
+        <jsp:include page="/layout/global-import-header.jsp" />
     </head>
     <body>
+        <jsp:include page="/layout/header.jsp" />
+
         <h1>Hello World!</h1>
+
+        <jsp:include page="/layout/footer.jsp" />
+
+        <jsp:include page="/layout/global-import-footer.jsp" />
+        <script src="/js/global-script.js"></script>
     </body>
 </html>
