@@ -3,15 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/OrderDAO.java</file>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/web/WEB-INF/web.xml</file>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/DBConnect.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/service/CardProductService.java</file>
             <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/model/CardProduct.java</file>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/UserDAO.java</file>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminCardProductListController.java</file>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminUserFormController.java</file>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/web/product-list.jsp</file>
-            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminUserListController.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/web/product-management-form.jsp</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/web/product-management-list.jsp</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminCardProductController.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/model/SupportTicket.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/SupportTicketDAO.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/controller/AdminTicketController.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/web/admin-ticket-list.jsp</file>
             <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/dao/CardProductDAO.java</file>
         </group>
     </open-files>
