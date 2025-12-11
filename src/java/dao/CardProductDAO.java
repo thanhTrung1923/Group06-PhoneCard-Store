@@ -93,6 +93,7 @@ public class CardProductDAO {
                          cp.value,
                          cp.sell_price,
                          cp.quantity AS stock_quantity,
+                         cp.thumbnail_url,
                          
                          COALESCE(pd.discount_percent, 0) AS discount_percent,
                          ROUND(cp.sell_price * (1 - COALESCE(pd.discount_percent, 0) / 100), 2) AS final_price,
@@ -139,6 +140,7 @@ public class CardProductDAO {
                 cp.setAvg_rating(rs.getFloat("avg_rating"));
                 cp.setReview_count(rs.getInt("review_count"));
                 cp.setTotal_sold(rs.getInt("total_sold"));
+                cp.setThumbnail_url(rs.getString("thumbnail_url"));
 
                 cpList.add(cp);
             }
@@ -180,6 +182,7 @@ public class CardProductDAO {
                              cp.value,
                              cp.sell_price,
                              cp.quantity AS stock_quantity,
+                             cp.thumbnail_url,
                              
                              COALESCE(pd.discount_percent, 0) AS discount_percent,
                              ROUND(cp.sell_price * (1 - COALESCE(pd.discount_percent, 0) / 100), 2) AS final_price,
@@ -234,6 +237,7 @@ public class CardProductDAO {
                 cp.setAvg_rating(rs.getFloat("avg_rating"));
                 cp.setReview_count(rs.getInt("review_count"));
                 cp.setTotal_sold(rs.getInt("total_sold"));
+                cp.setThumbnail_url(rs.getString("thumbnail_url"));
 
                 cpList.add(cp);
             }

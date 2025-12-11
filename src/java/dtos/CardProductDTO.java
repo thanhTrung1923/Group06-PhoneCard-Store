@@ -23,8 +23,17 @@ public class CardProductDTO {
     private float avg_rating;
     private int review_count;
     private int total_sold;
+    private String thumbnail_url;
 
     public CardProductDTO() {
+    }
+
+    public String getThumbnail_url() {
+        return thumbnail_url;
+    }
+
+    public void setThumbnail_url(String thumbnail_url) {
+        this.thumbnail_url = thumbnail_url;
     }
 
     public int getProduct_id() {

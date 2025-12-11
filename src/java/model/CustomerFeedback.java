@@ -26,7 +26,17 @@ public class CustomerFeedback {
     private LocalDateTime respondedAt;
     private LocalDateTime createdAt;
 
+    private String customerName;
+
     public CustomerFeedback() {
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public Long getFeedbackId() {
