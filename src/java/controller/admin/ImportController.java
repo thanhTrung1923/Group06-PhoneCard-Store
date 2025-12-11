@@ -1,61 +1,85 @@
 package controller.admin;
 
 import dao.admin.InventoryDAO;
+import model.Card;
+import model.ImportBatch;
+import service.ExcelService; // Đảm bảo import đúng package Service
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig; // Quan trọng để upload file
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import model.Card;
-import model.Supplier;
-import service.ExcelService;
 
 @WebServlet("/admin/import")
-@MultipartConfig // BẮT BUỘC PHẢI CÓ DÒNG NÀY MỚI NHẬN ĐƯỢC FILE
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
+    maxFileSize = 1024 * 1024 * 10,      // 10 MB
+    maxRequestSize = 1024 * 1024 * 100   // 100 MB
+)
 public class ImportController extends HttpServlet {
 
-    // Xử lý GET: Hiển thị trang nhập hàng (cần list nhà cung cấp để chọn)
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-            throws ServletException, IOException {
-        
-        InventoryDAO dao = new InventoryDAO();
-        List<Supplier> suppliers = dao.getAllSuppliers();
-        
-        req.setAttribute("listSupplier", suppliers); // Đẩy dữ liệu sang JSP
-        req.getRequestDispatcher("/views/admin/import.jsp").forward(req, resp);
-    }
-
-    // Xử lý POST: Khi bấm nút "Upload"
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
             throws ServletException, IOException {
         try {
-            // 1. Lấy thông tin từ Form
-            int supplierId = Integer.parseInt(req.getParameter("supplier_id"));
-            Part filePart = req.getPart("file_excel"); // Lấy file từ input name="file_excel"
-            
-            // 2. Gọi Service đọc file Excel -> List Card
+            // 1. Lấy dữ liệu từ Form Modal
+            String supplierIdStr = req.getParameter("supplier_id");
+            Part filePart = req.getPart("file_excel");
+
+            if (supplierIdStr == null || filePart == null || filePart.getSize() <= 0) {
+                throw new Exception("Vui lòng chọn nhà cung cấp và file dữ liệu!");
+            }
+
+            int supplierId = Integer.parseInt(supplierIdStr);
+
+            // 2. Xử lý file Excel qua Service
             ExcelService excelService = new ExcelService();
             List<Card> listCards = excelService.parseExcel(filePart.getInputStream());
-            
-            // Gán supplier ID cho tất cả các thẻ vừa đọc được
-            for(Card c : listCards) {
+
+            if (listCards.isEmpty()) {
+                throw new Exception("File Excel rỗng hoặc sai định dạng!");
+            }
+
+            // Gán Supplier ID cho list card
+            for (Card c : listCards) {
                 c.setSupplierId(supplierId);
             }
             
-            // 3. Gọi DAO lưu vào Database (Bước này ta sẽ làm kỹ ở DAO sau - Transaction)
-            // InventoryDAO dao = new InventoryDAO();
-            // boolean result = dao.importBatchTransaction(..., listCards);
+            // 3. Tạo đối tượng Batch info (Theo Model của Member 1)
+            ImportBatch batch = new ImportBatch();
+            batch.setSupplierId(supplierId);
+            // Lưu ý: Member 1 đặt tên getter/setter là FileName (chữ N hoa)
+            batch.setFileName(filePart.getSubmittedFileName()); 
+            batch.setTotalCards(listCards.size());
             
-            req.setAttribute("message", "Đã đọc được " + listCards.size() + " thẻ từ file!");
+            // Model dùng double, ta set tạm 0.0 (hoặc tính tổng giá nhập nếu có logic)
+            batch.setTotalAmount(0.0); 
             
+            // Lấy ID Admin từ Session (Giả sử session tên "acc")
+            // model.User admin = (model.User) req.getSession().getAttribute("acc");
+            // if (admin != null) batch.setImportedBy(admin.getId()); else 
+            batch.setImportedBy(1); // Tạm fix cứng ID = 1 nếu chưa login
+            
+            batch.setNote("Imported via Web Admin");
+
+            // 4. Gọi DAO lưu vào DB (Transaction)
+            InventoryDAO dao = new InventoryDAO();
+            boolean success = dao.importBatchTransaction(batch, listCards);
+
+            if (success) {
+                String msg = "Nhập kho thành công " + listCards.size() + " thẻ!";
+                resp.sendRedirect(req.getContextPath() + "/admin/inventory?message=" + URLEncoder.encode(msg, StandardCharsets.UTF_8));
+            } else {
+                throw new Exception("Lỗi Database: Không thể lưu lô hàng.");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
-            req.setAttribute("error", "Lỗi nhập hàng: " + e.getMessage());
+            String error = "Lỗi: " + e.getMessage();
+            resp.sendRedirect(req.getContextPath() + "/admin/inventory?error=" + URLEncoder.encode(error, StandardCharsets.UTF_8));
         }
-        // Quay lại trang import để báo kết quả
-        doGet(req, resp);
     }
 }
