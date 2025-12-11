@@ -4,8 +4,10 @@
     Author     : trung
 --%>
 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -82,7 +84,7 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-2xl font-bold text-gray-900">Được mua nhiều nhất</h2>
-                        <a href="#" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
+                        <a href="products" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
                             Xem tất cả
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -91,67 +93,47 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                            <div class="relative">
-                                <div class="absolute top-3 left-3 text-sm font-medium">Còn lại: 240</div>
-                                <div class="absolute top-3 right-3 flex gap-2">
-                                    <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">Viettel</span>
-                                    <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-5%</span>
+                        <c:forEach items="${cpMostBuyed}" var="cp">
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                                <div class="relative">
+                                    <div class="absolute top-3 left-3 text-white text-sm font-medium">Còn lại: ${cp.stock_quantity}</div>
+                                    <div class="absolute top-3 right-3 flex gap-2">
+                                        <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">${cp.type_code}</span>
+                                        <c:if test="${cp.discount_percent > 0}">
+                                            <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-<fmt:formatNumber value="${cp.discount_percent}" maxFractionDigits="0" />%</span>
+                                        </c:if>
+                                    </div>
+                                    <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden">
+                                        <img src="${cp.thumbnail_url}" 
+                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110" 
+                                             alt="thumbnail">
+                                    </div>
                                 </div>
-                                <div class="w-full h-40 bg-gray-200"></div>
-                            </div>
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-yellow-400">⭐</span>
-                                    <span class="font-semibold">4.9</span>
-                                    <span class="text-gray-400">•</span>
-                                    <span class="text-sm text-gray-600">Đã bán 4000</span>
-                                </div>
-                                <h3 class="font-semibold text-gray-900 mb-2">Thẻ điện thoại Viettel 10.000đ</h3>
-                                <div class="mb-4">
-                                    <span class="text-lg font-bold text-gray-900">9.500đ</span>
-                                    <span class="text-sm text-gray-400 line-through ml-2">10.000đ</span>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                        Mua ngay
-                                    </button>
-                                    <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                        Chi tiết
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                            <div class="relative">
-                                <div class="absolute top-3 left-3 text-sm font-medium">Còn lại: 240</div>
-                                <div class="absolute top-3 right-3">
-                                    <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">Viettel</span>
-                                </div>
-                                <div class="w-full h-40 bg-gray-200"></div>
-                            </div>
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-yellow-400">⭐</span>
-                                    <span class="font-semibold">4.9</span>
-                                    <span class="text-gray-400">•</span>
-                                    <span class="text-sm text-gray-600">Đã bán 4000</span>
-                                </div>
-                                <h3 class="font-semibold text-gray-900 mb-2">Thẻ điện thoại Viettel 10.000đ</h3>
-                                <div class="mb-4">
-                                    <span class="text-lg font-bold text-gray-900">10.000đ</span>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                        Mua ngay
-                                    </button>
-                                    <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                        Chi tiết
-                                    </button>
+                                <div class="p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-yellow-400">⭐</span>
+                                        <span class="font-semibold">${cp.avg_rating}</span>
+                                        <span class="text-gray-400">•</span>
+                                        <span class="text-sm text-gray-600">Đã bán ${cp.total_sold}</span>
+                                    </div>
+                                    <h3 class="font-semibold text-gray-900 mb-2">${cp.type_name}</h3>
+                                    <div class="mb-4">
+                                        <span class="text-lg font-bold text-gray-900"><fmt:formatNumber value="${cp.final_price}" type="currency" /></span>
+                                        <c:if test="${cp.discount_percent > 0}">
+                                            <span class="text-sm text-gray-400 line-through ml-2"><fmt:formatNumber value="${cp.sell_price}" type="currency" /></span>
+                                        </c:if>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                                            Mua ngay
+                                        </button>
+                                        <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                                            Chi tiết
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </c:forEach>
                     </div>
                 </div>
             </div>
@@ -161,7 +143,7 @@
                     <!-- Header -->
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-2xl font-bold text-gray-900">Phản hồi tốt nhất</h2>
-                        <a href="#" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
+                        <a href="products" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
                             Xem tất cả
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -170,67 +152,47 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                            <div class="relative">
-                                <div class="absolute top-3 left-3 text-sm font-medium">Còn lại: 240</div>
-                                <div class="absolute top-3 right-3 flex gap-2">
-                                    <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">Viettel</span>
-                                    <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-5%</span>
+                        <c:forEach items="${cpBestFeedback}" var="cp">
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                                <div class="relative">
+                                    <div class="absolute top-3 left-3 text-white text-sm font-medium">Còn lại: ${cp.stock_quantity}</div>
+                                    <div class="absolute top-3 right-3 flex gap-2">
+                                        <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">${cp.type_code}</span>
+                                        <c:if test="${cp.discount_percent > 0}">
+                                            <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-<fmt:formatNumber value="${cp.discount_percent}" maxFractionDigits="0" />%</span>
+                                        </c:if>
+                                    </div>
+                                    <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden">
+                                        <img src="${cp.thumbnail_url}" 
+                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110" 
+                                             alt="thumbnail">
+                                    </div>
                                 </div>
-                                <div class="w-full h-40 bg-gray-200"></div>
-                            </div>
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-yellow-400">⭐</span>
-                                    <span class="font-semibold">4.9</span>
-                                    <span class="text-gray-400">•</span>
-                                    <span class="text-sm text-gray-600">Đã bán 4000</span>
-                                </div>
-                                <h3 class="font-semibold text-gray-900 mb-2">Thẻ điện thoại Viettel 10.000đ</h3>
-                                <div class="mb-4">
-                                    <span class="text-lg font-bold text-gray-900">9.500đ</span>
-                                    <span class="text-sm text-gray-400 line-through ml-2">10.000đ</span>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                        Mua ngay
-                                    </button>
-                                    <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                        Chi tiết
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                            <div class="relative">
-                                <div class="absolute top-3 left-3 text-sm font-medium">Còn lại: 240</div>
-                                <div class="absolute top-3 right-3">
-                                    <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">Viettel</span>
-                                </div>
-                                <div class="w-full h-40 bg-gray-200"></div>
-                            </div>
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-yellow-400">⭐</span>
-                                    <span class="font-semibold">4.9</span>
-                                    <span class="text-gray-400">•</span>
-                                    <span class="text-sm text-gray-600">Đã bán 4000</span>
-                                </div>
-                                <h3 class="font-semibold text-gray-900 mb-2">Thẻ điện thoại Viettel 10.000đ</h3>
-                                <div class="mb-4">
-                                    <span class="text-lg font-bold text-gray-900">10.000đ</span>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                        Mua ngay
-                                    </button>
-                                    <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                        Chi tiết
-                                    </button>
+                                <div class="p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-yellow-400">⭐</span>
+                                        <span class="font-semibold">${cp.avg_rating}</span>
+                                        <span class="text-gray-400">•</span>
+                                        <span class="text-sm text-gray-600">Đã bán ${cp.total_sold}</span>
+                                    </div>
+                                    <h3 class="font-semibold text-gray-900 mb-2">${cp.type_name}</h3>
+                                    <div class="mb-4">
+                                        <span class="text-lg font-bold text-gray-900"><fmt:formatNumber value="${cp.final_price}" type="currency" /></span>
+                                        <c:if test="${cp.discount_percent > 0}">
+                                            <span class="text-sm text-gray-400 line-through ml-2"><fmt:formatNumber value="${cp.sell_price}" type="currency" /></span>
+                                        </c:if>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                                            Mua ngay
+                                        </button>
+                                        <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                                            Chi tiết
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </c:forEach>
                     </div>
                 </div>
             </div>
@@ -238,19 +200,74 @@
             <div class="py-12">
                 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Khách hàng nói gì về chúng tôi</h2>
-
                     <div class="space-y-4">
-                        <div class="bg-white rounded-lg shadow-sm p-6">
-                            <div class="flex gap-1 mb-3">
-                                <span class="text-yellow-400 text-lg">⭐</span>
-                                <span class="text-yellow-400 text-lg">⭐</span>
-                                <span class="text-yellow-400 text-lg">⭐</span>
-                                <span class="text-yellow-400 text-lg">⭐</span>
-                                <span class="text-yellow-400 text-lg">⭐</span>
+                        <c:forEach items="${cfList}" var="cf">
+                            <div class="bg-white rounded-lg shadow-sm p-6">
+                                <!-- Header: Rating và Category -->
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex gap-1">
+                                        <c:forEach begin="1" end="${cf.rating}">
+                                            <i class="fa-solid fa-star text-yellow-500"></i>
+                                        </c:forEach>
+                                        <c:forEach begin="1" end="${5 - cf.rating}">
+                                            <i class="fa-solid fa-star text-gray-300"></i>
+                                        </c:forEach>
+                                    </div>
+                                    <c:if test="${not empty cf.category}">
+                                        <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                                            <c:choose>
+                                                <c:when test="${cf.category == 'SERVICE'}">Dịch vụ</c:when>
+                                                <c:when test="${cf.category == 'PRODUCT'}">Sản phẩm</c:when>
+                                                <c:when test="${cf.category == 'WEBSITE'}">Website</c:when>
+                                                <c:when test="${cf.category == 'DELIVERY'}">Giao hàng</c:when>
+                                                <c:otherwise>Khác</c:otherwise>
+                                            </c:choose>
+                                        </span>
+                                    </c:if>
+                                </div>
+
+                                <!-- Subject (nếu có) -->
+                                <c:if test="${not empty cf.subject}">
+                                    <h4 class="font-semibold text-gray-900 mb-2">${cf.subject}</h4>
+                                </c:if>
+
+                                <!-- Content -->
+                                <p class="text-gray-700 mb-4 line-clamp-3">"${cf.content}"</p>
+
+                                <!-- Footer: Customer info và Date -->
+                                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">${cf.customerName}</p>
+                                        <c:if test="${not empty cf.createdAt}">
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                ${cf.getCreatedAtFormatted()}
+                                            </p>
+                                        </c:if>
+                                    </div>
+
+                                    <!-- Verified badge (nếu đã mua hàng) -->
+                                    <c:if test="${not empty cf.orderId}">
+                                        <span class="flex items-center gap-1 text-xs text-green-600 font-medium">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Đã mua hàng
+                                        </span>
+                                    </c:if>
+                                </div>
+
+                                <!-- Admin Response (nếu có) -->
+                                <c:if test="${cf.isResponded and not empty cf.adminResponse}">
+                                    <div class="mt-4 pl-4 border-l-2 border-blue-500 bg-blue-50 p-3 rounded">
+                                        <p class="text-xs font-semibold text-blue-900 mb-1">Phản hồi từ Admin:</p>
+                                        <p class="text-sm text-gray-700">${cf.adminResponse}</p>
+                                        <c:if test="${not empty cf.respondedAt}">
+                                            <p class="text-xs text-gray-500 mt-2">
+                                                ${cf.getRespondedAtFormatted()}
+                                            </p>
+                                        </c:if>
+                                    </div>
+                                </c:if>
                             </div>
-                            <p class="text-gray-700 mb-3">"Dịch vụ tuyệt con mẹ nó vời á"</p>
-                            <p class="font-semibold text-gray-900">Thành Trung</p>
-                        </div>
+                        </c:forEach>
                     </div>
                 </div>
             </div>
