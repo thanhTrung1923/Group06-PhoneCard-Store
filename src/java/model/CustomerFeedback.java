@@ -5,6 +5,7 @@
 package model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -141,6 +142,20 @@ public class CustomerFeedback {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCreatedAtFormatted() {
+        if (createdAt == null) {
+            return "";
+        }
+        return createdAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
+
+    public String getRespondedAtFormatted() {
+        if (respondedAt == null) {
+            return "";
+        }
+        return respondedAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
     @Override
