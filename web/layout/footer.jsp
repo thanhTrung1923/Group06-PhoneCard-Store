@@ -21,7 +21,7 @@
             <div>
                 <h3 class="text-lg font-semibold mb-3">Sản phẩm</h3>
                 <ul class="space-y-2">
-                    <li><a href="#" class="text-gray-300 hover:text-white text-sm">Thẻ điện thoại</a></li>
+                    <li><a href="products" class="text-gray-300 hover:text-white text-sm">Thẻ điện thoại</a></li>
                 </ul>
             </div>
 
