@@ -20,10 +20,10 @@
             </div>
 
             <nav class="hidden md:flex items-center gap-8">
-                <a href="#" class="text-green-500 font-medium hover:text-green-600">Trang chủ</a>
-                <a href="#" class="text-gray-700 hover:text-cyan-500">Sản phẩm</a>
-                <a href="#" class="text-gray-700 hover:text-cyan-500">Bài viết</a>
-                <a href="#" class="text-gray-700 hover:text-cyan-500">Ticket Hỗ trợ</a>
+                <a href="home" class="text-green-500 font-medium hover:text-green-600">Trang chủ</a>
+                <a href="products" class="text-gray-700 hover:text-cyan-500">Sản phẩm</a>
+                <a href="news" class="text-gray-700 hover:text-cyan-500">Bài viết</a>
+                <a href="ticket" class="text-gray-700 hover:text-cyan-500">Ticket Hỗ trợ</a>
             </nav>
 
             <div class="flex items-center gap-4">

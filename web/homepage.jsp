@@ -18,7 +18,7 @@
     <body class="bg-gray-50">
         <jsp:include page="/layout/header.jsp" />
 
-        <div class="container mx-auto mt-10 mb-10">
+        <div class="container mx-auto mt-10 mb-10 min-h-screen">
             <div class="bg-gradient-to-r from-green-500 to-green-400 rounded-3xl mx-4 my-8 p-12 max-w-7xl lg:mx-auto">
                 <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
                     Nạp nhanh chóng<br>Thao tác gọn lẹ
@@ -94,21 +94,37 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <c:forEach items="${cpMostBuyed}" var="cp">
-                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow ${cp.stock_quantity <= 0 ? 'opacity-75' : ''}">
                                 <div class="relative">
-                                    <div class="absolute top-3 left-3 text-white text-sm font-medium">Còn lại: ${cp.stock_quantity}</div>
-                                    <div class="absolute top-3 right-3 flex gap-2">
+                                    <div class="absolute top-3 left-3 text-sm font-medium rounded px-2 py-1 z-10
+                                         ${cp.stock_quantity <= 0 ? 'bg-red-500 text-white' : 'bg-white text-gray-900'}">
+                                        <c:choose>
+                                            <c:when test="${cp.stock_quantity <= 0}">
+                                                <i class="fa-solid fa-circle-xmark mr-1"></i>Hết hàng
+                                            </c:when>
+                                            <c:otherwise>
+                                                Còn lại: ${cp.stock_quantity}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+
+                                    <div class="absolute top-3 right-3 flex gap-2 z-10">
                                         <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">${cp.type_code}</span>
                                         <c:if test="${cp.discount_percent > 0}">
-                                            <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-<fmt:formatNumber value="${cp.discount_percent}" maxFractionDigits="0" />%</span>
+                                            <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                                                -<fmt:formatNumber value="${cp.discount_percent}" maxFractionDigits="0" />%
+                                            </span>
                                         </c:if>
                                     </div>
-                                    <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden">
+
+                                    <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden relative">
                                         <img src="${cp.thumbnail_url}" 
-                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110" 
-                                             alt="thumbnail">
+                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110 
+                                             ${cp.stock_quantity <= 0 ? 'filter grayscale' : ''}" 
+                                             alt="${cp.type_name}">
                                     </div>
                                 </div>
+
                                 <div class="p-4">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-yellow-400">⭐</span>
@@ -116,20 +132,36 @@
                                         <span class="text-gray-400">•</span>
                                         <span class="text-sm text-gray-600">Đã bán ${cp.total_sold}</span>
                                     </div>
+
                                     <h3 class="font-semibold text-gray-900 mb-2">${cp.type_name}</h3>
+
                                     <div class="mb-4">
-                                        <span class="text-lg font-bold text-gray-900"><fmt:formatNumber value="${cp.final_price}" type="currency" /></span>
+                                        <span class="text-lg font-bold text-gray-900">
+                                            <fmt:formatNumber value="${cp.final_price}" type="currency" />
+                                        </span>
                                         <c:if test="${cp.discount_percent > 0}">
-                                            <span class="text-sm text-gray-400 line-through ml-2"><fmt:formatNumber value="${cp.sell_price}" type="currency" /></span>
+                                            <span class="text-sm text-gray-400 line-through ml-2">
+                                                <fmt:formatNumber value="${cp.sell_price}" type="currency" />
+                                            </span>
                                         </c:if>
                                     </div>
+
                                     <div class="flex gap-2">
-                                        <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                            Mua ngay
-                                        </button>
-                                        <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                            Chi tiết
-                                        </button>
+                                        <c:choose>
+                                            <c:when test="${cp.stock_quantity <= 0}">
+                                                <button class="flex-1 bg-gray-300 text-gray-500 py-2 px-4 rounded-lg font-medium cursor-not-allowed" disabled>
+                                                    <i class="fa-solid fa-ban mr-1"></i>Hết hàng
+                                                </button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                                                    Mua ngay
+                                                </button>
+                                                <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                                                    Chi tiết
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                 </div>
                             </div>
@@ -140,7 +172,6 @@
 
             <div class="py-12">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <!-- Header -->
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-2xl font-bold text-gray-900">Phản hồi tốt nhất</h2>
                         <a href="products" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
@@ -153,21 +184,37 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <c:forEach items="${cpBestFeedback}" var="cp">
-                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow ${cp.stock_quantity <= 0 ? 'opacity-75' : ''}">
                                 <div class="relative">
-                                    <div class="absolute top-3 left-3 text-white text-sm font-medium">Còn lại: ${cp.stock_quantity}</div>
-                                    <div class="absolute top-3 right-3 flex gap-2">
+                                    <div class="absolute top-3 left-3 text-sm font-medium rounded px-2 py-1 z-10
+                                         ${cp.stock_quantity <= 0 ? 'bg-red-500 text-white' : 'bg-white text-gray-900'}">
+                                        <c:choose>
+                                            <c:when test="${cp.stock_quantity <= 0}">
+                                                <i class="fa-solid fa-circle-xmark mr-1"></i>Hết hàng
+                                            </c:when>
+                                            <c:otherwise>
+                                                Còn lại: ${cp.stock_quantity}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+
+                                    <div class="absolute top-3 right-3 flex gap-2 z-10">
                                         <span class="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded">${cp.type_code}</span>
                                         <c:if test="${cp.discount_percent > 0}">
-                                            <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">-<fmt:formatNumber value="${cp.discount_percent}" maxFractionDigits="0" />%</span>
+                                            <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                                                -<fmt:formatNumber value="${cp.discount_percent}" maxFractionDigits="0" />%
+                                            </span>
                                         </c:if>
                                     </div>
-                                    <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden">
+
+                                    <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden relative">
                                         <img src="${cp.thumbnail_url}" 
-                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110" 
-                                             alt="thumbnail">
+                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110 
+                                             ${cp.stock_quantity <= 0 ? 'filter grayscale' : ''}" 
+                                             alt="${cp.type_name}">
                                     </div>
                                 </div>
+
                                 <div class="p-4">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-yellow-400">⭐</span>
@@ -175,20 +222,36 @@
                                         <span class="text-gray-400">•</span>
                                         <span class="text-sm text-gray-600">Đã bán ${cp.total_sold}</span>
                                     </div>
+
                                     <h3 class="font-semibold text-gray-900 mb-2">${cp.type_name}</h3>
+
                                     <div class="mb-4">
-                                        <span class="text-lg font-bold text-gray-900"><fmt:formatNumber value="${cp.final_price}" type="currency" /></span>
+                                        <span class="text-lg font-bold text-gray-900">
+                                            <fmt:formatNumber value="${cp.final_price}" type="currency" />
+                                        </span>
                                         <c:if test="${cp.discount_percent > 0}">
-                                            <span class="text-sm text-gray-400 line-through ml-2"><fmt:formatNumber value="${cp.sell_price}" type="currency" /></span>
+                                            <span class="text-sm text-gray-400 line-through ml-2">
+                                                <fmt:formatNumber value="${cp.sell_price}" type="currency" />
+                                            </span>
                                         </c:if>
                                     </div>
+
                                     <div class="flex gap-2">
-                                        <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                            Mua ngay
-                                        </button>
-                                        <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                            Chi tiết
-                                        </button>
+                                        <c:choose>
+                                            <c:when test="${cp.stock_quantity <= 0}">
+                                                <button class="flex-1 bg-gray-300 text-gray-500 py-2 px-4 rounded-lg font-medium cursor-not-allowed" disabled>
+                                                    <i class="fa-solid fa-ban mr-1"></i>Hết hàng
+                                                </button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                                                    Mua ngay
+                                                </button>
+                                                <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                                                    Chi tiết
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                 </div>
                             </div>
@@ -198,12 +261,11 @@
             </div>
 
             <div class="py-12">
-                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Khách hàng nói gì về chúng tôi</h2>
                     <div class="space-y-4">
                         <c:forEach items="${cfList}" var="cf">
                             <div class="bg-white rounded-lg shadow-sm p-6">
-                                <!-- Header: Rating và Category -->
                                 <div class="flex items-center justify-between mb-3">
                                     <div class="flex gap-1">
                                         <c:forEach begin="1" end="${cf.rating}">
@@ -226,15 +288,12 @@
                                     </c:if>
                                 </div>
 
-                                <!-- Subject (nếu có) -->
                                 <c:if test="${not empty cf.subject}">
                                     <h4 class="font-semibold text-gray-900 mb-2">${cf.subject}</h4>
                                 </c:if>
 
-                                <!-- Content -->
                                 <p class="text-gray-700 mb-4 line-clamp-3">"${cf.content}"</p>
 
-                                <!-- Footer: Customer info và Date -->
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-100">
                                     <div>
                                         <p class="font-semibold text-gray-900">${cf.customerName}</p>
@@ -245,7 +304,6 @@
                                         </c:if>
                                     </div>
 
-                                    <!-- Verified badge (nếu đã mua hàng) -->
                                     <c:if test="${not empty cf.orderId}">
                                         <span class="flex items-center gap-1 text-xs text-green-600 font-medium">
                                             <i class="fa-solid fa-circle-check"></i>
@@ -254,7 +312,6 @@
                                     </c:if>
                                 </div>
 
-                                <!-- Admin Response (nếu có) -->
                                 <c:if test="${cf.isResponded and not empty cf.adminResponse}">
                                     <div class="mt-4 pl-4 border-l-2 border-blue-500 bg-blue-50 p-3 rounded">
                                         <p class="text-xs font-semibold text-blue-900 mb-1">Phản hồi từ Admin:</p>
@@ -276,6 +333,6 @@
         <jsp:include page="/layout/footer.jsp" />
 
         <jsp:include page="/layout/global-import-footer.jsp" />
-        <script src="/js/global-script.js"></script>
+        <script src="js/global-script.js"></script>
     </body>
 </html>
