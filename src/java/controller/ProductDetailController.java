@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -19,30 +20,30 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "ProductDetailController", urlPatterns = {"/products/detail"})
 public class ProductDetailController extends HttpServlet {
-    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         CardProductDAO dao = new CardProductDAO();
-        
+
         String productIdStr = request.getParameter("productId");
-        
+
         int productId = 0;
-        
+
         if (productIdStr != null && !productIdStr.isBlank()) {
             productId = Integer.parseInt(productIdStr);
         }
-        
+
         CardProductDetailDTO cp = dao.getCardProductDetail(productId);
-        
+
         request.setAttribute("cp", cp);
         request.getRequestDispatcher("/product-detail.jsp").forward(request, response);
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
     }
-    
+
 }

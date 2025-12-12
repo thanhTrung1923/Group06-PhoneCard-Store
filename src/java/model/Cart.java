@@ -11,9 +11,11 @@ package model;
 import java.time.LocalDateTime;
 
 public class Cart {
+
     private long cartId;
     private int userId; // Foreign Key
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Cart() {
     }
@@ -23,9 +25,16 @@ public class Cart {
         this.userId = userId;
         this.createdAt = createdAt;
     }
-    
-    // Getter & Setter methods go here
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    // Getter & Setter methods go here
     public long getCartId() {
         return cartId;
     }
@@ -49,5 +58,10 @@ public class Cart {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Cart{" + "cartId=" + cartId + ", userId=" + userId + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + '}';
+    }
+
 }
