@@ -20,7 +20,7 @@
 
         <div class="container mx-auto mb-10 mt-10 min-h-screen">
             <div class="mb-6 text-sm">
-                <span class="text-gray-600"><a href="home">Trang chủ</a></span>
+                <span class="text-gray-600"><a href="${pageContext.request.contextPath}/home">Trang chủ</a></span>
                 <span class="mx-2 text-gray-400">></span>
                 <span class="text-green-500 font-semibold">Danh sách sản phẩm</span>
             </div>
