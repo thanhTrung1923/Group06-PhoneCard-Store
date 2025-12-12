@@ -1,57 +1,43 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
+/**
+ *
+ * @author trung
+ */
 public class Card {
     
-    // Hằng số trạng thái (Mapping với ENUM trong Database)
-    // Giúp bạn code không bị sai chính tả: Card.STATUS_IN_STOCK
     public static final String STATUS_IN_STOCK = "IN_STOCK";
     public static final String STATUS_SOLD = "SOLD";
     public static final String STATUS_RESERVED = "RESERVED";
 
-    // Attributes (Khớp 1-1 với bảng 'cards')
-    private Long cardId;        // PK: BIGINT
-    private Integer productId;  // FK: INT (NOT NULL)
-    private Long batchId;       // FK: BIGINT (Nullable - có thể null nếu nhập lẻ)
-    
-    private String serial;      // VARCHAR(200)
-    private String code;        // TEXT
-    private Integer supplierId; // FK: INT
-    
-    private String status;      // ENUM -> String
-    
-    private Timestamp createdAt; // DATETIME
-    private Timestamp soldAt;    // DATETIME (Nullable)
+    private Long cardId;
+    private Integer productId;
+    private Long batchId;
+    private String serial;
+    private String code;
+    private Integer supplierId;
+    private String status; // IN_STOCK, SOLD, RESERVED
+    private LocalDateTime createdAt;
+    private LocalDateTime soldAt;
 
-    // 1. Constructor rỗng (Bắt buộc phải có)
     public Card() {
     }
-
-    // 2. Constructor dùng để tạo nhanh object khi đọc từ Excel (Chưa có ID)
-    public Card(Integer productId, String serial, String code, Integer supplierId, String status) {
+    
+    public Card(Integer productId, Integer supplierId, String serial, String code, String status) {
         this.productId = productId;
+        this.supplierId = supplierId;
         this.serial = serial;
         this.code = code;
-        this.supplierId = supplierId;
         this.status = status;
+        this.createdAt = LocalDateTime.now(); // Tự động lấy giờ hiện tại
     }
 
-    // 3. Constructor đầy đủ (Dùng khi SELECT từ DB lên)
-    public Card(Long cardId, Integer productId, Long batchId, String serial, String code, 
-                Integer supplierId, String status, Timestamp createdAt, Timestamp soldAt) {
-        this.cardId = cardId;
-        this.productId = productId;
-        this.batchId = batchId;
-        this.serial = serial;
-        this.code = code;
-        this.supplierId = supplierId;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.soldAt = soldAt;
-    }
-
-    // 4. Getters and Setters (Bắt buộc)
     public Long getCardId() {
         return cardId;
     }
@@ -108,25 +94,25 @@ public class Card {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getSoldAt() {
+    public LocalDateTime getSoldAt() {
         return soldAt;
     }
 
-    public void setSoldAt(Timestamp soldAt) {
+    public void setSoldAt(LocalDateTime soldAt) {
         this.soldAt = soldAt;
     }
 
-    // 5. toString() (Rất quan trọng để Debug, in ra log xem dữ liệu có đúng không)
     @Override
     public String toString() {
-        return "Card{" + "cardId=" + cardId + ", productId=" + productId + ", serial=" + serial + ", status=" + status + '}';
+        return "Card{" + "cardId=" + cardId + ", productId=" + productId + ", batchId=" + batchId + ", serial=" + serial + ", code=" + code + ", supplierId=" + supplierId + ", status=" + status + ", createdAt=" + createdAt + ", soldAt=" + soldAt + '}';
     }
+
 }

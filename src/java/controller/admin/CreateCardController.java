@@ -48,12 +48,7 @@ public class CreateCardController extends HttpServlet {
             String status = req.getParameter("status"); // IN_STOCK, RESERVED...
             
             // 2. Tạo đối tượng Card
-            Card c = new Card();
-            c.setProductId(productId);
-            c.setSupplierId(supplierId);
-            c.setSerial(serial);
-            c.setCode(code);
-            c.setStatus(status);
+            Card c = new Card(productId, supplierId, serial, code, status);
             
             // 3. Gọi DAO
             InventoryDAO dao = new InventoryDAO();

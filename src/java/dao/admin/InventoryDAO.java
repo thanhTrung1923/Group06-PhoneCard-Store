@@ -226,7 +226,7 @@ public class InventoryDAO {
 
             // Bước 1: Insert vào bảng cards
             // Lưu ý: batch_id để null vì tạo thủ công
-            String sqlCard = "INSERT INTO cards (product_id, supplier_id, serial, code, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+            String sqlCard = "INSERT INTO cards (product_id, supplier_id, serial, code, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
             psCard = conn.prepareStatement(sqlCard);
             
             psCard.setInt(1, card.getProductId());
@@ -234,6 +234,7 @@ public class InventoryDAO {
             psCard.setString(3, card.getSerial());
             psCard.setString(4, card.getCode());
             psCard.setString(5, card.getStatus()); // Thường là 'IN_STOCK'
+            psCard.setObject(6, card.getCreatedAt());
             
             int rows = psCard.executeUpdate();
             if (rows == 0) throw new SQLException("Insert card failed.");
@@ -260,6 +261,5 @@ public class InventoryDAO {
         }
         return isSuccess;
     }
-    
     
 }
