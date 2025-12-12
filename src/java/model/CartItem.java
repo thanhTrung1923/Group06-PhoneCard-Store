@@ -4,52 +4,61 @@
  */
 package model;
 
-import java.math.BigDecimal;
-
 /**
  *
- * @author trung
+ * @author ADMIN
  */
-public class CartItem {
+import java.math.BigDecimal;
 
-    private Long itemId;
-    private Long cartId;
-    private Integer productId;
-    private Integer quantity;
+public class CartItem {
+    private long itemId;
+    private long cartId; // Foreign Key
+    private int inventoryId; // Foreign Key
+    private int quantity;
     private BigDecimal unitPrice;
 
     public CartItem() {
     }
 
-    public Long getItemId() {
+    public CartItem(long itemId, long cartId, int inventoryId, int quantity, BigDecimal unitPrice) {
+        this.itemId = itemId;
+        this.cartId = cartId;
+        this.inventoryId = inventoryId;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+    }
+    
+    // Getter & Setter methods go here
+
+    public long getItemId() {
         return itemId;
     }
 
-    public void setItemId(Long itemId) {
+    public void setItemId(long itemId) {
         this.itemId = itemId;
     }
 
-    public Long getCartId() {
+    public long getCartId() {
         return cartId;
     }
 
-    public void setCartId(Long cartId) {
+    public void setCartId(long cartId) {
         this.cartId = cartId;
     }
 
-    public Integer getProductId() {
-        return productId;
+    public int getInventoryId() {
+        return inventoryId;
     }
 
-    public void setProductId(Integer productId) {
-        this.productId = productId;
+    public void setInventoryId(int inventoryId) {
+        this.inventoryId = inventoryId;
     }
 
-    public Integer getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
@@ -60,10 +69,5 @@ public class CartItem {
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
-
-    @Override
-    public String toString() {
-        return "CartItem{" + "itemId=" + itemId + ", cartId=" + cartId + ", productId=" + productId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + '}';
-    }
-
+    
 }

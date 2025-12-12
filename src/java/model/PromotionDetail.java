@@ -4,44 +4,52 @@
  */
 package model;
 
-import java.math.BigDecimal;
-
 /**
  *
- * @author trung
+ * @author ADMIN
  */
-public class PromotionDetail {
+import java.math.BigDecimal;
 
-    private Long detailId;
-    private Integer promotionId;
-    private Integer productId;
+public class PromotionDetail {
+    private long detailId;
+    private int promotionId; // Foreign Key
+    private int cardTypeId; // Foreign Key
     private BigDecimal discountPercent;
 
     public PromotionDetail() {
     }
 
-    public Long getDetailId() {
+    public PromotionDetail(long detailId, int promotionId, int cardTypeId, BigDecimal discountPercent) {
+        this.detailId = detailId;
+        this.promotionId = promotionId;
+        this.cardTypeId = cardTypeId;
+        this.discountPercent = discountPercent;
+    }
+    
+    // Getter & Setter methods go here
+
+    public long getDetailId() {
         return detailId;
     }
 
-    public void setDetailId(Long detailId) {
+    public void setDetailId(long detailId) {
         this.detailId = detailId;
     }
 
-    public Integer getPromotionId() {
+    public int getPromotionId() {
         return promotionId;
     }
 
-    public void setPromotionId(Integer promotionId) {
+    public void setPromotionId(int promotionId) {
         this.promotionId = promotionId;
     }
 
-    public Integer getProductId() {
-        return productId;
+    public int getCardTypeId() {
+        return cardTypeId;
     }
 
-    public void setProductId(Integer productId) {
-        this.productId = productId;
+    public void setCardTypeId(int cardTypeId) {
+        this.cardTypeId = cardTypeId;
     }
 
     public BigDecimal getDiscountPercent() {
@@ -51,10 +59,5 @@ public class PromotionDetail {
     public void setDiscountPercent(BigDecimal discountPercent) {
         this.discountPercent = discountPercent;
     }
-
-    @Override
-    public String toString() {
-        return "PromotionDetail{" + "detailId=" + detailId + ", promotionId=" + promotionId + ", productId=" + productId + ", discountPercent=" + discountPercent + '}';
-    }
-
+    
 }

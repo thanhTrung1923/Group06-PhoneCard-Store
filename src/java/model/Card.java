@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
  * @author trung
  */
 public class Card {
+    
+    public static final String STATUS_IN_STOCK = "IN_STOCK";
+    public static final String STATUS_SOLD = "SOLD";
+    public static final String STATUS_RESERVED = "RESERVED";
 
     private Long cardId;
     private Integer productId;
@@ -23,6 +27,15 @@ public class Card {
     private LocalDateTime soldAt;
 
     public Card() {
+    }
+    
+    public Card(Integer productId, Integer supplierId, String serial, String code, String status) {
+        this.productId = productId;
+        this.supplierId = supplierId;
+        this.serial = serial;
+        this.code = code;
+        this.status = status;
+        this.createdAt = LocalDateTime.now(); // Tự động lấy giờ hiện tại
     }
 
     public Long getCardId() {

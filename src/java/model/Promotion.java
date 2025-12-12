@@ -4,32 +4,41 @@
  */
 package model;
 
-import java.time.LocalDateTime;
-
 /**
  *
- * @author trung
+ * @author ADMIN
  */
-public class Promotion {
+import java.time.LocalDateTime;
 
-    private Integer promotionId;
+public class Promotion {
+    private int promotionId;
     private String promotionName;
-    private String description;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
-    private Boolean isActive;
+    private boolean isActive;
     private String bannerUrl;
     private LocalDateTime createdAt;
-    private Integer createdBy;
 
     public Promotion() {
     }
 
-    public Integer getPromotionId() {
+    public Promotion(int promotionId, String promotionName, LocalDateTime startAt, LocalDateTime endAt, boolean isActive, String bannerUrl, LocalDateTime createdAt) {
+        this.promotionId = promotionId;
+        this.promotionName = promotionName;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.isActive = isActive;
+        this.bannerUrl = bannerUrl;
+        this.createdAt = createdAt;
+    }
+    
+    // Getter & Setter methods go here
+
+    public int getPromotionId() {
         return promotionId;
     }
 
-    public void setPromotionId(Integer promotionId) {
+    public void setPromotionId(int promotionId) {
         this.promotionId = promotionId;
     }
 
@@ -39,14 +48,6 @@ public class Promotion {
 
     public void setPromotionName(String promotionName) {
         this.promotionName = promotionName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public LocalDateTime getStartAt() {
@@ -65,11 +66,11 @@ public class Promotion {
         this.endAt = endAt;
     }
 
-    public Boolean getIsActive() {
+    public boolean isIsActive() {
         return isActive;
     }
 
-    public void setIsActive(Boolean isActive) {
+    public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 
@@ -88,18 +89,5 @@ public class Promotion {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-    public Integer getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Integer createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    @Override
-    public String toString() {
-        return "Promotion{" + "promotionId=" + promotionId + ", promotionName=" + promotionName + ", description=" + description + ", startAt=" + startAt + ", endAt=" + endAt + ", isActive=" + isActive + ", bannerUrl=" + bannerUrl + ", createdAt=" + createdAt + ", createdBy=" + createdBy + '}';
-    }
-
+    
 }
