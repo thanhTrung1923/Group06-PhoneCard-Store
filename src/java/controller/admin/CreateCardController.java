@@ -40,33 +40,50 @@ public class CreateCardController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         try {
-            // 1. Lấy dữ liệu từ Form
-            int productId = Integer.parseInt(req.getParameter("product_id"));
-            int supplierId = Integer.parseInt(req.getParameter("supplier_id"));
+            // 1. Lấy dữ liệu
+            String productIdStr = req.getParameter("product_id");
+            String supplierIdStr = req.getParameter("supplier_id");
             String serial = req.getParameter("serial");
             String code = req.getParameter("code");
-            String status = req.getParameter("status"); // IN_STOCK, RESERVED...
+            String status = req.getParameter("status");
+
+            // --- [FIX] VALIDATE DỮ LIỆU ĐẦU VÀO ---
             
-            // 2. Tạo đối tượng Card
-            Card c = new Card(productId, supplierId, serial, code, status);
+            // Check rỗng
+            if (serial == null || serial.trim().isEmpty() || code == null || code.trim().isEmpty()) {
+                throw new Exception("Serial và Mã thẻ không được để trống!");
+            }
             
-            // 3. Gọi DAO
+            // Check độ dài (Ví dụ: Serial phải > 5 ký tự)
+            if (serial.trim().length() < 5 || code.trim().length() < 5) {
+                throw new Exception("Serial hoặc Mã thẻ quá ngắn (Yêu cầu > 5 ký tự)!");
+            }
+            
+            // Check số (Product ID và Supplier ID phải là số)
+            int productId = Integer.parseInt(productIdStr);
+            int supplierId = Integer.parseInt(supplierIdStr);
+
+            // --- HẾT PHẦN VALIDATE ---
+
+            Card c = new Card(productId, supplierId, serial.trim(), code.trim(), status);
+            
             InventoryDAO dao = new InventoryDAO();
             boolean success = dao.createCardManual(c);
             
             if (success) {
-                String msg = "Tạo mới thẻ thành công!";
+                String msg = "Tạo thẻ thành công!";
                 resp.sendRedirect(req.getContextPath() + "/admin/inventory?message=" + URLEncoder.encode(msg, StandardCharsets.UTF_8));
             } else {
-                req.setAttribute("error", "Lỗi: Không thể lưu vào Database.");
-                // Nếu lỗi thì giữ lại trang hiện tại và load lại list để không bị trắng trang
+                req.setAttribute("error", "Lỗi: Không thể lưu vào Database (Có thể trùng Serial).");
                 doGet(req, resp); 
             }
             
+        } catch (NumberFormatException e) {
+            req.setAttribute("error", "Lỗi: Vui lòng chọn Sản phẩm và Nhà cung cấp hợp lệ.");
+            doGet(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
-            // Quay lại trang form và báo lỗi
-            req.setAttribute("error", "Lỗi hệ thống: " + e.getMessage());
+            req.setAttribute("error", "Lỗi: " + e.getMessage());
             doGet(req, resp);
         }
     }
