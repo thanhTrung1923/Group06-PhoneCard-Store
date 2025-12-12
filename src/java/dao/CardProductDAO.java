@@ -630,5 +630,90 @@ public class CardProductDAO {
         
         return cp;
     }
-    
+    public CardProduct getProductById(int id) {
+        String sql = "SELECT * FROM card_products WHERE product_id = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                CardProduct p = new CardProduct();
+                // Map dữ liệu (Copy lại đoạn set bên getAll để đỡ gõ lại)
+                p.setProductId(rs.getInt("product_id"));
+                p.setTypeCode(rs.getString("type_code"));
+                p.setTypeName(rs.getString("type_name"));
+                p.setValue(rs.getLong("value"));
+                p.setQuantity(rs.getInt("quantity"));
+                p.setMinStockAlert(rs.getInt("min_stock_alert"));
+                p.setBuyPrice(rs.getBigDecimal("buy_price"));
+                p.setSellPrice(rs.getBigDecimal("sell_price"));
+                p.setImgUrl(rs.getString("img_url"));
+                p.setThumbnailUrl(rs.getString("thumbnail_url"));
+                p.setDescription(rs.getString("description"));
+                p.setIsActive(rs.getBoolean("is_active"));
+                p.setAllowDiscount(rs.getBoolean("allow_discount"));
+                return p;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+    public void insertProduct(CardProduct p) {
+        String sql = "INSERT INTO card_products (type_code, type_name, value, quantity, min_stock_alert, "
+                   + "buy_price, sell_price, img_url, thumbnail_url, description, is_active, allow_discount) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, p.getTypeCode());
+            ps.setString(2, p.getTypeName());
+            ps.setLong(3, p.getValue());
+            ps.setInt(4, p.getQuantity());
+            ps.setInt(5, p.getMinStockAlert());
+            ps.setBigDecimal(6, p.getBuyPrice());
+            ps.setBigDecimal(7, p.getSellPrice());
+            ps.setString(8, p.getImgUrl());
+            ps.setString(9, p.getThumbnailUrl());
+            ps.setString(10, p.getDescription());
+            ps.setBoolean(11, p.isIsActive());
+            ps.setBoolean(12, p.isAllowDiscount());
+            
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 3. Cập nhật sản phẩm
+    public void updateProduct(CardProduct p) {
+        String sql = "UPDATE card_products SET type_code=?, type_name=?, value=?, quantity=?, min_stock_alert=?, "
+                   + "buy_price=?, sell_price=?, img_url=?, thumbnail_url=?, description=?, is_active=?, allow_discount=?, updated_at=NOW() "
+                   + "WHERE product_id=?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, p.getTypeCode());
+            ps.setString(2, p.getTypeName());
+            ps.setLong(3, p.getValue());
+            ps.setInt(4, p.getQuantity());
+            ps.setInt(5, p.getMinStockAlert());
+            ps.setBigDecimal(6, p.getBuyPrice());
+            ps.setBigDecimal(7, p.getSellPrice());
+            ps.setString(8, p.getImgUrl());
+            ps.setString(9, p.getThumbnailUrl());
+            ps.setString(10, p.getDescription());
+            ps.setBoolean(11, p.isIsActive());
+            ps.setBoolean(12, p.isAllowDiscount());
+            ps.setInt(13, p.getProductId()); // ID nằm cuối câu lệnh WHERE
+            
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    // 4. Xóa sản phẩm
+    public void deleteProduct(int id) {
+        String sql = "DELETE FROM card_products WHERE product_id = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
 }
