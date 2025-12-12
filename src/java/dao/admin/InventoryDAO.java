@@ -63,16 +63,44 @@ public class InventoryDAO {
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count " +
             "FROM card_products p WHERE p.is_active = 1 ");
 
-        if (keyword != null && !keyword.isEmpty()) sql.append("AND p.type_name LIKE ? ");
-        if (type != null && !type.isEmpty()) sql.append("AND p.type_code = ? ");
+        // 1. Filter Keyword (Tên hoặc ID)
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
+        }
+        // 2. Filter Type (Viettel, Vina...)
+        if (type != null && !type.isEmpty()) {
+            sql.append("AND p.type_name = ? "); // Lưu ý: DB bạn dùng type_name hay type_code thì sửa lại cho khớp
+        }
+        
+        // 3. [FIX] Filter Status (Logic phức tạp)
+        if (status != null && !status.isEmpty()) {
+            switch (status) {
+                case "OUT": // Hết hàng
+                    sql.append("AND p.quantity = 0 ");
+                    break;
+                case "LOW": // Sắp hết (Còn hàng nhưng dưới mức báo động)
+                    sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert ");
+                    break;
+                case "OK": // Sẵn sàng (Trên mức báo động)
+                    sql.append("AND p.quantity > p.min_stock_alert ");
+                    break;
+            }
+        }
         
         sql.append("ORDER BY p.type_name, p.value");
 
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
             int index = 1;
-            if (keyword != null && !keyword.isEmpty()) ps.setString(index++, "%" + keyword + "%");
-            if (type != null && !type.isEmpty()) ps.setString(index++, type);
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+                ps.setString(index++, "%" + keyword + "%"); // Set 2 lần cho 2 dấu ? của OR
+            }
+            if (type != null && !type.isEmpty()) {
+                ps.setString(index++, type);
+            }
+            // Status không dùng tham số ? mà nối chuỗi trực tiếp nên không cần setString ở đây
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -86,7 +114,9 @@ public class InventoryDAO {
                     list.add(dto);
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
