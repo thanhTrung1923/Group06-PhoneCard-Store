@@ -95,7 +95,7 @@
 
                                 <div class="p-4">
                                     <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-yellow-400">⭐</span>
+                                        <i class="fa-solid fa-star text-yellow-400"></i>
                                         <span class="font-semibold">${cp.avg_rating}</span>
                                         <span class="text-gray-400">•</span>
                                         <span class="text-sm text-gray-600">Đã bán ${cp.total_sold}</span>

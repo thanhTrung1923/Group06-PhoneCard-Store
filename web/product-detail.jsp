@@ -43,14 +43,14 @@
                             </c:if>
                         </div>
 
-                        <div class="grid grid-cols-4 gap-3">
-                            <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-500 cursor-pointer">
-                                <img src="${not empty cp.img_url ? cp.img_url : cp.thumbnail_url}" class="w-full h-full object-cover">
-                            </div>
-                            <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-transparent hover:border-gray-300 cursor-pointer">
-                                <img src="${not empty cp.thumbnail_url ? cp.thumbnail_url : cp.img_url}" class="w-full h-full object-cover">
-                            </div>
-                        </div>
+                        <!--                        <div class="grid grid-cols-4 gap-3">
+                                                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-blue-500 cursor-pointer">
+                                                        <img src="${not empty cp.img_url ? cp.img_url : cp.thumbnail_url}" class="w-full h-full object-cover">
+                                                    </div>
+                                                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-transparent hover:border-gray-300 cursor-pointer">
+                                                        <img src="${not empty cp.thumbnail_url ? cp.thumbnail_url : cp.img_url}" class="w-full h-full object-cover">
+                                                    </div>
+                                                </div>-->
                     </div>
 
                     <div class="space-y-6">
@@ -192,10 +192,10 @@
 
                 <div class="border-t border-gray-200">
                     <div class="flex border-b border-gray-200">
-                        <button class="px-8 py-4 font-semibold text-blue-600 border-b-2 border-blue-600">
+                        <button class="tab-button px-8 py-4 font-semibold text-blue-600 border-b-2 border-blue-600 transition-colors">
                             <i class="fas fa-info-circle mr-2"></i>Mô tả sản phẩm
                         </button>
-                        <button class="px-8 py-4 font-semibold text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition-colors">
+                        <button class="tab-button px-8 py-4 font-semibold text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition-colors">
                             <i class="fas fa-star mr-2"></i>Đánh giá 
                             <c:if test="${cp.review_count > 0}">
                                 (${cp.review_count})
@@ -203,7 +203,7 @@
                         </button>
                     </div>
 
-                    <div class="p-8 space-y-6">
+                    <div class="tab-content p-8 space-y-6">
                         <div>
                             <h3 class="text-xl font-bold text-gray-900 mb-4">Thông tin chi tiết</h3>
                             <div class="prose prose-blue max-w-none text-gray-700 leading-relaxed">
@@ -265,6 +265,50 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="tab-content hidden p-8">
+                        <div class="bg-gradient-to-br from-green-50 to-green-200 rounded-xl p-6 mb-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Đánh giá từ khách hàng</h3>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex">
+                                            <c:forEach begin="1" end="5">
+                                                <i class="fas fa-star text-yellow-400 text-lg"></i>
+                                            </c:forEach>
+                                        </div>
+                                        <span class="text-2xl font-bold text-gray-900">${cp.avg_rating > 0 ? cp.avg_rating : '0.0'}</span>
+                                        <span class="text-gray-600">/ 5.0</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">${cp.review_count} đánh giá</p>
+                                </div>
+                                <div class="text-right">
+                                    <i class="fas fa-comments text-5xl text-yellow-400 opacity-20"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="feedback-list" class="space-y-4 mb-6">
+                        </div>
+
+                        <div id="loading-spinner" class="hidden text-center py-8">
+                            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                            <p class="text-gray-600 mt-3">Đang tải đánh giá...</p>
+                        </div>
+
+                        <div id="no-feedback-msg" class="hidden text-center py-12">
+                            <i class="fas fa-comment-slash text-6xl text-gray-300 mb-4"></i>
+                            <h4 class="text-xl font-semibold text-gray-900 mb-2">Chưa có đánh giá</h4>
+                            <p class="text-gray-600">Sản phẩm này chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
+                        </div>
+
+                        <div class="text-center">
+                            <button id="load-more-btn" class="hidden px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-300 shadow-sm hover:shadow-md">
+                                <i class="fas fa-chevron-down mr-2"></i>
+                                Xem thêm đánh giá
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -274,7 +318,6 @@
         <jsp:include page="/layout/global-import-footer.jsp" />
         <script src="${pageContext.request.contextPath}/js/global-script.js"></script>
         <script>
-            // Quantity buttons functionality
             const quantityInput = document.getElementById('quantity-input');
             const btnDecrease = document.getElementById('btn-decrease');
             const btnIncrease = document.getElementById('btn-increase');
@@ -306,6 +349,238 @@
                     } else if (value > maxValue) {
                         this.value = maxValue;
                     }
+                });
+            }
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            let currentPage = 1;
+            let isLoading = false;
+            let hasMoreFeedbacks = true;
+
+            tabButtons.forEach((button, index) => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+                        btn.classList.add('text-gray-600', 'hover:text-blue-600', 'hover:bg-gray-50');
+                    });
+
+                    button.classList.remove('text-gray-600', 'hover:text-blue-600', 'hover:bg-gray-50');
+                    button.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+
+                    tabContents[index].classList.remove('hidden');
+
+                    if (index === 1 && currentPage === 1) {
+                        loadFeedbacks();
+                    }
+                });
+            });
+
+            function getProductId() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('productId');
+            }
+
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 0) {
+                    return 'Hôm nay';
+                } else if (diffDays === 1) {
+                    return 'Hôm qua';
+                } else if (diffDays < 7) {
+                    return diffDays + ' ngày trước';
+                } else {
+                    return date.toLocaleDateString('vi-VN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                }
+            }
+
+            function renderStars(rating) {
+                let html = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rating) {
+                        html += '<i class="fa-solid fa-star text-yellow-400"></i>';
+                    } else {
+                        html += '<i class="fa-solid fa-star text-gray-300"></i>';
+                    }
+                }
+                return html;
+            }
+
+            function getCategoryLabel(category) {
+                const labels = {
+                    'SERVICE': 'Dịch vụ',
+                    'PRODUCT': 'Sản phẩm',
+                    'WEBSITE': 'Website',
+                    'DELIVERY': 'Giao hàng'
+                };
+                return labels[category] || 'Khác';
+            }
+
+            function renderFeedback(feedback) {
+                let html = '<div class="bg-white rounded-lg shadow-md p-6">';
+
+                html += '<div class="flex items-center justify-between mb-3">';
+                html += '<div class="flex gap-1">' + renderStars(feedback.rating) + '</div>';
+                if (feedback.category) {
+                    html += '<span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">';
+                    html += getCategoryLabel(feedback.category);
+                    html += '</span>';
+                }
+                html += '</div>';
+
+                if (feedback.subject) {
+                    html += '<h4 class="font-semibold text-gray-900 mb-2">' + escapeHtml(feedback.subject) + '</h4>';
+                }
+
+                html += '<p class="text-gray-700 mb-4 line-clamp-3">"' + escapeHtml(feedback.content) + '"</p>';
+
+                html += '<div class="flex items-center justify-between pt-3 border-t border-gray-100">';
+                html += '<div>';
+                html += '<p class="font-semibold text-gray-900">' + escapeHtml(feedback.customerName) + '</p>';
+                if (feedback.createdAt) {
+                    html += '<p class="text-xs text-gray-500 mt-1">' + formatDate(feedback.createdAt) + '</p>';
+                }
+                html += '</div>';
+
+                if (feedback.orderId) {
+                    html += '<span class="flex items-center gap-1 text-xs text-green-600 font-medium">';
+                    html += '<i class="fa-solid fa-circle-check"></i>';
+                    html += 'Đã mua hàng';
+                    html += '</span>';
+                }
+                html += '</div>';
+
+                if (feedback.isResponded && feedback.adminResponse) {
+                    html += '<div class="mt-4 pl-4 border-l-2 border-blue-500 bg-blue-50 p-3 rounded">';
+                    html += '<p class="text-xs font-semibold text-blue-900 mb-1">Phản hồi từ Admin:</p>';
+                    html += '<p class="text-sm text-gray-700">' + escapeHtml(feedback.adminResponse) + '</p>';
+                    if (feedback.respondedAt) {
+                        html += '<p class="text-xs text-gray-500 mt-2">' + formatDate(feedback.respondedAt) + '</p>';
+                    }
+                    html += '</div>';
+                }
+
+                html += '</div>';
+                return html;
+            }
+
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
+            }
+
+            async function loadFeedbacks(append = false) {
+                if (isLoading || (!hasMoreFeedbacks && append))
+                    return;
+
+                const productId = getProductId();
+                if (!productId) {
+                    console.error('Product ID not found');
+                    return;
+                }
+
+                const feedbackList = document.getElementById('feedback-list');
+                const loadMoreBtn = document.getElementById('load-more-btn');
+                const loadingSpinner = document.getElementById('loading-spinner');
+                const noFeedbackMsg = document.getElementById('no-feedback-msg');
+
+                isLoading = true;
+
+                if (append && loadMoreBtn) {
+                    loadMoreBtn.classList.add('hidden');
+                }
+                if (loadingSpinner) {
+                    loadingSpinner.classList.remove('hidden');
+                }
+
+                try {
+                    const contextPath = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
+                    const apiUrl = window.location.origin + contextPath + '/product/feedbacks?productId=' + productId + '&page=' + currentPage;
+
+                    const response = await fetch(apiUrl);
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch feedbacks');
+                    }
+
+                    const result = await response.json();
+
+                    if (result.status === 200 && result.data) {
+                        const feedbacks = result.data;
+
+                        if (feedbacks.length === 0) {
+                            hasMoreFeedbacks = false;
+                            if (!append && noFeedbackMsg) {
+                                noFeedbackMsg.classList.remove('hidden');
+                            }
+                            if (loadMoreBtn) {
+                                loadMoreBtn.classList.add('hidden');
+                            }
+                        } else {
+                            let feedbacksHTML = '';
+                            for (let i = 0; i < feedbacks.length; i++) {
+                                feedbacksHTML += renderFeedback(feedbacks[i]);
+                            }
+
+                            if (append) {
+                                feedbackList.insertAdjacentHTML('beforeend', feedbacksHTML);
+                            } else {
+                                feedbackList.innerHTML = feedbacksHTML;
+                            }
+
+                            if (noFeedbackMsg) {
+                                noFeedbackMsg.classList.add('hidden');
+                            }
+
+                            if (feedbacks.length === 10 && loadMoreBtn) {
+                                loadMoreBtn.classList.remove('hidden');
+                            } else {
+                                hasMoreFeedbacks = false;
+                                if (loadMoreBtn) {
+                                    loadMoreBtn.classList.add('hidden');
+                                }
+                            }
+
+                            currentPage++;
+                        }
+                    } else {
+                        console.error('Error:', result.message);
+                        alert('Không thể tải đánh giá. Vui lòng thử lại sau!');
+                    }
+                } catch (error) {
+                    console.error('Error loading feedbacks:', error);
+                    alert('Đã có lỗi xảy ra khi tải đánh giá!');
+                } finally {
+                    isLoading = false;
+                    if (loadingSpinner) {
+                        loadingSpinner.classList.add('hidden');
+                    }
+            }
+            }
+
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', () => {
+                    loadFeedbacks(true);
                 });
             }
         </script>
