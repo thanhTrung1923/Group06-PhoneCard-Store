@@ -12,7 +12,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Trang chủ</title>
         <jsp:include page="/layout/global-import-header.jsp" />
     </head>
     <body class="bg-gray-50">
@@ -84,7 +84,7 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-2xl font-bold text-gray-900">Được mua nhiều nhất</h2>
-                        <a href="products" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
+                        <a href="${pageContext.request.contextPath}/products?orderBy=sold&orderType=desc" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
                             Xem tất cả
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -157,8 +157,8 @@
                                                 <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
                                                     Mua ngay
                                                 </button>
-                                                <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                                    Chi tiết
+                                                <button type="button" class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                                                    <a href="${pageContext.request.contextPath}/products/detail?productId=${cp.product_id}">Chi tiết</a>
                                                 </button>
                                             </c:otherwise>
                                         </c:choose>
@@ -174,7 +174,7 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-2xl font-bold text-gray-900">Phản hồi tốt nhất</h2>
-                        <a href="products" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
+                        <a href="${pageContext.request.contextPath}/products?orderBy=rating&orderType=desc" class="text-gray-900 font-medium flex items-center gap-2 hover:text-green-600">
                             Xem tất cả
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -247,8 +247,8 @@
                                                 <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
                                                     Mua ngay
                                                 </button>
-                                                <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                                    Chi tiết
+                                                <button type="button" class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                                                    <a href="${pageContext.request.contextPath}/products/detail?productId=${cp.product_id}">Chi tiết</a>
                                                 </button>
                                             </c:otherwise>
                                         </c:choose>
@@ -333,6 +333,6 @@
         <jsp:include page="/layout/footer.jsp" />
 
         <jsp:include page="/layout/global-import-footer.jsp" />
-        <script src="js/global-script.js"></script>
+        <script src="${pageContext.request.contextPath}/js/global-script.js"></script>
     </body>
 </html>

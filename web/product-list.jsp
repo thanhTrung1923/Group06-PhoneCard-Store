@@ -12,7 +12,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Danh sách sản phẩm</title>
         <jsp:include page="/layout/global-import-header.jsp" />
     </head>
     <body>
@@ -26,7 +26,7 @@
             </div>
 
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <form action="products">
+                <form action="${pageContext.request.contextPath}/products">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <input name="typeName" type="text" value="${typeName}" placeholder="Tìm kiếm theo tên" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                         <input name="typeCode" type="text" value="${typeCode}" placeholder="Tìm kiếm theo loại" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
@@ -51,7 +51,7 @@
                         <button class="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors">
                             <i class="fa-solid fa-filter mr-2"></i>Lọc
                         </button>
-                        <a href="products" class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors cursor-pointer">
+                        <a href="${pageContext.request.contextPath}/products" class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors cursor-pointer">
                             <i class="fa-solid fa-times mr-2"></i>Xoá Lọc
                         </a>
                     </div>
@@ -125,8 +125,8 @@
                                                 <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
                                                     Mua ngay
                                                 </button>
-                                                <button class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                                                    Chi tiết
+                                                <button type="button" class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                                                    <a href="${pageContext.request.contextPath}/products/detail?productId=${cp.product_id}">Chi tiết</a>
                                                 </button>
                                             </c:otherwise>
                                         </c:choose>
@@ -161,6 +161,6 @@
         <jsp:include page="/layout/footer.jsp" />
 
         <jsp:include page="/layout/global-import-footer.jsp" />
-        <script src="/js/global-script.js"></script>
+        <script src="${pageContext.request.contextPath}/js/global-script.js"></script>
     </body>
 </html>

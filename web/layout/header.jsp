@@ -20,10 +20,10 @@
             </div>
 
             <nav class="hidden md:flex items-center gap-8">
-                <a href="home" class="text-gray-700 ${headerActive == 'home' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Trang chủ</a>
-                <a href="products" class="text-gray-700 ${headerActive == 'products' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Sản phẩm</a>
-                <a href="news" class="text-gray-700 ${headerActive == 'news' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Bài viết</a>
-                <a href="ticket" class="text-gray-700 ${headerActive == 'ticket' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Ticket Hỗ trợ</a>
+                <a href="${pageContext.request.contextPath}/home" class="text-gray-700 ${headerActive == 'home' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Trang chủ</a>
+                <a href="${pageContext.request.contextPath}/products" class="text-gray-700 ${headerActive == 'products' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Sản phẩm</a>
+                <a href="${pageContext.request.contextPath}/news" class="text-gray-700 ${headerActive == 'news' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Bài viết</a>
+                <a href="${pageContext.request.contextPath}/ticket" class="text-gray-700 ${headerActive == 'ticket' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Ticket Hỗ trợ</a>
             </nav>
 
             <div class="flex items-center gap-4">
