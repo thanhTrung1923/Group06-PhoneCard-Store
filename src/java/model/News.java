@@ -6,32 +6,37 @@ package model;
 
 /**
  *
- * @author trung
+ * @author ADMIN
  */
 import java.time.LocalDateTime;
 
 public class News {
-
-    private Integer newsId;
+    private int newsId;
     private String title;
     private String slug;
     private String content;
     private String thumbnailUrl;
-    private Integer authorId;
-    private Boolean isPublished;
-    private Integer viewCount;
-    private LocalDateTime publishedAt;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public News() {
     }
 
-    public Integer getNewsId() {
+    public News(int newsId, String title, String slug, String content, String thumbnailUrl, LocalDateTime createdAt) {
+        this.newsId = newsId;
+        this.title = title;
+        this.slug = slug;
+        this.content = content;
+        this.thumbnailUrl = thumbnailUrl;
+        this.createdAt = createdAt;
+    }
+    
+    // Getter & Setter methods go here
+
+    public int getNewsId() {
         return newsId;
     }
 
-    public void setNewsId(Integer newsId) {
+    public void setNewsId(int newsId) {
         this.newsId = newsId;
     }
 
@@ -67,38 +72,6 @@ public class News {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public Integer getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(Integer authorId) {
-        this.authorId = authorId;
-    }
-
-    public Boolean getIsPublished() {
-        return isPublished;
-    }
-
-    public void setIsPublished(Boolean isPublished) {
-        this.isPublished = isPublished;
-    }
-
-    public Integer getViewCount() {
-        return viewCount;
-    }
-
-    public void setViewCount(Integer viewCount) {
-        this.viewCount = viewCount;
-    }
-
-    public LocalDateTime getPublishedAt() {
-        return publishedAt;
-    }
-
-    public void setPublishedAt(LocalDateTime publishedAt) {
-        this.publishedAt = publishedAt;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -106,18 +79,5 @@ public class News {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    @Override
-    public String toString() {
-        return "News{" + "newsId=" + newsId + ", title=" + title + ", slug=" + slug + ", content=" + content + ", thumbnailUrl=" + thumbnailUrl + ", authorId=" + authorId + ", isPublished=" + isPublished + ", viewCount=" + viewCount + ", publishedAt=" + publishedAt + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + '}';
-    }
-
+    
 }
