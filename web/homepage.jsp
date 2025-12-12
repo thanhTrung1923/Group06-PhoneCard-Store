@@ -42,10 +42,8 @@
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Nạp siêu tốc</h3>
                                 <p class="text-gray-600 text-sm">Giao dịch tự động trong vòng 30s</p>
                             </div>
-                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
-                                </svg>
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-bolt text-green-600"></i>
                             </div>
                         </div>
                     </div>
@@ -53,13 +51,11 @@
                     <div class="bg-white rounded-2xl shadow-sm p-8 hover:shadow-md transition-shadow">
                         <div class="flex items-start justify-between mb-4">
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">Bảo mật cao</h3>
-                                <p class="text-gray-600 text-sm">Mã hoá thông tin, đảm bảo an toàn</p>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Cam kết chính hãng</h3>
+                                <p class="text-gray-600 text-sm">100% thẻ thật</p>
                             </div>
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                </svg>
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-shield text-blue-600"></i>
                             </div>
                         </div>
                     </div>
@@ -70,10 +66,8 @@
                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Hỗ trợ 24/7</h3>
                                 <p class="text-gray-600 text-sm">Luôn sẵn sàng hỗ trợ mọi lúc mọi nơi</p>
                             </div>
-                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                </svg>
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-headset text-purple-600"></i>
                             </div>
                         </div>
                     </div>

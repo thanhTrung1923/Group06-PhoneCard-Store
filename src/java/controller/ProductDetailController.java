@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dao.CardProductDAO;
+import dtos.CardProductDetailDTO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,10 +23,19 @@ public class ProductDetailController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        CardProductDAO dao = new CardProductDAO();
+        
         String productIdStr = request.getParameter("productId");
         
+        int productId = 0;
         
+        if (productIdStr != null && !productIdStr.isBlank()) {
+            productId = Integer.parseInt(productIdStr);
+        }
         
+        CardProductDetailDTO cp = dao.getCardProductDetail(productId);
+        
+        request.setAttribute("cp", cp);
         request.getRequestDispatcher("/product-detail.jsp").forward(request, response);
     }
     
