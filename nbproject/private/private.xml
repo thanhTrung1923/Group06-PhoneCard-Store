@@ -3,18 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/web/WEB-INF/web.xml</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/ChangePasswordController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/model/CardDenomination.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/LogoutController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/AdminUserListController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/web/change-password.jsp</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/dao/DBConnect.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/LoginController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/OrderHistoryController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/model/CartItem.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/model/User.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/RegisterController.java</file>
+            <file>file:/B:/Project%20SWP391/Group06-PhoneCard-Store/src/java/model/CardProduct.java</file>
         </group>
     </open-files>
 </project-private>
