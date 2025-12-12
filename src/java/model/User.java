@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -13,6 +14,7 @@ import java.util.List;
  * @author ADMIN
  */
 public class User {
+
     private Integer userId;
     private String email;
     private String phone;
@@ -38,18 +40,20 @@ public class User {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-public List<String> getRoles() {
+
+    public List<String> getRoles() {
         return roles;
     }
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
     }
-    
+
     // Hàm tiện ích để add role nhanh
     public void addRole(String roleName) {
         this.roles.add(roleName);
     }
+
     public Integer getUserId() {
         return userId;
     }
@@ -121,5 +125,5 @@ public List<String> getRoles() {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    
+
 }

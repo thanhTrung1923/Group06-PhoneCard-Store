@@ -1,55 +1,48 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package model;
 
-/**
- *
- * @author ADMIN
- */
 import java.math.BigDecimal;
 
+/**
+ *
+ * @author trung
+ */
 public class PromotionDetail {
-    private long detailId;
-    private int promotionId; // Foreign Key
-    private int cardTypeId; // Foreign Key
+
+    private Long detailId;
+    private Integer promotionId;
+    private Integer productId;
     private BigDecimal discountPercent;
 
     public PromotionDetail() {
     }
 
-    public PromotionDetail(long detailId, int promotionId, int cardTypeId, BigDecimal discountPercent) {
-        this.detailId = detailId;
-        this.promotionId = promotionId;
-        this.cardTypeId = cardTypeId;
-        this.discountPercent = discountPercent;
-    }
-    
-    // Getter & Setter methods go here
-
-    public long getDetailId() {
+    public Long getDetailId() {
         return detailId;
     }
 
-    public void setDetailId(long detailId) {
+    public void setDetailId(Long detailId) {
         this.detailId = detailId;
     }
 
-    public int getPromotionId() {
+    public Integer getPromotionId() {
         return promotionId;
     }
 
-    public void setPromotionId(int promotionId) {
+    public void setPromotionId(Integer promotionId) {
         this.promotionId = promotionId;
     }
 
-    public int getCardTypeId() {
-        return cardTypeId;
+    public Integer getProductId() {
+        return productId;
     }
 
-    public void setCardTypeId(int cardTypeId) {
-        this.cardTypeId = cardTypeId;
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public BigDecimal getDiscountPercent() {
@@ -59,5 +52,10 @@ public class PromotionDetail {
     public void setDiscountPercent(BigDecimal discountPercent) {
         this.discountPercent = discountPercent;
     }
-    
+
+    @Override
+    public String toString() {
+        return "PromotionDetail{" + "detailId=" + detailId + ", promotionId=" + promotionId + ", productId=" + productId + ", discountPercent=" + discountPercent + '}';
+    }
+
 }

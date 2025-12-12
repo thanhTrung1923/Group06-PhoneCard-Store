@@ -8,19 +8,33 @@ package model;
  *
  * @author ADMIN
  */
+
+
+
+
 import java.time.LocalDateTime;
 
+
+
+/**
+ * @author trung
+ */
 public class Promotion {
-    private int promotionId;
+
+    private Integer promotionId;
     private String promotionName;
+    private String description;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
-    private boolean isActive;
+    private Boolean isActive;
     private String bannerUrl;
     private LocalDateTime createdAt;
+    private Integer createdBy;
+
 
     public Promotion() {
     }
+
 
     public Promotion(int promotionId, String promotionName, LocalDateTime startAt, LocalDateTime endAt, boolean isActive, String bannerUrl, LocalDateTime createdAt) {
         this.promotionId = promotionId;
@@ -34,11 +48,13 @@ public class Promotion {
     
     // Getter & Setter methods go here
 
-    public int getPromotionId() {
+ 
+
+    public Integer getPromotionId() {
         return promotionId;
     }
 
-    public void setPromotionId(int promotionId) {
+    public void setPromotionId(Integer promotionId) {
         this.promotionId = promotionId;
     }
 
@@ -49,6 +65,17 @@ public class Promotion {
     public void setPromotionName(String promotionName) {
         this.promotionName = promotionName;
     }
+
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 
     public LocalDateTime getStartAt() {
         return startAt;
@@ -66,11 +93,13 @@ public class Promotion {
         this.endAt = endAt;
     }
 
-    public boolean isIsActive() {
+
+
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(boolean isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 
@@ -89,5 +118,22 @@ public class Promotion {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
     
+
+
+    public Integer getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Integer createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    @Override
+    public String toString() {
+        return "Promotion{" + "promotionId=" + promotionId + ", promotionName=" + promotionName + ", description=" + description + ", startAt=" + startAt + ", endAt=" + endAt + ", isActive=" + isActive + ", bannerUrl=" + bannerUrl + ", createdAt=" + createdAt + ", createdBy=" + createdBy + '}';
+    }
+
+
 }

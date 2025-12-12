@@ -10,26 +10,30 @@ package model;
  */
 import java.math.BigDecimal;
 
+/**
+ *
+ * @author trung
+ */
 public class CartItem {
-    private long itemId;
-    private long cartId; // Foreign Key
-    private int inventoryId; // Foreign Key
-    private int quantity;
+
+    private Long itemId;
+    private Long cartId;
+    private Integer productId;
+    private Integer quantity;
     private BigDecimal unitPrice;
 
     public CartItem() {
     }
 
-    public CartItem(long itemId, long cartId, int inventoryId, int quantity, BigDecimal unitPrice) {
+    public CartItem(long itemId, long cartId, int quantity, BigDecimal unitPrice) {
         this.itemId = itemId;
         this.cartId = cartId;
-        this.inventoryId = inventoryId;
+
         this.quantity = quantity;
         this.unitPrice = unitPrice;
     }
-    
-    // Getter & Setter methods go here
 
+    // Getter & Setter methods go here
     public long getItemId() {
         return itemId;
     }
@@ -46,19 +50,27 @@ public class CartItem {
         this.cartId = cartId;
     }
 
-    public int getInventoryId() {
-        return inventoryId;
-    }
-
-    public void setInventoryId(int inventoryId) {
-        this.inventoryId = inventoryId;
-    }
-
     public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+
+    public void setCartId(Long cartId) {
+        this.cartId = cartId;
+    }
+
+    public Integer getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Integer productId) {
+        this.productId = productId;
+    }
+
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -69,5 +81,10 @@ public class CartItem {
     public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
-    
+
+    @Override
+    public String toString() {
+        return "CartItem{" + "itemId=" + itemId + ", cartId=" + cartId + ", productId=" + productId + ", quantity=" + quantity + ", unitPrice=" + unitPrice + '}';
+    }
+
 }
