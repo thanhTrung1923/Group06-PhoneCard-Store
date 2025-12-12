@@ -264,4 +264,230 @@ public class CardProductDAO {
 
         return cpList;
     }
+
+    public List<CardProductDTO> getCardProductsList(int limit, int offset, String typeName, long value, String typeCode, String description, String orderBy, String typeOrder) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<CardProductDTO> cpList = new ArrayList<>();
+
+        StringBuilder whereClause = new StringBuilder("WHERE cp.is_active = 1");
+        List<Object> params = new ArrayList<>();
+
+        if (typeName != null && !typeName.trim().isEmpty()) {
+            whereClause.append(" AND cp.type_name LIKE ?");
+            params.add("%" + typeName.trim() + "%");
+        }
+
+        if (value > 0) {
+            whereClause.append(" AND cp.value = ?");
+            params.add(value);
+        }
+
+        if (typeCode != null && !typeCode.trim().isEmpty()) {
+            whereClause.append(" AND cp.type_code LIKE ?");
+            params.add("%" + typeCode.trim() + "%");
+        }
+
+        if (description != null && !description.trim().isEmpty()) {
+            whereClause.append(" AND cp.description LIKE ?");
+            params.add("%" + description.trim() + "%");
+        }
+
+        String orderByClause = "ORDER BY ";
+        if (orderBy != null && !orderBy.trim().isEmpty()) {
+            switch (orderBy.toLowerCase()) {
+                case "price" ->
+                    orderByClause += "final_price";
+                case "name" ->
+                    orderByClause += "cp.type_name";
+                case "sold" ->
+                    orderByClause += "total_sold";
+                case "rating" ->
+                    orderByClause += "avg_rating";
+                default ->
+                    orderByClause += "total_sold";
+            }
+
+            if (typeOrder != null && typeOrder.equalsIgnoreCase("desc")) {
+                orderByClause += " DESC";
+            } else {
+                orderByClause += " ASC";
+            }
+
+            orderByClause += ", avg_rating DESC";
+        } else {
+            orderByClause += "total_sold DESC, avg_rating DESC";
+        }
+
+        String sql = """
+                 SELECT 
+                     cp.product_id,
+                     cp.type_code,
+                     cp.type_name,
+                     cp.value,
+                     cp.sell_price,
+                     cp.quantity AS stock_quantity,
+                     cp.thumbnail_url,
+                     
+                     COALESCE(pd.discount_percent, 0) AS discount_percent,
+                     ROUND(cp.sell_price * (1 - COALESCE(pd.discount_percent, 0) / 100), 2) AS final_price,
+                     
+                     COALESCE(ROUND(AVG(cf.rating), 1), 0) AS avg_rating,
+                     COUNT(DISTINCT cf.feedback_id) AS review_count,
+                     
+                     COALESCE(SUM(oi.quantity), 0) AS total_sold
+                     
+                 FROM card_products cp
+                 LEFT JOIN order_items oi ON cp.product_id = oi.product_id
+                 LEFT JOIN orders o ON oi.order_id = o.order_id AND o.status = 'PAID'
+                 LEFT JOIN promotion_details pd ON cp.product_id = pd.product_id
+                 LEFT JOIN promotions p ON pd.promotion_id = p.promotion_id 
+                     AND p.is_active = 1 AND NOW() BETWEEN p.start_at AND p.end_at
+                 LEFT JOIN customer_feedback cf ON oi.order_id = cf.order_id
+                     
+                 """ + whereClause.toString() + """
+                 
+                 GROUP BY cp.product_id, cp.type_code, cp.type_name, cp.value, 
+                          cp.sell_price, cp.quantity, pd.discount_percent, cp.thumbnail_url
+                 """ + orderByClause + """
+                 
+                 LIMIT ? OFFSET ?
+                 """;
+
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql);
+
+            int paramIndex = 1;
+            for (Object param : params) {
+                if (param instanceof String) {
+                    ps.setString(paramIndex++, (String) param);
+                } else if (param instanceof Long) {
+                    ps.setLong(paramIndex++, (Long) param);
+                }
+            }
+
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex, offset);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                CardProductDTO cp = new CardProductDTO();
+                cp.setProduct_id(rs.getInt("product_id"));
+                cp.setType_code(rs.getString("type_code"));
+                cp.setType_name(rs.getString("type_name"));
+                cp.setValue(rs.getLong("value"));
+                cp.setSell_price(rs.getBigDecimal("sell_price"));
+                cp.setStock_quantity(rs.getInt("stock_quantity"));
+                cp.setDiscount_percent(rs.getFloat("discount_percent"));
+                cp.setFinal_price(rs.getBigDecimal("final_price"));
+                cp.setAvg_rating(rs.getFloat("avg_rating"));
+                cp.setReview_count(rs.getInt("review_count"));
+                cp.setTotal_sold(rs.getInt("total_sold"));
+                cp.setThumbnail_url(rs.getString("thumbnail_url"));
+                cpList.add(cp);
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return cpList;
+    }
+
+    public int countCardProducts(String typeName, long value, String typeCode, String description) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        int total = 0;
+
+        StringBuilder whereClause = new StringBuilder("WHERE cp.is_active = 1");
+        List<Object> params = new ArrayList<>();
+
+        if (typeName != null && !typeName.trim().isEmpty()) {
+            whereClause.append(" AND cp.type_name LIKE ?");
+            params.add("%" + typeName.trim() + "%");
+        }
+
+        if (value > 0) {
+            whereClause.append(" AND cp.value = ?");
+            params.add(value);
+        }
+
+        if (typeCode != null && !typeCode.trim().isEmpty()) {
+            whereClause.append(" AND cp.type_code LIKE ?");
+            params.add("%" + typeCode.trim() + "%");
+        }
+
+        if (description != null && !description.trim().isEmpty()) {
+            whereClause.append(" AND cp.description LIKE ?");
+            params.add("%" + description.trim() + "%");
+        }
+
+        String sql = """
+            SELECT COUNT(DISTINCT cp.product_id) AS total
+            FROM card_products cp
+            LEFT JOIN promotion_details pd ON cp.product_id = pd.product_id
+            LEFT JOIN promotions p ON pd.promotion_id = p.promotion_id
+                AND p.is_active = 1 AND NOW() BETWEEN p.start_at AND p.end_at
+            LEFT JOIN order_items oi ON cp.product_id = oi.product_id
+            LEFT JOIN orders o ON oi.order_id = o.order_id AND o.status = 'PAID'
+            LEFT JOIN customer_feedback cf ON oi.order_id = cf.order_id
+            """ + whereClause.toString();
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql);
+
+            int paramIndex = 1;
+            for (Object param : params) {
+                if (param instanceof String) {
+                    ps.setString(paramIndex++, (String) param);
+                } else if (param instanceof Long) {
+                    ps.setLong(paramIndex++, (Long) param);
+                }
+            }
+
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return total;
+    }
 }
