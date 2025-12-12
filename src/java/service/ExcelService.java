@@ -4,44 +4,53 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import model.Card;
-import org.apache.poi.ss.usermodel.*; // Import của Apache POI
-import org.apache.poi.xssf.usermodel.XSSFWorkbook; // Dùng cho file .xlsx
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelService {
 
     public List<Card> parseExcel(InputStream is) throws Exception {
         List<Card> list = new ArrayList<>();
-        
-        // Mở file Excel từ luồng input
         Workbook workbook = new XSSFWorkbook(is);
-        Sheet sheet = workbook.getSheetAt(0); // Lấy sheet 1
+        Sheet sheet = workbook.getSheetAt(0);
 
-        // Duyệt từ dòng thứ 1 (bỏ dòng tiêu đề index 0)
+        // [FIX] Bắt đầu từ dòng 1 (Dòng 0 là tiêu đề: Product ID | Serial | Code)
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
-            if (row == null) continue;
+            if (row == null) continue; // Bỏ qua dòng trống
+
+            // Kiểm tra nếu ô đầu tiên trống -> Coi như hết dữ liệu
+            Cell cellId = row.getCell(0);
+            if (cellId == null || cellId.getCellType() == CellType.BLANK) continue;
 
             Card c = new Card();
             
-            // Giả sử Excel cột A: ProductID, B: Serial, C: Code
-            // Lưu ý: Cần xử lý ngoại lệ nếu ô trống hoặc sai định dạng
-            
-            // Lấy Product ID (Số nguyên)
-            // getNumericCellValue trả về double -> ép kiểu về int
-            c.setProductId((int) row.getCell(0).getNumericCellValue()); 
-            
-            // Lấy Serial (Chuỗi) - Dùng DataFormatter để an toàn (tránh lỗi số khoa học 1.2E9)
+            // 1. Cột A: Product ID (Bắt buộc phải là SỐ)
+            if (cellId.getCellType() == CellType.NUMERIC) {
+                c.setProductId((int) cellId.getNumericCellValue());
+            } else {
+                // Nếu người dùng nhập chữ vào cột ID -> Báo lỗi dòng cụ thể
+                throw new Exception("Lỗi dòng " + (i + 1) + ": Cột Product ID phải là số nguyên!");
+            }
+
+            // 2. Cột B: Serial (Chuyển mọi format sang String)
             DataFormatter fmt = new DataFormatter();
-            c.setSerial(fmt.formatCellValue(row.getCell(1)));
+            String serial = fmt.formatCellValue(row.getCell(1)).trim();
+            if (serial.length() < 5) { // Validate độ dài tối thiểu
+                throw new Exception("Lỗi dòng " + (i + 1) + ": Serial quá ngắn (tối thiểu 5 ký tự).");
+            }
+            c.setSerial(serial);
+
+            // 3. Cột C: Code
+            String code = fmt.formatCellValue(row.getCell(2)).trim();
+            if (code.length() < 5) {
+                throw new Exception("Lỗi dòng " + (i + 1) + ": Mã thẻ quá ngắn.");
+            }
+            c.setCode(code);
             
-            // Lấy Code (Chuỗi)
-            c.setCode(fmt.formatCellValue(row.getCell(2)));
-            
-            c.setStatus("IN_STOCK"); // Mặc định là hàng trong kho
-            
+            c.setStatus(Card.STATUS_IN_STOCK);
             list.add(c);
         }
-        
         workbook.close();
         return list;
     }
