@@ -109,56 +109,63 @@
                                     </p>
                                 </div>
 
-                                <div class="space-y-4">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-gray-700 font-medium">Số lượng còn lại:</span>
-                                        <span class="${cp.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'} font-bold text-lg">
-                                            <i class="fas fa-box mr-1"></i> 
-                                            <fmt:formatNumber value="${cp.stock_quantity}" groupingUsed="true" /> thẻ
-                                        </span>
-                                    </div>
+                                <form class="space-y-4" action="${pageContext.request.contextPath}/cart" method="POST">
+                                    <input type="hidden" name="productId" value="${cp.product_id}" />
+                                    <input type="hidden" name="maxQuantity" value="${cp.max_quantity_per_order}" />
+                                    <input type="hidden" name="stockQuantity" value="${cp.stock_quantity}" />
 
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-gray-700 font-medium">Số lượng:</span>
-                                        <div class="flex items-center border border-gray-300 rounded-lg">
-                                            <button id="btn-decrease" class="px-4 py-2 hover:bg-gray-100 transition-colors" ${cp.stock_quantity == 0 ? 'disabled' : ''}>
-                                                <i class="fas fa-minus text-gray-600"></i>
-                                            </button>
-                                            <input type="number"
-                                                   id="quantity-input"
-                                                   value="${cp.stock_quantity > 0 ? 1 : 0}"
-                                                   min="${cp.stock_quantity > 0 ? 1 : 0}"
-                                                   max="${cp.stock_quantity > cp.max_quantity_per_order ? cp.max_quantity_per_order : cp.stock_quantity}"
-                                                   ${cp.stock_quantity == 0 ? 'disabled' : ''}
-                                                   class="w-16 text-center border-x border-gray-300 py-2 focus:outline-none">
-                                            <button id="btn-increase" class="px-4 py-2 hover:bg-gray-100 transition-colors" ${cp.stock_quantity == 0 ? 'disabled' : ''}>
-                                                <i class="fas fa-plus text-gray-600"></i>
-                                            </button>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-700 font-medium">Số lượng còn lại:</span>
+                                            <span class="${cp.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'} font-bold text-lg">
+                                                <i class="fas fa-box mr-1"></i> 
+                                                <fmt:formatNumber value="${cp.stock_quantity}" groupingUsed="true" /> thẻ
+                                            </span>
                                         </div>
-                                        <span class="text-sm text-gray-500">(Tối đa ${cp.max_quantity_per_order} thẻ/đơn)</span>
-                                    </div>
-                                </div>
 
-                                <div class="space-y-3">
-                                    <c:choose>
-                                        <c:when test="${cp.stock_quantity > 0}">
-                                            <button class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 rounded-xl transition-all duration-300 transform shadow-sm hover:shadow-md">
-                                                <i class="fas fa-shopping-cart mr-2"></i>
-                                                Thêm vào giỏ hàng
-                                            </button>
-                                            <button class="w-full bg-gradient-to-r from-yellow-500 to-yellow-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition-all duration-300 transform shadow-sm hover:shadow-md">
-                                                <i class="fas fa-bolt mr-2"></i>
-                                                Mua ngay
-                                            </button>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <button disabled class="w-full bg-gray-300 text-gray-500 font-bold py-4 rounded-xl cursor-not-allowed">
-                                                <i class="fas fa-ban mr-2"></i>
-                                                Tạm hết hàng
-                                            </button>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
+                                        <div class="flex items-center gap-4">
+                                            <span class="text-gray-700 font-medium">Số lượng:</span>
+                                            <div class="flex items-center border border-gray-300 rounded-lg">
+                                                <button type="button" id="btn-decrease" class="px-4 py-2 hover:bg-gray-100 transition-colors" ${cp.stock_quantity == 0 ? 'disabled' : ''}>
+                                                    <i class="fas fa-minus text-gray-600"></i>
+                                                </button>
+                                                <input type="number"
+                                                       name="quantity"
+                                                       id="quantity-input"
+                                                       value="${cp.stock_quantity > 0 ? 1 : 0}"
+                                                       min="${cp.stock_quantity > 0 ? 1 : 0}"
+                                                       max="${cp.stock_quantity > cp.max_quantity_per_order ? cp.max_quantity_per_order : cp.stock_quantity}"
+                                                       ${cp.stock_quantity == 0 ? 'disabled' : ''}
+                                                       class="w-16 text-center border-x border-gray-300 py-2 focus:outline-none">
+                                                <button type="button" id="btn-increase" class="px-4 py-2 hover:bg-gray-100 transition-colors" ${cp.stock_quantity == 0 ? 'disabled' : ''}>
+                                                    <i class="fas fa-plus text-gray-600"></i>
+                                                </button>
+                                            </div>
+                                            <span class="text-sm text-gray-500">(Tối đa ${cp.max_quantity_per_order} thẻ/đơn)</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <c:choose>
+                                            <c:when test="${cp.stock_quantity > 0}">
+                                                <button class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 rounded-xl transition-all duration-300 transform shadow-sm hover:shadow-md">
+                                                    <i class="fas fa-shopping-cart mr-2"></i>
+                                                    Thêm vào giỏ hàng
+                                                </button>
+                                                <button type="button" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition-all duration-300 transform shadow-sm hover:shadow-md">
+                                                    <i class="fas fa-bolt mr-2"></i>
+                                                    Mua ngay
+                                                </button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button disabled class="w-full bg-gray-300 text-gray-500 font-bold py-4 rounded-xl cursor-not-allowed">
+                                                    <i class="fas fa-ban mr-2"></i>
+                                                    Tạm hết hàng
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </form>
 
                                 <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                                     <div class="flex items-center gap-3 text-sm">
@@ -325,8 +332,31 @@
         <jsp:include page="/layout/footer.jsp" />
 
         <jsp:include page="/layout/global-import-footer.jsp" />
-        <script src="${pageContext.request.contextPath}/js/global-script.js"></script>
+        <jsp:include page="/layout/global-script.jsp" />
         <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const ok = '${sessionScope.ok}';
+
+                if (ok && ok === 'true') {
+                    iziToast.show({
+                        title: 'Thêm vào giỏ hàng',
+                        message: 'Bạn đã thêm sản phẩm vào giỏ hàng thành công.',
+                        color: 'green',
+                        position: 'topRight'
+                    });
+            <c:remove var="ok" scope="session"/>
+                }
+
+                if (ok && ok === 'false') {
+                    iziToast.show({
+                        title: 'Hey',
+                        message: 'What would you like to add?',
+                        position: 'topRight'
+                    });
+            <c:remove var="ok" scope="session"/>
+                }
+            });
+
             const quantityInput = document.getElementById('quantity-input');
             const btnDecrease = document.getElementById('btn-decrease');
             const btnIncrease = document.getElementById('btn-increase');

@@ -97,7 +97,7 @@ public class LoginController extends HttpServlet {
             } else if (roles.contains("STAFF")) {
                 response.sendRedirect("staff.jsp"); // Trang nhân viên
             } else {
-                response.sendRedirect("index.jsp"); // Trang khách hàng
+                response.sendRedirect(request.getContextPath() + "/home"); // Trang khách hàng
             }
         }
     }
