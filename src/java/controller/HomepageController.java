@@ -33,6 +33,7 @@ public class HomepageController extends HttpServlet {
         List<CardProductDTO> cpBestFeedback = cpDao.getCardProductsBestFeedback(8, 0);
         List<CustomerFeedback> cfList = cfDao.getListFeedbackForHomepage(8, 0);
 
+        request.setAttribute("headerActive", "home");
         request.setAttribute("cpMostBuyed", cpMostBuyed);
         request.setAttribute("cpBestFeedback", cpBestFeedback);
         request.setAttribute("cfList", cfList);

@@ -53,6 +53,7 @@ public class ProductListController extends HttpServlet {
         int totalProducts = dao.countCardProducts(typeName, value, typeCode, description);
         int totalPages = (int) Math.ceil((double) totalProducts / ITEMS_PER_PAGE);
 
+        request.setAttribute("headerActive", "products");
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", page);
         request.setAttribute("typeName", typeName);
