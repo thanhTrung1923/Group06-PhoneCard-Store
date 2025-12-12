@@ -47,16 +47,31 @@ public class CreateCardController extends HttpServlet {
             String code = req.getParameter("code");
             String status = req.getParameter("status");
 
-            // --- [FIX] VALIDATE DỮ LIỆU ĐẦU VÀO ---
+            // --- [UPDATED] VALIDATE DỮ LIỆU ĐẦU VÀO ---
             
-            // Check rỗng
+            // 1. Check rỗng
             if (serial == null || serial.trim().isEmpty() || code == null || code.trim().isEmpty()) {
                 throw new Exception("Serial và Mã thẻ không được để trống!");
             }
             
-            // Check độ dài (Ví dụ: Serial phải > 5 ký tự)
+            // 2. Check độ dài (Tối thiểu 5 ký tự)
             if (serial.trim().length() < 5 || code.trim().length() < 5) {
                 throw new Exception("Serial hoặc Mã thẻ quá ngắn (Yêu cầu > 5 ký tự)!");
+            }
+
+            // 3. [MỚI] Validate Mã thẻ (Chỉ được chứa số)
+            // Regex: ^[0-9]+$ nghĩa là chỉ chứa các ký tự từ 0-9
+            if (!code.trim().matches("^[0-9]+$")) {
+                throw new Exception("Mã thẻ không hợp lệ! (Chỉ được chứa số)");
+            }
+
+            // 4. [MỚI] Validate Serial (Phải chứa CẢ chữ VÀ số)
+            // Logic: Kiểm tra xem có chữ không AND Kiểm tra xem có số không
+            boolean hasLetter = serial.matches(".*[a-zA-Z].*");
+            boolean hasDigit = serial.matches(".*[0-9].*");
+            
+            if (!hasLetter || !hasDigit) {
+                throw new Exception("Serial không hợp lệ! (Phải chứa cả CHỮ và SỐ, ví dụ: VT-12345)");
             }
             
             // Check số (Product ID và Supplier ID phải là số)
@@ -64,7 +79,7 @@ public class CreateCardController extends HttpServlet {
             int supplierId = Integer.parseInt(supplierIdStr);
 
             // --- HẾT PHẦN VALIDATE ---
-
+            
             Card c = new Card(productId, supplierId, serial.trim(), code.trim(), status);
             
             InventoryDAO dao = new InventoryDAO();
