@@ -3,18 +3,33 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/web/WEB-INF/web.xml</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/ChangePasswordController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/model/CardDenomination.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/LogoutController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/AdminUserListController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/web/change-password.jsp</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/dao/DBConnect.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/LoginController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/OrderHistoryController.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/model/CartItem.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/model/User.java</file>
-            <file>file:/C:/Users/Dumb%20Trung/Documents/GitHub/Group06-PhoneCard-Store/src/java/controller/RegisterController.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/index.html</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/admin-user-form.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dtos/CardProductDTO.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dtos/CardProductDetailDTO.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dao/CardProductDAO.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/model/Card.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/model/CardDenomination.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/service/ExcelService.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/ulti/EmailUtil.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/layout/footer.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/deposits/list.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/orders/list.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/promotions/list.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/deposits/detail.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/orders/detail.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/promotions/detail.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/deposits/edit.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/orders/edit.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/promotions/edit.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dao/admin/InventoryDAO.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/controller/admin/OrderController.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dao/admin/OrderDAO.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dtos/OrderListDTO.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/service/OrderAdminService.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/create-card.jsp</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/model/Promotion.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dao/DBConnect.java</file>
         </group>
     </open-files>
 </project-private>
