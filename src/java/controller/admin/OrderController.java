@@ -26,6 +26,9 @@ public class OrderController extends HttpServlet {
         try {
             switch (action) {
                 case "list" -> handleList(request, response);
+                case "detail" -> handleDetail(request, response);
+                 case "edit" -> handleEdit(request, response);
+
                 // case "detail" -> handleDetail(...); // step sau
                 default -> handleList(request, response);
             }
@@ -63,6 +66,64 @@ public class OrderController extends HttpServlet {
 
         request.getRequestDispatcher("/views/admin/orders/list.jsp").forward(request, response);
     }
+@Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+    String action = request.getParameter("action");
+    if (action == null) action = "";
+
+    try {
+        if ("updateStatus".equals(action)) {
+            long id = Long.parseLong(request.getParameter("id"));
+            String status = request.getParameter("status");
+
+            boolean ok = orderService.updateOrderStatus(id, status);
+            String msg = ok ? "updated" : "failed";
+
+            response.sendRedirect(request.getContextPath()
+                    + "/admin/orders?action=detail&id=" + id + "&msg=" + msg);
+            return;
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/orders?action=list");
+    } catch (Exception e) {
+        throw new ServletException(e);
+    }
+}
+
+private void handleDetail(HttpServletRequest request, HttpServletResponse response)
+        throws Exception {
+
+    long id = Long.parseLong(request.getParameter("id"));
+    var detail = orderService.getOrderDetail(id);
+
+    if (detail == null) {
+        request.setAttribute("error", "Order not found: " + id);
+        request.getRequestDispatcher("/views/admin/orders/list.jsp").forward(request, response);
+        return;
+    }
+
+    request.setAttribute("order", detail);
+    request.setAttribute("msg", request.getParameter("msg"));
+    request.getRequestDispatcher("/views/admin/orders/detail.jsp").forward(request, response);
+}
+
+private void handleEdit(HttpServletRequest request, HttpServletResponse response)
+        throws Exception {
+
+    long id = Long.parseLong(request.getParameter("id"));
+    var detail = orderService.getOrderDetail(id);
+
+    if (detail == null) {
+        request.setAttribute("error", "Order not found: " + id);
+        request.getRequestDispatcher("/views/admin/orders/list.jsp").forward(request, response);
+        return;
+    }
+
+    request.setAttribute("order", detail);
+    request.getRequestDispatcher("/views/admin/orders/edit.jsp").forward(request, response);
+}
+
 
     private Date parseDate(String s) {
         if (s == null || s.isBlank()) return null;
@@ -72,4 +133,7 @@ public class OrderController extends HttpServlet {
     private int parseInt(String s, int defaultVal) {
         try { return Integer.parseInt(s); } catch (Exception e) { return defaultVal; }
     }
+
+    
+    
 }

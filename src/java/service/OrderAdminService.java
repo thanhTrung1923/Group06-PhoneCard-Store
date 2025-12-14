@@ -6,6 +6,8 @@ import dtos.OrderListDTO;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
+import dtos.OrderDetailDTO;
+
 
 public class OrderAdminService {
 
@@ -23,4 +25,20 @@ public class OrderAdminService {
     public int countOrders(String status, String keyword, Date fromDate, Date toDate) throws SQLException {
         return orderDAO.countOrders(status, keyword, fromDate, toDate);
     }
+    public OrderDetailDTO getOrderDetail(long orderId) throws SQLException {
+    OrderDetailDTO detail = orderDAO.getOrderDetail(orderId);
+    if (detail == null) return null;
+    detail.setItems(orderDAO.getOrderItems(orderId));
+    return detail;
+}
+
+public boolean updateOrderStatus(long orderId, String newStatus) throws SQLException {
+    if (newStatus == null) return false;
+    newStatus = newStatus.trim().toUpperCase();
+    if (!newStatus.equals("PAID") && !newStatus.equals("CANCELLED") && !newStatus.equals("REFUNDED")) {
+        throw new IllegalArgumentException("Invalid status: " + newStatus);
+    }
+    return orderDAO.updateOrderStatus(orderId, newStatus);
+}
+
 }

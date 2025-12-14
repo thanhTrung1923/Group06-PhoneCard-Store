@@ -10,6 +10,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import dao.DBConnect;
+import dtos.OrderDetailDTO;
+import dtos.OrderItemDTO;
+import java.util.ArrayList;
+
 
 
 public class OrderDAO {
@@ -143,4 +147,105 @@ public class OrderDAO {
         }
         return 0;
     }
+    public OrderDetailDTO getOrderDetail(long orderId) throws SQLException {
+    String sql = """
+        SELECT o.order_id, o.user_id, o.status, o.total_amount, o.created_at, o.paid_at, o.cancelled_at,
+               o.customer_full_name, o.customer_email, o.customer_phone
+        FROM orders o
+        WHERE o.order_id = ?
+    """;
+
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setLong(1, orderId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (!rs.next()) return null;
+
+            OrderDetailDTO dto = new OrderDetailDTO();
+            dto.setOrderId(rs.getLong("order_id"));
+            dto.setUserId(rs.getInt("user_id"));
+            dto.setStatus(rs.getString("status"));
+            dto.setTotalAmount(rs.getBigDecimal("total_amount"));
+            dto.setCreatedAt(rs.getTimestamp("created_at"));
+            dto.setPaidAt(rs.getTimestamp("paid_at"));
+            dto.setCancelledAt(rs.getTimestamp("cancelled_at"));
+            dto.setCustomerFullName(rs.getString("customer_full_name"));
+            dto.setCustomerEmail(rs.getString("customer_email"));
+            dto.setCustomerPhone(rs.getString("customer_phone"));
+            return dto;
+        }
+      }
+    }
+    public List<OrderItemDTO> getOrderItems(long orderId) throws SQLException {
+    List<OrderItemDTO> items = new ArrayList<>();
+
+    String sql = """
+        SELECT oi.item_id, oi.product_id, oi.quantity,
+               oi.unit_price, oi.final_price, oi.buy_price_at_sale, oi.profit,
+               oi.assigned_card_id,
+               COALESCE(oi.product_type_name, p.type_name) AS type_name,
+               COALESCE(oi.product_value, p.value) AS product_value,
+               c.serial AS assigned_serial
+        FROM order_items oi
+        JOIN card_products p ON p.product_id = oi.product_id
+        LEFT JOIN cards c ON c.card_id = oi.assigned_card_id
+        WHERE oi.order_id = ?
+        ORDER BY oi.item_id ASC
+    """;
+
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setLong(1, orderId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                OrderItemDTO it = new OrderItemDTO();
+                it.setItemId(rs.getLong("item_id"));
+                it.setProductId(rs.getInt("product_id"));
+                it.setQuantity(rs.getInt("quantity"));
+
+                it.setUnitPrice(rs.getBigDecimal("unit_price"));
+                it.setFinalPrice(rs.getBigDecimal("final_price"));
+                it.setBuyPriceAtSale(rs.getBigDecimal("buy_price_at_sale"));
+                it.setProfit(rs.getBigDecimal("profit"));
+
+                long v = rs.getLong("product_value");
+                it.setProductValue(v);
+
+                String typeName = rs.getString("type_name");
+                it.setProductName(typeName + " " + v);
+
+                long cardId = rs.getLong("assigned_card_id");
+                it.setAssignedCardId(rs.wasNull() ? null : cardId);
+
+                it.setAssignedSerial(rs.getString("assigned_serial"));
+
+                items.add(it);
+            }
+        }
+    }
+    return items;
+}
+public boolean updateOrderStatus(long orderId, String newStatus) throws SQLException {
+    String sql;
+    if ("CANCELLED".equalsIgnoreCase(newStatus)) {
+        sql = "UPDATE orders SET status=?, cancelled_at=NOW() WHERE order_id=?";
+    } else if ("PAID".equalsIgnoreCase(newStatus)) {
+        sql = "UPDATE orders SET status=?, paid_at=COALESCE(paid_at, NOW()) WHERE order_id=?";
+    } else if ("REFUNDED".equalsIgnoreCase(newStatus)) {
+        sql = "UPDATE orders SET status=? WHERE order_id=?";
+    } else {
+        sql = "UPDATE orders SET status=? WHERE order_id=?";
+    }
+
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setString(1, newStatus);
+        ps.setLong(2, orderId);
+        return ps.executeUpdate() > 0;
+    }
+}
+
+
+
 }
