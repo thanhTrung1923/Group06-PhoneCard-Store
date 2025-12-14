@@ -14,7 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import model.Cart;
+import model.CartItem;
 import model.User;
 
 /**
@@ -28,6 +31,72 @@ public class CartController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("account") == null) {
+            response.sendRedirect(request.getContextPath() + "/logout");
+            return;
+        }
+
+        User user = (User) session.getAttribute("account");
+        CartDAO dao = new CartDAO();
+        Cart cart = dao.getCartByUserId(user.getUserId());
+
+        // ================= ACTION =================
+        String action = request.getParameter("action");
+        String idStr = request.getParameter("id");
+
+        if (action != null && idStr != null && cart != null) {
+            int productId = Integer.parseInt(idStr);
+            long cartId = cart.getCartId();
+
+            switch (action) {
+                case "increase":
+                    dao.increaseCartItemQuatity(cartId, productId, 1);
+                    break;
+                case "decrease":
+                    CartItem ci = dao.getCartItemByCartIdAndProductId(cartId, productId);
+                    if (ci != null && ci.getQuantity() <= 1) {
+                        dao.deleteCartItem(cartId, productId);
+                    } else {
+                        dao.decreaseCartItemQuatity(cartId, productId, 1);
+                    }
+                    break;
+                case "remove":
+                    dao.deleteCartItem(cartId, productId);
+                    break;
+            }
+            response.sendRedirect(request.getContextPath() + "/cart");
+            return;
+        }
+
+        // ================= VIEW =================
+        if (cart == null) {
+            request.setAttribute("cartItems", null);
+            request.setAttribute("cartSubTotal", BigDecimal.ZERO);
+            request.getRequestDispatcher("/cart.jsp").forward(request, response);
+            return;
+        }
+
+        List<CartItem> cartItems = dao.getCartItemsByCartId(cart.getCartId());
+        Map<Integer, Map<String, Object>> productInfoMap
+                = dao.getProductInfoForCart(cartItems);
+
+        BigDecimal subTotal = BigDecimal.ZERO;
+        int totalQty = 0;
+
+        for (CartItem i : cartItems) {
+            subTotal = subTotal.add(
+                    i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
+            );
+            totalQty += i.getQuantity();
+        }
+
+        request.setAttribute("cartItems", cartItems);
+        request.setAttribute("productInfoMap", productInfoMap);
+        request.setAttribute("cartSubTotal", subTotal);
+        session.setAttribute("cartTotalQuantity", totalQty);
+
+        request.getRequestDispatcher("/cart.jsp").forward(request, response);
     }
 
     @Override
@@ -95,7 +164,10 @@ public class CartController extends HttpServlet {
                 }
                 ok = true;
             } else {
-                boolean createItemSuccess = cartDao.createItemForCart(cartId, productId, quantity, BigDecimal.valueOf(0));
+                BigDecimal unitPrice = cartDao.getProductFinalPrice(productId);
+                boolean createItemSuccess
+                        = cartDao.createItemForCart(cartId, productId, quantity, unitPrice);
+
                 if (!createItemSuccess) {
                     response.sendError(500, "Có lỗi trong quá trình thêm sản phẩm vào giỏ hàng!");
                     return;
@@ -104,6 +176,8 @@ public class CartController extends HttpServlet {
             }
 
             session.setAttribute("ok", ok);
+            int totalQty = cartDao.getTotalQuantityByUserId(userId);
+            session.setAttribute("cartTotalQuantity", totalQty);
             response.sendRedirect(request.getContextPath() + "/products/detail?productId=" + productId);
         } catch (NumberFormatException | IOException e) {
             response.sendError(500, "Có lỗi trong quá trình thêm sản phẩm vào giỏ hàng: " + e.getMessage());
