@@ -1,6 +1,6 @@
 <%-- 
-    Document   : edit
-    Created on : Dec 14, 2025, 2:04:05 AM
+    Document   : detail
+    Created on : Dec 14, 2025, 2:03:47 AM
     Author     : DuyThai
 --%>
 
@@ -9,13 +9,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8"><title>Edit Promotion</title>
+  <meta charset="UTF-8"><title>Create Promotion</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <style>
     body{margin:0;font-family:system-ui;background:#f6f7fb}
     .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
     .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 10px 30px rgba(15,23,42,.08);overflow:hidden}
-    .hd{padding:14px 16px;border-bottom:1px solid #e2e8f0;background:#fbfcff;font-weight:900;display:flex;justify-content:space-between}
+    .hd{padding:14px 16px;border-bottom:1px solid #e2e8f0;background:#fbfcff;font-weight:900}
     .bd{padding:16px}
     label{font-size:12px;color:#64748b;display:block;margin-bottom:6px}
     input,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #e2e8f0}
@@ -27,7 +27,6 @@
     th,td{padding:10px;border-bottom:1px solid #f1f5f9;text-align:left}
     th{background:#f8fafc;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.08em}
     .alert{padding:10px 12px;border:1px solid #fecaca;background:#fff1f2;color:#991b1b;border-radius:12px;margin-bottom:12px}
-    .ok{padding:10px 12px;border:1px solid #bbf7d0;background:#dcfce7;color:#14532d;border-radius:12px;margin-bottom:12px}
   </style>
 </head>
 <body>
@@ -36,49 +35,40 @@
   <div style="height:12px"></div>
 
   <div class="card">
-    <div class="hd">
-      <div>Edit Promotion #${promo.promotionId}</div>
-      <div style="color:#64748b;font-weight:700">${promo.promotionName}</div>
-    </div>
+    <div class="hd">Create Promotion</div>
     <div class="bd">
-      <c:if test="${param.msg == 'updated'}"><div class="ok">Updated successfully.</div></c:if>
-      <c:if test="${param.msg == 'created'}"><div class="ok">Created successfully.</div></c:if>
-
       <c:if test="${not empty error}">
         <div class="alert">${error}</div>
       </c:if>
 
       <form method="post" action="${pageContext.request.contextPath}/admin/discounts">
-        <input type="hidden" name="action" value="editSubmit"/>
-        <input type="hidden" name="back" value="edit"/>
-        <input type="hidden" name="id" value="${promo.promotionId}"/>
+        <input type="hidden" name="action" value="createSubmit"/>
+        <input type="hidden" name="back" value="create"/>
 
         <label>Promotion Name</label>
-        <input name="promotionName" value="${promo.promotionName}" required>
+        <input name="promotionName" required>
 
         <div style="height:10px"></div>
 
         <label>Description</label>
-        <textarea name="description">${promo.description}</textarea>
+        <textarea name="description"></textarea>
 
         <div style="height:10px"></div>
 
         <div class="row">
           <div>
             <label>Start At</label>
-            <input type="datetime-local" name="startAt"
-                   value="${fn:substring(promo.startAt,0,16)}" required>
+            <input type="datetime-local" name="startAt" required>
           </div>
           <div>
             <label>End At</label>
-            <input type="datetime-local" name="endAt"
-                   value="${fn:substring(promo.endAt,0,16)}" required>
+            <input type="datetime-local" name="endAt" required>
           </div>
         </div>
 
         <div style="height:10px"></div>
 
-        <label><input type="checkbox" name="isActive" ${promo.active ? 'checked' : ''}> Active</label>
+        <label><input type="checkbox" name="isActive" checked> Active</label>
 
         <div style="height:14px"></div>
         <strong>Select Products & Discount %</strong>
@@ -94,18 +84,13 @@
           </thead>
           <tbody>
             <c:forEach var="p" items="${products}">
-              <c:set var="disc" value="${discountMap[p.productId]}"/>
               <tr>
-                <td>
-                  <input type="checkbox" name="pid" value="${p.productId}"
-                         ${disc != null ? 'checked' : ''}>
-                </td>
+                <td><input type="checkbox" name="pid" value="${p.productId}"></td>
                 <td><strong>${p.typeName}</strong> ${p.value}</td>
                 <td>${p.sellPrice}</td>
                 <td>
                   <input type="number" step="0.01" min="0" max="100"
-                         name="disc_${p.productId}"
-                         value="${disc != null ? disc : 0}">
+                         name="disc_${p.productId}" value="0">
                 </td>
               </tr>
             </c:forEach>
@@ -114,13 +99,11 @@
 
         <div style="height:14px"></div>
         <button class="btn btn-primary" type="submit"
-                onclick="return confirm('Save changes?');">Save</button>
+                onclick="return confirm('Create this promotion?');">Create</button>
       </form>
     </div>
   </div>
 </div>
-
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 </body>
 </html>
 

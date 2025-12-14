@@ -6,6 +6,12 @@ import dtos.PromotionListDTO;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import dtos.ProductOptionDTO;
+import dtos.PromotionFormDTO;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class PromotionDAO {
 
@@ -129,4 +135,190 @@ public class PromotionDAO {
         }
         return 0;
     }
+    
+    // List sản phẩm để chọn
+    public List<ProductOptionDTO> listProducts() throws SQLException {
+    String sql = """
+        SELECT product_id, type_code, type_name, value, sell_price
+        FROM card_products
+        WHERE is_active = 1
+        ORDER BY type_code, value
+    """;
+
+    List<ProductOptionDTO> list = new ArrayList<>();
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            ProductOptionDTO p = new ProductOptionDTO();
+            p.setProductId(rs.getInt("product_id"));
+            p.setTypeCode(rs.getString("type_code"));
+            p.setTypeName(rs.getString("type_name"));
+            p.setValue(rs.getLong("value"));
+            p.setSellPrice(rs.getBigDecimal("sell_price"));
+            list.add(p);
+        }
+    }
+    return list;
+}
+//Lấy promotion theo id
+    
+    public PromotionFormDTO getPromotion(int id) throws SQLException {
+    String sql = """
+        SELECT promotion_id, promotion_name, description, start_at, end_at, is_active
+        FROM promotions
+        WHERE promotion_id = ?
+    """;
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, id);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (!rs.next()) return null;
+            PromotionFormDTO f = new PromotionFormDTO();
+            f.setPromotionId(rs.getInt("promotion_id"));
+            f.setPromotionName(rs.getString("promotion_name"));
+            f.setDescription(rs.getString("description"));
+            f.setStartAt(rs.getTimestamp("start_at"));
+            f.setEndAt(rs.getTimestamp("end_at"));
+            f.setActive(rs.getInt("is_active") == 1);
+            return f;
+        }
+    }
+}
+// Lấy map discount theo product
+    
+    public Map<Integer, BigDecimal> getPromotionDiscountMap(int promotionId) throws SQLException {
+    String sql = """
+        SELECT product_id, discount_percent
+        FROM promotion_details
+        WHERE promotion_id = ?
+    """;
+    Map<Integer, BigDecimal> map = new HashMap<>();
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, promotionId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getInt("product_id"), rs.getBigDecimal("discount_percent"));
+            }
+        }
+    }
+    return map;
+}
+// Insert promotion + details (transaction)
+    
+    public int insertPromotion(PromotionFormDTO form, int createdBy,
+                           Map<Integer, BigDecimal> details) throws SQLException {
+
+    String sqlPromo = """
+        INSERT INTO promotions(promotion_name, description, start_at, end_at, is_active, created_by)
+        VALUES(?,?,?,?,?,?)
+    """;
+    String sqlDetail = """
+        INSERT INTO promotion_details(promotion_id, product_id, discount_percent)
+        VALUES(?,?,?)
+    """;
+
+    try (Connection con = getConnection()) {
+        con.setAutoCommit(false);
+
+        try (PreparedStatement ps = con.prepareStatement(sqlPromo, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, form.getPromotionName());
+            ps.setString(2, form.getDescription());
+            ps.setTimestamp(3, form.getStartAt());
+            ps.setTimestamp(4, form.getEndAt());
+            ps.setInt(5, form.isActive() ? 1 : 0);
+            ps.setInt(6, createdBy);
+            ps.executeUpdate();
+
+            int promoId;
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                keys.next();
+                promoId = keys.getInt(1);
+            }
+
+            if (details != null && !details.isEmpty()) {
+                try (PreparedStatement pd = con.prepareStatement(sqlDetail)) {
+                    for (var e : details.entrySet()) {
+                        pd.setInt(1, promoId);
+                        pd.setInt(2, e.getKey());
+                        pd.setBigDecimal(3, e.getValue());
+                        pd.addBatch();
+                    }
+                    pd.executeBatch();
+                }
+            }
+
+            con.commit();
+            return promoId;
+        } catch (Exception ex) {
+            con.rollback();
+            throw ex;
+        } finally {
+            con.setAutoCommit(true);
+        }
+    }
+}
+// Update promotion + replace details (transaction)
+    
+    public boolean updatePromotion(PromotionFormDTO form,
+                               Map<Integer, BigDecimal> details) throws SQLException {
+
+    String sqlPromo = """
+        UPDATE promotions
+        SET promotion_name=?, description=?, start_at=?, end_at=?, is_active=?
+        WHERE promotion_id=?
+    """;
+    String delDetails = "DELETE FROM promotion_details WHERE promotion_id=?";
+    String insDetail = """
+        INSERT INTO promotion_details(promotion_id, product_id, discount_percent)
+        VALUES(?,?,?)
+    """;
+
+    try (Connection con = getConnection()) {
+        con.setAutoCommit(false);
+
+        try {
+            try (PreparedStatement ps = con.prepareStatement(sqlPromo)) {
+                ps.setString(1, form.getPromotionName());
+                ps.setString(2, form.getDescription());
+                ps.setTimestamp(3, form.getStartAt());
+                ps.setTimestamp(4, form.getEndAt());
+                ps.setInt(5, form.isActive() ? 1 : 0);
+                ps.setInt(6, form.getPromotionId());
+                if (ps.executeUpdate() == 0) {
+                    con.rollback();
+                    return false;
+                }
+            }
+
+            try (PreparedStatement ps = con.prepareStatement(delDetails)) {
+                ps.setInt(1, form.getPromotionId());
+                ps.executeUpdate();
+            }
+
+            if (details != null && !details.isEmpty()) {
+                try (PreparedStatement pd = con.prepareStatement(insDetail)) {
+                    for (var e : details.entrySet()) {
+                        pd.setInt(1, form.getPromotionId());
+                        pd.setInt(2, e.getKey());
+                        pd.setBigDecimal(3, e.getValue());
+                        pd.addBatch();
+                    }
+                    pd.executeBatch();
+                }
+            }
+
+            con.commit();
+            return true;
+        } catch (Exception ex) {
+            con.rollback();
+            throw ex;
+        } finally {
+            con.setAutoCommit(true);
+        }
+    }
+}
+
 }
