@@ -21,6 +21,7 @@ import model.CartItem;
  * @author trung
  */
 public class CartDAO {
+
     public Cart getCartByUserId(int userId) {
         Connection con = null;
         PreparedStatement ps = null;
@@ -265,7 +266,6 @@ public class CartDAO {
 //            }
 //        }
 //    }
-
     public boolean increaseCartItemQuatity(long cartId, int productId, int quantityIncrease) {
         Connection con = null;
         PreparedStatement ps = null;
@@ -569,8 +569,9 @@ public class CartDAO {
         }
         return 0;
     }
-public BigDecimal getProductFinalPrice(int productId) {
-    String sql = """
+
+    public BigDecimal getProductFinalPrice(int productId) {
+        String sql = """
         SELECT
             CASE
                 WHEN pd.discount_percent > 0
@@ -582,18 +583,26 @@ public BigDecimal getProductFinalPrice(int productId) {
         WHERE cp.product_id = ?
     """;
 
-    try (Connection con = DBConnect.getConnection();
-         PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = DBConnect.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-        ps.setInt(1, productId);
-        ResultSet rs = ps.executeQuery();
+            ps.setInt(1, productId);
+            ResultSet rs = ps.executeQuery();
 
-        if (rs.next()) {
-            return rs.getBigDecimal("final_price");
+            if (rs.next()) {
+                return rs.getBigDecimal("final_price");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return BigDecimal.ZERO;
     }
-    return BigDecimal.ZERO;
-  }
+
+    public void clearCart(Connection con, long cartId) throws Exception {
+        String sql = "DELETE FROM cart_items WHERE cart_id = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, cartId);
+            ps.executeUpdate();
+        }
+    }
 }

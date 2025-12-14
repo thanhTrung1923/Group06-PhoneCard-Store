@@ -15,7 +15,18 @@
 
         <div class="max-w-7xl mx-auto px-4 py-10 min-h-screen">
             <h1 class="text-3xl font-bold text-gray-900 mb-8">🛒 Giỏ hàng của bạn</h1>
+            <c:if test="${not empty sessionScope.checkoutSuccess}">
+                <div class="fixed top-20 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+                    Thanh toán thành công
+                </div>
 
+                <c:remove var="checkoutSuccess" scope="session"/>
+            </c:if>
+            <c:if test="${not empty checkoutError}">
+                <div class="fixed top-20 right-6 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+                    ${checkoutError}
+                </div>
+            </c:if>
             <c:choose>
                 <c:when test="${empty cartItems}">
                     <div class="bg-white rounded-xl shadow-sm p-10 text-center">
@@ -97,5 +108,13 @@
 
         <jsp:include page="/layout/footer.jsp"/>
         <jsp:include page="/layout/global-import-footer.jsp"/>
+        <script>
+            setTimeout(() => {
+                const alert = document.querySelector('.fixed.top-20');
+                if (alert)
+                    alert.remove();
+            }, 3000);
+        </script>
     </body>
 </html>
+
