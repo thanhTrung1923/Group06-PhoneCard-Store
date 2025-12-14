@@ -30,6 +30,8 @@
             <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/web/views/admin/create-card.jsp</file>
             <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/model/Promotion.java</file>
             <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dao/DBConnect.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dtos/OrderItemDTO.java</file>
+            <file>file:/C:/Users/DuyThai/Desktop/SWP391/Group06-PhoneCard-Store/src/java/dtos/OrderDetailDTO.java</file>
         </group>
     </open-files>
 </project-private>
