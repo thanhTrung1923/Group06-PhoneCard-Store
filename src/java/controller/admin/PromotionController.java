@@ -1,7 +1,7 @@
 package controller.admin;
 
-import dtos.DiscountListDTO;
-import service.DiscountAdminService;
+import dtos.PromotionListDTO;
+import service.PromotionAdminService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "DiscountController", urlPatterns = {"/admin/discounts"})
-public class DiscountController extends HttpServlet {
+public class PromotionController extends HttpServlet {
 
-    private final DiscountAdminService service = new DiscountAdminService();
+    private final PromotionAdminService service = new PromotionAdminService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,7 +44,7 @@ public class DiscountController extends HttpServlet {
         int page = parseInt(request.getParameter("page"), 1);
         int pageSize = 10;
 
-        List<DiscountListDTO> list = service.search(keyword, timeStatus, isActive, page, pageSize);
+        List<PromotionListDTO> list = service.search(keyword, timeStatus, isActive, page, pageSize);
         int total = service.count(keyword, timeStatus, isActive);
         int totalPages = (int) Math.ceil((double) total / pageSize);
 

@@ -2,7 +2,7 @@ package dtos;
 
 import java.sql.Timestamp;
 
-public class DiscountListDTO {
+public class PromotionListDTO {
     private int promotionId;
     private String promotionName;
     private Timestamp startAt;

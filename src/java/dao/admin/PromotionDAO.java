@@ -1,13 +1,13 @@
 package dao.admin;
 
 import dao.DBConnect;
-import dtos.DiscountListDTO;
+import dtos.PromotionListDTO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiscountDAO {
+public class PromotionDAO {
 
     private Connection getConnection() throws SQLException {
         Connection con = DBConnect.getConnection();
@@ -15,7 +15,7 @@ public class DiscountDAO {
         return con;
     }
 
-    public List<DiscountListDTO> searchPromotions(String keyword,
+    public List<PromotionListDTO> searchPromotions(String keyword,
                                                    String timeStatus,  // UPCOMING/RUNNING/EXPIRED/ALL
                                                    String isActive,    // 1/0/ALL
                                                    int offset, int limit) throws SQLException {
@@ -62,7 +62,7 @@ public class DiscountDAO {
         params.add(limit);
         params.add(offset);
 
-        List<DiscountListDTO> list = new ArrayList<>();
+        List<PromotionListDTO> list = new ArrayList<>();
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
@@ -71,7 +71,7 @@ public class DiscountDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    DiscountListDTO dto = new DiscountListDTO();
+                    PromotionListDTO dto = new PromotionListDTO();
                     dto.setPromotionId(rs.getInt("promotion_id"));
                     dto.setPromotionName(rs.getString("promotion_name"));
                     dto.setStartAt(rs.getTimestamp("start_at"));
