@@ -10,7 +10,7 @@ import java.util.List;
 import model.User;
 
 public class UserDAO extends DBConnect {
-
+    
     // Hàm lấy tất cả user (Code cũ của bạn, mình sửa lại cho đúng bảng)
     public List<User> getAllUser() {
         List<User> list = new ArrayList<>();
@@ -38,52 +38,49 @@ public class UserDAO extends DBConnect {
      * @param password
      * @return User object nếu thành công (kèm roles), null nếu thất bại
      */
-    public User login(String email, String password) {
+   /**
+     * Hàm LOGIN chuẩn cho BCrypt
+     */
+    public User login(String email, String plainPassword) {
         User user = null;
+        
+        // 1. Chỉ tìm user theo Email và check xem có bị khóa không
+        String sql = "SELECT * FROM users WHERE email = ? AND is_locked = 0";
 
-        // 1. Kiểm tra đăng nhập cơ bản
-        // Lưu ý: Thực tế password nên được mã hóa (MD5/BCrypt), ở đây mình so sánh string thuần cho bài tập
-        String sqlUser = "SELECT * FROM users WHERE email = ? AND password_hash = ? AND is_locked = 0";
-
-        // 2. Câu lệnh lấy Roles của user đó
-        String sqlRoles = "SELECT r.role_name FROM roles r "
-                + "JOIN user_roles ur ON r.role_id = ur.role_id "
-                + "WHERE ur.user_id = ?";
-
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sqlUser)) {
+        try (Connection conn = getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, email);
-            ps.setString(2, password);
 
+            // Chạy Query
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    user = new User();
-                    user.setUserId(rs.getInt("user_id"));
-                    user.setEmail(rs.getString("email"));
-                    user.setFullName(rs.getString("full_name"));
-                    user.setIsLocked(rs.getBoolean("is_locked"));
-                    // Map thêm các trường khác nếu cần...
-
-                    // --- BƯỚC 2: LẤY DANH SÁCH ROLE ---
-                    // Dùng user_id vừa lấy được để tìm role
-                    PreparedStatement psRole = conn.prepareStatement(sqlRoles);
-                    psRole.setInt(1, user.getUserId());
-                    ResultSet rsRole = psRole.executeQuery();
-
-                    while (rsRole.next()) {
-                        String roleName = rsRole.getString("role_name");
-                        user.addRole(roleName); // Thêm role vào list trong User
-                    }
-                    // Đóng resource con
-                    rsRole.close();
-                    psRole.close();
+                    // Map dữ liệu từ DB vào object User tạm thời
+                    user = mapRowToUser(rs);
                 }
             }
+            // Tới đây ResultSet đã đóng, Connection rảnh tay -> an toàn để load Role
+
+            // 2. Kiểm tra Mật khẩu (Quan trọng!)
+            if (user != null) {
+                // Lấy mật khẩu người dùng nhập (plainPassword) 
+                // so với mật khẩu mã hóa trong DB (user.getPasswordHash())
+                boolean isMatch = ulti.PasswordUtil.verify(plainPassword, user.getPasswordHash());
+                
+                if (isMatch) {
+                    // Nếu mật khẩu đúng -> Load danh sách quyền (Role)
+                    loadRoles(conn, user);
+                    return user; // Đăng nhập thành công
+                }
+            }
+
         } catch (Exception e) {
-            System.out.println("Lỗi login: " + e.getMessage());
+            System.out.println("Lỗi Login DAO: " + e.getMessage());
             e.printStackTrace();
         }
-        return user;
+        
+        // Trả về null nếu: Không tìm thấy email HOẶC Mật khẩu sai
+        return null; 
     }
 
     public boolean register(User user) {
@@ -132,21 +129,31 @@ public class UserDAO extends DBConnect {
     }
 
     public User getUserByEmail(String email) {
+        User user = null; // 1. Khai báo biến user bên ngoài
         String sql = "SELECT * FROM users WHERE email = ?";
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
+
+            // --- BƯỚC 1: CHỈ LẤY THÔNG TIN USER ---
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    User u = mapRowToUser(rs);
-// load roles
-                    loadRoles(conn, u);
-                    return u;
+                    user = mapRowToUser(rs);
                 }
             }
+            // Kết thúc khối này, rs đã tự động ĐÓNG. Connection rảnh tay.
+
+            // --- BƯỚC 2: MỚI ĐI LOAD ROLE (NẾU TÌM THẤY USER) ---
+            if (user != null) {
+                loadRoles(conn, user);
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Lỗi tại getUserByEmail: " + e.getMessage());
+            e.printStackTrace(); // Xem log để biết chi tiết nếu còn lỗi
         }
-        return null;
+
+        return user;
     }
 
     public User getUserById(int id) {
@@ -173,7 +180,7 @@ public class UserDAO extends DBConnect {
         u.setPhone(rs.getString("phone"));
         u.setPasswordHash(rs.getString("password_hash"));
         u.setFullName(rs.getString("full_name"));
-        u.setAvatarUrl(rs.getString("avatar_url"));
+       // u.setAvatarUrl(rs.getString("avatar_url"));
         u.setIsLocked(rs.getBoolean("is_locked"));
         return u;
     }

@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -16,6 +17,24 @@ public class OrderItem {
     private long orderId;
     private long productId;
     private String productName;
+    private long productValue;
+    private BigDecimal profit;
+
+    public BigDecimal getProfit() {
+        return profit;
+    }
+
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
+
+    public long getProductValue() {
+        return productValue;
+    }
+
+    public void setProductValue(long productValue) {
+        this.productValue = productValue;
+    }
     private BigDecimal finalPrice;// Foreign Ke
     private int inventoryId; // Foreign Key
     private int quantity;
@@ -52,8 +71,6 @@ public class OrderItem {
     public void setFinalPrice(BigDecimal finalPrice) {
         this.finalPrice = finalPrice;
     }
-
-    
 
     // Getter & Setter methods go here
     public long getItemId() {
