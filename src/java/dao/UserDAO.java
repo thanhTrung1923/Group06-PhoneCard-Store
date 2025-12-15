@@ -180,7 +180,7 @@ public class UserDAO extends DBConnect {
         u.setPhone(rs.getString("phone"));
         u.setPasswordHash(rs.getString("password_hash"));
         u.setFullName(rs.getString("full_name"));
-        u.setAvatarUrl(rs.getString("avatar_url"));
+       // u.setAvatarUrl(rs.getString("avatar_url"));
         u.setIsLocked(rs.getBoolean("is_locked"));
         return u;
     }

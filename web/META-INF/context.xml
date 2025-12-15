@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <Context path="/CardPhone"/>
+=======
+
+
+<Context path="/Phone_Card_Store"/>
+
+>>>>>>> 6713f347dd754ad76e0e2b1709ab444617de80b9

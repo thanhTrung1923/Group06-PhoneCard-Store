@@ -72,6 +72,7 @@ public class OrderDAO extends DBConnect {
         return items;
     }
 
+
     public long createOrder(Connection con, int userId, BigDecimal total) throws Exception {
         String sql = """
         INSERT INTO orders(user_id, total_amount, status, created_at, paid_at)
@@ -155,3 +156,8 @@ public class OrderDAO extends DBConnect {
 
 
 }
+
+
+
+
+

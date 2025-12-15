@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/New%20folder/CardPhone/src/java/controller/ForgotPasswordController.java</file>
+            <file>file:/D:/New%20folder/CardPhone/src/java/model/User.java</file>
+            <file>file:/D:/New%20folder/CardPhone/web/homepage.jsp</file>
+            <file>file:/D:/New%20folder/CardPhone/web/login.jsp</file>
+            <file>file:/D:/New%20folder/CardPhone/web/reset-password.jsp</file>
+            <file>file:/D:/New%20folder/CardPhone/src/java/controller/LoginController.java</file>
+            <file>file:/D:/New%20folder/CardPhone/web/layout/header.jsp</file>
+            <file>file:/D:/New%20folder/CardPhone/web/forgot-password.jsp</file>
+            <file>file:/D:/New%20folder/CardPhone/src/java/controller/ResetPasswordController.java</file>
+            <file>file:/D:/New%20folder/CardPhone/web/change-password.jsp</file>
+            <file>file:/D:/New%20folder/CardPhone/src/java/ulti/EmailUtil.java</file>
+            <file>file:/D:/New%20folder/CardPhone/src/java/dao/UserDAO.java</file>
+        </group>
+    </open-files>
+</project-private>
