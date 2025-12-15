@@ -14,6 +14,14 @@
         <jsp:include page="/layout/header.jsp"/>
 
         <div class="max-w-7xl mx-auto px-4 py-10 min-h-screen">
+            <button onclick="history.back()"
+                    class="flex items-center gap-2 px-4 py-2 rounded-full
+                    bg-white border border-gray-200 shadow-sm
+                    text-gray-600 hover:text-green-600 hover:border-green-500
+                    hover:shadow transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span class="font-medium">Quay lại</span>
+            </button>
             <h1 class="text-3xl font-bold text-gray-900 mb-8">🛒 Giỏ hàng của bạn</h1>
             <c:if test="${not empty sessionScope.checkoutSuccess}">
                 <div class="fixed top-20 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">

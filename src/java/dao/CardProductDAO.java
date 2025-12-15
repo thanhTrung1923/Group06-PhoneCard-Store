@@ -722,4 +722,122 @@ public class CardProductDAO {
             e.printStackTrace();
         }
     }
+
+ public List<CardProduct> findAll() {
+        List<CardProduct> list = new ArrayList<>();
+        String sql = "SELECT * FROM card_products ORDER BY product_id ASC";
+
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<CardProduct> search(
+        String typeCode,
+        Long value,
+        Boolean status,
+        String order
+) {
+    List<CardProduct> list = new ArrayList<>();
+
+    StringBuilder sql = new StringBuilder("""
+        SELECT *
+        FROM card_products
+        WHERE 1=1
+    """);
+
+    List<Object> params = new ArrayList<>();
+
+    if (typeCode != null && !typeCode.isBlank()) {
+        sql.append(" AND type_code LIKE ?");
+        params.add("%" + typeCode.trim() + "%");
+    }
+
+    if (value != null && value > 0) {
+        sql.append(" AND value = ?");
+        params.add(value);
+    }
+
+    if (status != null) {
+        sql.append(" AND is_active = ?");
+        params.add(status);
+    }
+
+    sql.append(" ORDER BY sell_price ")
+       .append("asc".equalsIgnoreCase(order) ? "ASC" : "DESC");
+
+    try (Connection con = DBConnect.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+        int idx = 1;
+        for (Object p : params) {
+            if (p instanceof String) {
+                ps.setString(idx++, (String) p);
+            } else if (p instanceof Long) {
+                ps.setLong(idx++, (Long) p);
+            } else if (p instanceof Boolean) {
+                ps.setBoolean(idx++, (Boolean) p);
+            }
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            list.add(mapRow(rs));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+
+    // Lấy danh sách mệnh giá cho combobox
+    public List<Long> getDistinctValues() {
+        List<Long> values = new ArrayList<>();
+        String sql = "SELECT DISTINCT value FROM card_products ORDER BY value ASC";
+
+        try (Connection con = DBConnect.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                values.add(rs.getLong("value"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return values;
+    }
+
+    // Map chung
+    private CardProduct mapRow(ResultSet rs) throws SQLException {
+        CardProduct p = new CardProduct();
+        p.setProductId(rs.getInt("product_id"));
+        p.setTypeCode(rs.getString("type_code"));
+        p.setTypeName(rs.getString("type_name"));
+        p.setValue(rs.getLong("value"));
+        p.setQuantity(rs.getInt("quantity"));
+        p.setMinStockAlert(rs.getInt("min_stock_alert"));
+        p.setBuyPrice(rs.getBigDecimal("buy_price"));
+        p.setSellPrice(rs.getBigDecimal("sell_price"));
+        p.setImgUrl(rs.getString("img_url"));
+        p.setThumbnailUrl(rs.getString("thumbnail_url"));
+        p.setDescription(rs.getString("description"));
+        p.setIsActive(rs.getBoolean("is_active"));
+        p.setAllowDiscount(rs.getBoolean("allow_discount"));
+        p.setCreatedAt(rs.getTimestamp("created_at"));
+        p.setUpdatedAt(rs.getTimestamp("updated_at"));
+        return p;
+    }
 }
