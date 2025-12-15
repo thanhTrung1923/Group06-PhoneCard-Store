@@ -107,7 +107,6 @@ public class OrderDetailController extends HttpServlet {
             createdAtTs = Timestamp.valueOf(order.getCreatedAt());
         }
         List<OrderItem> items = dao.getOrderItems(orderId);
-
         req.setAttribute("order", order);
         req.setAttribute("items", items);
         req.setAttribute("createdAtTs", createdAtTs);

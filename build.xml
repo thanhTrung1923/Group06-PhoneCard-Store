@@ -7,13 +7,10 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<<<<<<< HEAD
+
 <project name="CardPhone" default="default" basedir=".">
     <description>Builds, tests, and runs the project CardPhone.</description>
-=======
-<project name="Phone_Card_Store" default="default" basedir=".">
-    <description>Builds, tests, and runs the project Phone_Card_Store.</description>
->>>>>>> 6713f347dd754ad76e0e2b1709ab444617de80b9
+
     <import file="nbproject/build-impl.xml"/>
     <!--
 

@@ -10,8 +10,8 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 <div class="container py-5">
-  
-    
+
+
     <div class="mb-4">
         <a href="${pageContext.request.contextPath}/order-history" class="text-decoration-none text-secondary">
             <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
@@ -20,14 +20,14 @@
 
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            
+
             <div class="card shadow-sm mb-4 border-0">
                 <div class="card-header bg-white py-3 border-bottom">
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <h4 class="mb-0 text-primary fw-bold">
                             <i class="fas fa-file-invoice me-2"></i>Đơn hàng #${order.orderId}
                         </h4>
-                        
+
                         <div class="mt-2 mt-sm-0">
                             <c:choose>
                                 <c:when test="${order.status == 'Pending' || order.status == 'Processing'}">
@@ -46,7 +46,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3 mb-md-0">
@@ -71,6 +71,8 @@
                     <i class="fas fa-list me-2"></i>Chi tiết sản phẩm
                 </div>
                 <div class="card-body p-0">
+                    
+                                       
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
@@ -78,7 +80,7 @@
                                     <th class="ps-4">Sản phẩm</th>
                                     <th class="text-center">Mệnh giá</th>
                                     <th class="text-end">Giá bán</th>
-                                    <th class="text-end pe-4">Lợi nhuận</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,15 +110,13 @@
                                                     <fmt:formatNumber value="${it.finalPrice}" type="currency"/>
                                                 </td>
 
-                                                <td class="text-end pe-4 text-success fw-bold">
-                                                    + <fmt:formatNumber value="${it.profit}" type="currency"/>
-                                                </td>
+                                                
                                             </tr>
                                         </c:forEach>
                                     </c:otherwise>
                                 </c:choose>
                             </tbody>
-                            
+
                             <tfoot class="table-light">
                                 <tr>
                                     <td colspan="2" class="text-end fw-bold pt-3">Tổng cộng:</td>
@@ -141,6 +141,6 @@
 
         </div>
     </div>
-                                  
+
 </div>
 
