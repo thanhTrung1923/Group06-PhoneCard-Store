@@ -1,44 +1,42 @@
 package service;
 
 import dao.admin.OrderDAO;
+import dtos.OrderDetailDTO;
+import dtos.OrderItemDTO;
 import dtos.OrderListDTO;
 
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.List;
-import dtos.OrderDetailDTO;
-
 
 public class OrderAdminService {
 
-    private final OrderDAO orderDAO = new OrderDAO();
+    private final OrderDAO dao = new OrderDAO();
 
+    // ✅ Hàm mới có sort/dir
     public List<OrderListDTO> searchOrders(String status, String keyword,
                                            Date fromDate, Date toDate,
-                                           int page, int pageSize) throws SQLException {
+                                           String sort, String dir,
+                                           int page, int pageSize) throws Exception {
         int safePage = Math.max(page, 1);
-        int safePageSize = Math.max(1, Math.min(pageSize, 50));
-        int offset = (safePage - 1) * safePageSize;
-        return orderDAO.searchOrders(status, keyword, fromDate, toDate, offset, safePageSize);
+        int safeSize = Math.max(pageSize, 1);
+        int offset = (safePage - 1) * safeSize;
+
+        return dao.searchOrders(status, keyword, fromDate, toDate, sort, dir, offset, safeSize);
     }
 
-    public int countOrders(String status, String keyword, Date fromDate, Date toDate) throws SQLException {
-        return orderDAO.countOrders(status, keyword, fromDate, toDate);
+    public int countOrders(String status, String keyword, Date fromDate, Date toDate) throws Exception {
+        return dao.countOrders(status, keyword, fromDate, toDate);
     }
-    public OrderDetailDTO getOrderDetail(long orderId) throws SQLException {
-    OrderDetailDTO detail = orderDAO.getOrderDetail(orderId);
-    if (detail == null) return null;
-    detail.setItems(orderDAO.getOrderItems(orderId));
-    return detail;
-}
 
-public boolean updateOrderStatus(long orderId, String newStatus) throws SQLException {
-    if (newStatus == null) return false;
-    newStatus = newStatus.trim().toUpperCase();
-    if (!newStatus.equals("PAID") && !newStatus.equals("CANCELLED") && !newStatus.equals("REFUNDED")) {
-        throw new IllegalArgumentException("Invalid status: " + newStatus);
+    public OrderDetailDTO getOrderDetail(long orderId) throws Exception {
+        return dao.getOrderDetail(orderId);
     }
-    return orderDAO.updateOrderStatus(orderId, newStatus);
-}
 
+    public List<OrderItemDTO> getOrderItems(long orderId) throws Exception {
+        return dao.getOrderItems(orderId);
+    }
+
+    public boolean updateOrderStatus(long orderId, String newStatus) throws Exception {
+        return dao.updateOrderStatus(orderId, newStatus);
+    }
 }

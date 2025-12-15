@@ -1,10 +1,5 @@
-
 package dtos;
 
-/**
- *
- * @author DuyThai
- */
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 

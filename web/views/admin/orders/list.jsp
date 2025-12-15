@@ -1,9 +1,3 @@
-<%-- 
-    Document   : list
-    Created on : Dec 14, 2025, 2:03:11 AM
-    Author     : DuyThai
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
@@ -174,7 +168,17 @@
             padding: 12px 12px;
             text-transform: uppercase;
             letter-spacing: .08em;
+            white-space:nowrap;
         }
+        thead th a{
+            color: inherit;
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+        }
+        thead th a:hover{ text-decoration: underline; }
+
         tbody td{
             padding: 12px 12px;
             border-bottom: 1px solid #f1f5f9;
@@ -281,8 +285,17 @@
                 <div class="alert">Error: ${error}</div>
             </c:if>
 
-            <form method="get" action="${pageContext.request.contextPath}/admin/orders">
+            <c:if test="${not empty dateError}">
+                <div class="alert">${dateError}</div>
+            </c:if>
+
+            <form id="filterForm" method="get" action="${pageContext.request.contextPath}/admin/orders">
                 <input type="hidden" name="action" value="list"/>
+
+                <!-- ✅ hidden sort/dir/page -->
+                <input type="hidden" name="sort" value="${sort}"/>
+                <input type="hidden" name="dir" value="${dir}"/>
+                <input type="hidden" name="page" value="${page}"/>
 
                 <div class="filters">
                     <div class="field">
@@ -303,12 +316,12 @@
 
                     <div class="field">
                         <div class="label">From</div>
-                        <input type="date" name="fromDate" value="${fromDate}"/>
+                        <input id="fromDate" type="date" name="fromDate" value="${fromDate}"/>
                     </div>
 
                     <div class="field">
                         <div class="label">To</div>
-                        <input type="date" name="toDate" value="${toDate}"/>
+                        <input id="toDate" type="date" name="toDate" value="${toDate}"/>
                     </div>
 
                     <button class="btn btn-primary" type="submit">Search</button>
@@ -320,14 +333,30 @@
                 <table>
                     <thead>
                     <tr>
-                        <th style="width:110px;">Order ID</th>
-                        <th>Customer</th>
-                        <th>Email</th>
-                        <th style="width:140px;">Phone</th>
-                        <th style="width:120px;" class="right">Total</th>
-                        <th style="width:130px;">Status</th>
-                        <th style="width:80px;" class="right">Items</th>
-                        <th style="width:180px;">Created At</th>
+                        <th style="width:110px;">
+                            <a href="#" onclick="return sortBy('orderId')">Order ID <span id="s_orderId"></span></a>
+                        </th>
+                        <th>
+                            <a href="#" onclick="return sortBy('customer')">Customer <span id="s_customer"></span></a>
+                        </th>
+                        <th>
+                            <a href="#" onclick="return sortBy('email')">Email <span id="s_email"></span></a>
+                        </th>
+                        <th style="width:140px;">
+                            <a href="#" onclick="return sortBy('phone')">Phone <span id="s_phone"></span></a>
+                        </th>
+                        <th style="width:120px;" class="right">
+                            <a href="#" onclick="return sortBy('total')">Total <span id="s_total"></span></a>
+                        </th>
+                        <th style="width:130px;">
+                            <a href="#" onclick="return sortBy('status')">Status <span id="s_status"></span></a>
+                        </th>
+                        <th style="width:80px;" class="right">
+                            <a href="#" onclick="return sortBy('items')">Items <span id="s_items"></span></a>
+                        </th>
+                        <th style="width:180px;">
+                            <a href="#" onclick="return sortBy('created')">Created At <span id="s_created"></span></a>
+                        </th>
                         <th style="width:120px;">Action</th>
                     </tr>
                     </thead>
@@ -383,12 +412,8 @@
                                     <span class="page active">${p}</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <a class="page" href="${pageContext.request.contextPath}/admin/orders?action=list
-                                        &status=${status}
-                                        &keyword=${keyword}
-                                        &fromDate=${fromDate}
-                                        &toDate=${toDate}
-                                        &page=${p}">
+                                    <a class="page"
+                                       href="${pageContext.request.contextPath}/admin/orders?action=list&status=${status}&keyword=${keyword}&fromDate=${fromDate}&toDate=${toDate}&page=${p}&sort=${sort}&dir=${dir}">
                                         ${p}
                                     </a>
                                 </c:otherwise>
@@ -402,9 +427,57 @@
     </div>
 
 </div>
+
+<script>
+  // ===== From/To validate (client-side)
+  const fromEl = document.getElementById("fromDate");
+  const toEl   = document.getElementById("toDate");
+  const form   = document.getElementById("filterForm");
+
+  function validateRange() {
+    const from = fromEl ? fromEl.value : "";
+    const to   = toEl ? toEl.value : "";
+    if (from && to && from > to) {
+      alert("Ngày From không được lớn hơn ngày To.");
+      return false;
+    }
+    return true;
+  }
+
+  if (form) {
+    form.addEventListener("submit", function(e){
+      if (!validateRange()) e.preventDefault();
+    });
+  }
+
+  // ===== Sorting (server-side)
+  const currentSort = "${sort}";
+  const currentDir  = "${dir}";
+
+  function sortBy(col){
+    const f = document.getElementById("filterForm");
+    const sortInput = f.querySelector("input[name='sort']");
+    const dirInput  = f.querySelector("input[name='dir']");
+    const pageInput = f.querySelector("input[name='page']");
+
+    let nextDir = "asc";
+    if (currentSort === col) nextDir = (currentDir === "asc" ? "desc" : "asc");
+
+    sortInput.value = col;
+    dirInput.value = nextDir;
+    pageInput.value = "1"; // change sort => go to page 1
+    f.submit();
+    return false;
+  }
+
+  function setArrow(col){
+    if (currentSort !== col) return;
+    const el = document.getElementById("s_" + col);
+    if (!el) return;
+    el.textContent = (currentDir === "asc" ? "▲" : "▼");
+  }
+  ["orderId","customer","email","phone","total","status","items","created"].forEach(setArrow);
+</script>
+
 </body>
 </html>
-
-
-
-

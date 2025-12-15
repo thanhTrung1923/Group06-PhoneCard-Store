@@ -1,13 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dtos;
-
-/**
- *
- * @author DuyThai
- */
 
 import java.math.BigDecimal;
 
@@ -16,11 +7,10 @@ public class OrderItemDTO {
     private int productId;
     private String productName;
     private long productValue;
-    private int quantity;
 
+    private int quantity;
     private BigDecimal unitPrice;
     private BigDecimal finalPrice;
-    private BigDecimal buyPriceAtSale;
     private BigDecimal profit;
 
     private Long assignedCardId;
@@ -47,9 +37,6 @@ public class OrderItemDTO {
     public BigDecimal getFinalPrice() { return finalPrice; }
     public void setFinalPrice(BigDecimal finalPrice) { this.finalPrice = finalPrice; }
 
-    public BigDecimal getBuyPriceAtSale() { return buyPriceAtSale; }
-    public void setBuyPriceAtSale(BigDecimal buyPriceAtSale) { this.buyPriceAtSale = buyPriceAtSale; }
-
     public BigDecimal getProfit() { return profit; }
     public void setProfit(BigDecimal profit) { this.profit = profit; }
 
@@ -59,4 +46,3 @@ public class OrderItemDTO {
     public String getAssignedSerial() { return assignedSerial; }
     public void setAssignedSerial(String assignedSerial) { this.assignedSerial = assignedSerial; }
 }
-
