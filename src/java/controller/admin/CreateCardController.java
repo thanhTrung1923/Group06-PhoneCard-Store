@@ -5,7 +5,6 @@ import model.Card;
 import model.CardProductDTO;
 import model.Supplier;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +13,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@WebServlet("/admin/inventory/create")
+
 public class CreateCardController extends HttpServlet {
     // GET: Hiển thị form tạo mới
     @Override

@@ -6,14 +6,13 @@ import model.ImportBatch;
 import service.ExcelService; // Đảm bảo import đúng package Service
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@WebServlet("/admin/import")
+
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
     maxFileSize = 1024 * 1024 * 10,      // 10 MB

@@ -72,12 +72,12 @@
             <form action="${pageContext.request.contextPath}/admin/inventory" method="GET">
                 <div class="row g-3 align-items-end">
                     
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Tìm kiếm (Search)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input type="text" class="form-control" name="keyword" value="${filterKeyword}" 
-                                   placeholder="Nhập mã thẻ, serial hoặc tên sản phẩm...">
+                                   placeholder="Nhập tên sản phẩm hoặc mã sản phẩm...">
                         </div>
                     </div>
 
@@ -101,15 +101,20 @@
                         </select>
                     </div>
 
-                    <div class="col-md-1">
-                        <button class="btn btn-primary w-100" type="submit">Lọc</button>
+                    <div class="col-md-2 d-flex">
+                        <button class="btn btn-primary flex-grow-1 me-2" type="submit">
+                            <i class="fa-solid fa-filter"></i> Lọc
+                        </button>
+                        
+                        <a href="${pageContext.request.contextPath}/admin/inventory" class="btn btn-outline-secondary" title="Xóa bộ lọc (Reset)">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </a>
                     </div>
 
-                    <div class="col-md-3 text-end action-btn-group">
+                    <div class="col-md-2 text-end action-btn-group">
                         <a href="${pageContext.request.contextPath}/admin/inventory/create" class="btn btn-warning">
                             <i class="fa-solid fa-plus me-1"></i> Thêm Mới
                         </a>
-
                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="fa-solid fa-file-excel me-1"></i> Import Excel
                         </button>
@@ -164,15 +169,11 @@
                                 </td>
                                 
                                 <td class="text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="${pageContext.request.contextPath}/admin/inventory/edit?id=${p.productId}" class="btn btn-outline-primary" title="Sửa (Edit)">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-outline-secondary" title="Cập nhật trạng thái">
-                                            <i class="fa-solid fa-rotate"></i>
-                                        </button>
-                                    </div>
-                                </td>
+    <a href="${pageContext.request.contextPath}/admin/inventory/detail?id=${p.productId}" 
+       class="btn btn-sm btn-outline-info fw-bold">
+        <i class="fa-solid fa-circle-info me-1"></i> Chi tiết
+    </a>
+</td>
                             </tr>
                         </c:forEach>
                         <c:if test="${empty inventoryList}">

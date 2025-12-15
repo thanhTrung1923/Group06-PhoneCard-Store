@@ -292,4 +292,89 @@ public class InventoryDAO {
         return isSuccess;
     }
     
+    // ... (Giữ nguyên hàm getProductDetail đã viết ở bước trước) ...
+// [ĐÃ SỬA LỖI] Lấy chi tiết sản phẩm
+    public CardProductDTO getProductDetail(int productId) {
+        CardProductDTO dto = null;
+        
+        // Sửa lại SQL: Không join quá phức tạp để đảm bảo luôn lấy được Product Info dù chưa có thẻ
+        String sql = "SELECT p.product_id, p.type_name, p.value, p.quantity, p.min_stock_alert, " +
+                     
+                     // Đếm Reserved (An toàn với IFNULL)
+                     "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'RESERVED') as reserved_count, " +
+                     
+                     // Đếm Sold
+                     "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count, " +
+                     
+                     // Lấy ngày bán gần nhất
+                     "(SELECT MAX(sold_at) FROM cards c WHERE c.product_id = p.product_id) as last_sold_date, " +
+                     
+                     // Lấy ngày nhập gần nhất (Dựa trên bảng cards cho đơn giản và chính xác)
+                     "(SELECT MAX(created_at) FROM cards c WHERE c.product_id = p.product_id) as last_import_date " +
+                     
+                     "FROM card_products p " +
+                     "WHERE p.product_id = ?";
+
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    dto = new CardProductDTO();
+                    dto.setProductId(rs.getInt("product_id"));
+                    dto.setTypeName(rs.getString("type_name"));
+                    dto.setValue(rs.getBigDecimal("value"));
+                    dto.setQuantity(rs.getInt("quantity"));
+                    dto.setMinStockAlert(rs.getInt("min_stock_alert"));
+                    
+                    dto.setReservedCount(rs.getInt("reserved_count"));
+                    dto.setSoldCount(rs.getInt("sold_count"));
+                    dto.setLastSoldDate(rs.getTimestamp("last_sold_date"));
+                    dto.setLastImportDate(rs.getTimestamp("last_import_date"));
+                    
+                    dto.setLastImportQuantity(0); // Tạm để 0
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dto;
+    }
+
+    // [MỚI] Lấy danh sách thẻ cụ thể của 1 sản phẩm (Kèm thông tin Lô hàng để hiển thị chi tiết)
+    public List<Card> getCardsByProductId(int productId) {
+        List<Card> list = new ArrayList<>();
+        // Join bảng import_batches để lấy ngày nhập nếu cần, ở đây ta lấy cơ bản từ bảng cards
+        String sql = "SELECT * FROM cards WHERE product_id = ? ORDER BY created_at DESC";
+        
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Card c = new Card();
+                    c.setCardId(rs.getLong("card_id"));
+                    c.setProductId(rs.getInt("product_id"));
+                    c.setBatchId(rs.getLong("batch_id"));
+                    c.setSerial(rs.getString("serial"));
+                    c.setCode(rs.getString("code"));
+                    c.setStatus(rs.getString("status"));
+                    c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime()); // Chuyển Timestamp -> LocalDateTime
+                    
+                    // Nếu có sold_at
+                    if (rs.getTimestamp("sold_at") != null) {
+                        c.setSoldAt(rs.getTimestamp("sold_at").toLocalDateTime());
+                    }
+                    
+                    list.add(c);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
 }
