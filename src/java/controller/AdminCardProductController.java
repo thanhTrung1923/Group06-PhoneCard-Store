@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controller;
 
 import model.CardProduct;
@@ -16,7 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet(name="AdminCardProductController", urlPatterns={"/admin-products"})
+@WebServlet(name = "AdminCardProductController", urlPatterns = {"/admin-products"})
 public class AdminCardProductController extends HttpServlet {
 
     // Khai báo Service thay vì DAO
@@ -24,9 +23,11 @@ public class AdminCardProductController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action == null) action = "list";
+        if (action == null) {
+            action = "list";
+        }
 
         switch (action) {
             case "create":
@@ -46,10 +47,12 @@ public class AdminCardProductController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action == null) action = "list";
-        
+        if (action == null) {
+            action = "list";
+        }
+
         // Nhớ set encoding để nhận tiếng Việt không bị lỗi font
         request.setCharacterEncoding("UTF-8");
 
@@ -66,24 +69,43 @@ public class AdminCardProductController extends HttpServlet {
         }
     }
 
-    // --- CÁC HÀM XỬ LÝ GỌI QUA SERVICE ---
-
     private void listProducts(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Gọi Service lấy danh sách
-        List<CardProduct> list = service.getAllProducts();
-        
-        request.setAttribute("products", list);
-        request.getRequestDispatcher("product-management-list.jsp").forward(request, response);
+        throws ServletException, IOException {
+
+    String typeCode = request.getParameter("typeCode");
+    String order = request.getParameter("typeOrder");
+
+    Long value = null;
+    if (request.getParameter("value") != null && !request.getParameter("value").isBlank()) {
+        value = Long.parseLong(request.getParameter("value"));
     }
+
+    List<CardProduct> list;
+
+    // Lần đầu vào
+    if ((typeCode == null || typeCode.isBlank()) && value == null) {
+        list = service.getAllProducts();
+    } 
+    // Search
+    else {
+        list = service.searchProducts(typeCode, value, order);
+    }
+
+    request.setAttribute("products", list);
+    request.setAttribute("valueList", service.getAvailableValues());
+
+    request.getRequestDispatcher("product-management-list.jsp")
+           .forward(request, response);
+}
+
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        
+
         // Gọi Service lấy chi tiết 1 sản phẩm
         CardProduct existingProduct = service.getProductById(id);
-        
+
         request.setAttribute("product", existingProduct);
         request.getRequestDispatcher("product-management-form.jsp").forward(request, response);
     }
@@ -92,10 +114,10 @@ public class AdminCardProductController extends HttpServlet {
             throws IOException {
         // Controller lo việc lấy dữ liệu từ request
         CardProduct p = extractProductFromRequest(request);
-        
+
         // Gọi Service để lưu
         service.createProduct(p);
-        
+
         response.sendRedirect("admin-products");
     }
 
@@ -107,17 +129,17 @@ public class AdminCardProductController extends HttpServlet {
 
         // Gọi Service để update
         service.updateProduct(p);
-        
+
         response.sendRedirect("admin-products");
     }
 
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        
+
         // Gọi Service để xóa
         service.deleteProduct(id);
-        
+
         response.sendRedirect("admin-products");
     }
 
@@ -147,7 +169,7 @@ public class AdminCardProductController extends HttpServlet {
         p.setDescription(description);
         p.setIsActive(isActive);
         p.setAllowDiscount(true);
-        
+
         return p;
     }
 }
