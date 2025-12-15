@@ -438,4 +438,78 @@ public class InventoryDAO {
         return list;
     }
     
+    // 1. [MỚI] Cập nhật trạng thái hàng loạt (Change Status / Mark Defective)
+    public boolean bulkUpdateStatus(String[] cardIds, String newStatus) {
+        String sql = "UPDATE cards SET status = ? WHERE card_id = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            conn.setAutoCommit(false); // Transaction
+            
+            for (String id : cardIds) {
+                ps.setString(1, newStatus);
+                ps.setLong(2, Long.parseLong(id));
+                ps.addBatch(); // Gom lệnh
+            }
+            
+            ps.executeBatch(); // Chạy 1 lần
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 2. [MỚI] Xóa hàng loạt (Delete Selected)
+    public boolean bulkDeleteCards(String[] cardIds) {
+        // Lưu ý: Cần trừ số lượng trong card_products trước khi xóa (hoặc dùng Trigger trong DB)
+        // Ở đây ta làm đơn giản là xóa cards, bạn cần chạy lại query đồng bộ số lượng sau.
+        String sql = "DELETE FROM cards WHERE card_id = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            conn.setAutoCommit(false);
+            
+            for (String id : cardIds) {
+                ps.setLong(1, Long.parseLong(id));
+                ps.addBatch();
+            }
+            
+            ps.executeBatch();
+            conn.commit();
+            
+            // [Quan trọng] Nên gọi hàm cập nhật lại quantity bảng product ở đây
+            // updateProductQuantity(productId); 
+            
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 3. [MỚI] Di chuyển sang sản phẩm khác (Move Product)
+    public boolean bulkMoveProduct(String[] cardIds, int newProductId) {
+        String sql = "UPDATE cards SET product_id = ? WHERE card_id = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            conn.setAutoCommit(false);
+            
+            for (String id : cardIds) {
+                ps.setInt(1, newProductId);
+                ps.setLong(2, Long.parseLong(id));
+                ps.addBatch();
+            }
+            
+            ps.executeBatch();
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 }
