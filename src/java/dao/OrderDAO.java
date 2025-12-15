@@ -4,7 +4,8 @@
  */
 package dao;
 
-import java.security.Timestamp;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import model.Order;
@@ -14,6 +15,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
+import model.Cart;
+import model.CartItem;
 
 /**
  *
@@ -69,4 +72,128 @@ public class OrderDAO extends DBConnect {
         }
         return items;
     }
+
+    public long createOrder(Connection con, int userId, BigDecimal total) throws Exception {
+        String sql = """
+        INSERT INTO orders(user_id, total_amount, status, created_at, paid_at)
+        VALUES (?, ?, 'PAID', NOW(), NOW())
+    """;
+
+        try (PreparedStatement ps
+                = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, userId);
+            ps.setBigDecimal(2, total);
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        }
+        throw new Exception("Không tạo được order");
+    }
+
+    public void createOrderItem(Connection con, long orderId,
+            CartItem ci, long cardId) throws Exception {
+
+        BigDecimal buyPrice = BigDecimal.ZERO;
+        String sqlBuy = "SELECT buy_price FROM card_products WHERE product_id = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sqlBuy)) {
+            ps.setInt(1, ci.getProductId());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                buyPrice = rs.getBigDecimal("buy_price");
+            }
+        }
+        BigDecimal finalPrice = ci.getUnitPrice();
+
+        BigDecimal profit = finalPrice.subtract(buyPrice);
+
+        String sql = """
+        INSERT INTO order_items
+        (order_id, product_id, quantity, unit_price, final_price, profit, assigned_card_id)
+        VALUES (?, ?, 1, ?, ?, ?, ?)
+    """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, orderId);
+            ps.setInt(2, ci.getProductId());
+            ps.setBigDecimal(3, finalPrice);
+            ps.setBigDecimal(4, finalPrice);
+            ps.setBigDecimal(5, profit);
+            ps.setLong(6, cardId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void checkoutFromCart(int userId) throws Exception {
+        Connection con = null;
+
+        try {
+            con = DBConnect.getConnection();
+            con.setAutoCommit(false);
+
+            CartDAO cartDAO = new CartDAO();
+            WalletDAO walletDAO = new WalletDAO();
+            CardDAO cardDAO = new CardDAO();
+
+            Cart cart = cartDAO.getCartByUserId(userId);
+            if (cart == null) {
+                throw new Exception("Giỏ hàng trống");
+            }
+
+            List<CartItem> items = cartDAO.getCartItemsByCartId(cart.getCartId());
+            if (items.isEmpty()) {
+                throw new Exception("Giỏ hàng trống");
+            }
+
+            // 1️⃣ Tính tổng tiền
+            BigDecimal total = BigDecimal.ZERO;
+            for (CartItem i : items) {
+                total = total.add(
+                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
+                );
+            }
+
+            // 2️⃣ Check ví
+            BigDecimal balance = walletDAO.getBalance(con, userId);
+            if (balance.compareTo(total) < 0) {
+                throw new Exception("Số dư ví không đủ, vui lòng nạp thêm");
+            }
+
+            // 3️⃣ Trừ ví
+            walletDAO.deduct(con, userId, total);
+
+            // 4️⃣ Tạo order
+            long orderId = createOrder(con, userId, total);
+
+            // 5️⃣ Order items + xuất thẻ
+            for (CartItem ci : items) {
+                for (int i = 0; i < ci.getQuantity(); i++) {
+                    long cardId = cardDAO.assignCard(con, ci.getProductId());
+                    createOrderItem(con, orderId, ci, cardId);
+                }
+            }
+
+            // 6️⃣ Clear cart
+            cartDAO.clearCart(con, cart.getCartId());
+
+            con.commit();
+
+        } catch (Exception e) {
+            if (con != null) {
+                con.rollback();
+            }
+            throw e;
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
+
+    
+
 }

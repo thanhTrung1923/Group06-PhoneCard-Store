@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
 
 public class Order {
 
-    // Định nghĩa Enum cho trạng thái để đảm bảo Type Safe
-
     private Long orderId;
     private Integer userId;
     private BigDecimal totalAmount;
