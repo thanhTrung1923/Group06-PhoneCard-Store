@@ -349,8 +349,9 @@
 
                 if (ok && ok === 'false') {
                     iziToast.show({
-                        title: 'Hey',
-                        message: 'What would you like to add?',
+                        title: 'Thêm vào giỏ hàng',
+                        message: 'Có lỗi xảy ra trong quá trình thêm sản phẩm vào giỏ hàng, vui lòng thử lại sau',
+                        color: 'red',
                         position: 'topRight'
                     });
             <c:remove var="ok" scope="session"/>
@@ -378,14 +379,26 @@
                     }
                 });
 
-                quantityInput.addEventListener('change', function () {
+                quantityInput.addEventListener('input', function () {
                     const minValue = parseInt(this.min);
                     const maxValue = parseInt(this.max);
                     let value = parseInt(this.value);
 
                     if (isNaN(value) || value < minValue) {
+                        iziToast.show({
+                            title: 'Úi có chút hiểu nhầm!',
+                            message: 'Số lượng sản phẩm ít nhất có thể đặt là: ' + minValue,
+                            position: 'topRight',
+                            color: 'red'
+                        });
                         this.value = minValue;
                     } else if (value > maxValue) {
+                        iziToast.show({
+                            title: 'Úi có chút hiểu nhầm!',
+                            message: 'Số lượng sản phẩm nhiều nhất có thể đặt là: ' + maxValue,
+                            position: 'topRight',
+                            color: 'red'
+                        });
                         this.value = maxValue;
                     }
                 });
