@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
+import model.Cart;
 import model.CartItem;
 
 /**
@@ -235,7 +236,71 @@ public class OrderDAO extends DBConnect {
 
         return list;
     }
+    
+    public void checkoutFromCart(int userId) throws Exception {
+        Connection con = null;
+
+        try {
+            con = DBConnect.getConnection();
+            con.setAutoCommit(false);
+
+            CartDAO cartDAO = new CartDAO();
+            WalletDAO walletDAO = new WalletDAO();
+            CardDAO cardDAO = new CardDAO();
+
+            Cart cart = cartDAO.getCartByUserId(userId);
+            if (cart == null) {
+                throw new Exception("Giỏ hàng trống");
+            }
+
+            List<CartItem> items = cartDAO.getCartItemsByCartId(cart.getCartId());
+            if (items.isEmpty()) {
+                throw new Exception("Giỏ hàng trống");
+            }
+
+            // 1️⃣ Tính tổng tiền
+            BigDecimal total = BigDecimal.ZERO;
+            for (CartItem i : items) {
+                total = total.add(
+                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
+                );
+            }
+
+            // 2️⃣ Check ví
+            BigDecimal balance = walletDAO.getBalance(con, userId);
+            if (balance.compareTo(total) < 0) {
+                throw new Exception("Số dư ví không đủ, vui lòng nạp thêm");
+            }
+
+            // 3️⃣ Trừ ví
+            walletDAO.deduct(con, userId, total);
+
+            // 4️⃣ Tạo order
+            long orderId = createOrder(con, userId, total);
+
+            // 5️⃣ Order items + xuất thẻ
+            for (CartItem ci : items) {
+                for (int i = 0; i < ci.getQuantity(); i++) {
+                    long cardId = cardDAO.assignCard(con, ci.getProductId());
+                    createOrderItem(con, orderId, ci, cardId);
+                }
+            }
+
+            // 6️⃣ Clear cart
+            cartDAO.clearCart(con, cart.getCartId());
+
+            con.commit();
+
+        } catch (Exception e) {
+            if (con != null) {
+                con.rollback();
+            }
+            throw e;
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
 
 }
-
-

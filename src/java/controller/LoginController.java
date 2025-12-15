@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.CartDAO;
 import dao.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,7 +13,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import model.Cart;
+import model.CartItem;
 import model.User;
 
 /**
@@ -94,6 +99,24 @@ public class LoginController extends HttpServlet {
 
             // 3. Phân quyền chuyển hướng
             List<String> roles = user.getRoles();
+
+            CartDAO cdao = new CartDAO();
+            Cart cart = cdao.getCartByUserId(user.getUserId());
+
+            List<CartItem> cartItems = cdao.getCartItemsByCartId(cart.getCartId());
+            Map<Integer, Map<String, Object>> productInfoMap = cdao.getProductInfoForCart(cartItems);
+
+            BigDecimal subTotal = BigDecimal.ZERO;
+            int totalQty = 0;
+
+            for (CartItem i : cartItems) {
+                subTotal = subTotal.add(
+                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
+                );
+                totalQty += i.getQuantity();
+            }
+
+            session.setAttribute("cartTotalQuantity", totalQty);
 
             if (roles.contains("ADMIN")) {
                 response.sendRedirect("admin/dashboard"); // Trang quản trị
