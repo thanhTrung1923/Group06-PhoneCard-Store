@@ -10,7 +10,7 @@ import java.util.List;
 import model.User;
 
 public class UserDAO extends DBConnect {
-
+    
     // Hàm lấy tất cả user (Code cũ của bạn, mình sửa lại cho đúng bảng)
     public List<User> getAllUser() {
         List<User> list = new ArrayList<>();
