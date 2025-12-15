@@ -36,52 +36,112 @@ public class InventoryDAO {
         return list;
     }
 
+    // 1. Hàm lấy số liệu thống kê Header (ĐÃ SỬA: Tính toán dựa trên số lượng thực tế)
     public Map<String, Integer> getInventoryStats() {
         Map<String, Integer> stats = new HashMap<>();
-        String sql = "SELECT COALESCE(SUM(quantity), 0) as total_instock, " +
-                     "(SELECT COUNT(*) FROM cards WHERE status = 'SOLD') as total_sold, " +
-                     "COUNT(CASE WHEN quantity <= min_stock_alert AND quantity > 0 THEN 1 END) as total_low, " +
-                     "COUNT(CASE WHEN quantity = 0 THEN 1 END) as total_out " +
-                     "FROM card_products WHERE is_active = 1";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                stats.put("totalInStock", rs.getInt("total_instock"));
-                stats.put("totalSold", rs.getInt("total_sold"));
-                stats.put("totalLowStock", rs.getInt("total_low"));
-                stats.put("totalOutStock", rs.getInt("total_out"));
+        
+        // Khởi tạo biến đếm
+        int totalInStock = 0;
+        int totalSold = 0;
+        int totalLow = 0;
+        int totalOut = 0;
+
+        Connection conn = DBConnect.getConnection();
+        
+        try {
+            // -----------------------------------------------------------
+            // BƯỚC 1: Tính tổng số thẻ ĐÃ BÁN (Total Sold)
+            // -----------------------------------------------------------
+            String sqlSold = "SELECT COUNT(*) FROM cards WHERE status = 'SOLD'";
+            try (PreparedStatement ps = conn.prepareStatement(sqlSold);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalSold = rs.getInt(1);
+                }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+
+            // -----------------------------------------------------------
+            // BƯỚC 2: Tính Tồn kho, Sắp hết, Hết hàng
+            // (Phải Group By theo sản phẩm để so sánh với min_stock_alert của từng loại)
+            // -----------------------------------------------------------
+            String sqlStock = "SELECT p.min_stock_alert, " +
+                              "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_qty " +
+                              "FROM card_products p " +
+                              "WHERE p.is_active = 1"; // Chỉ tính sản phẩm đang kinh doanh
+
+            try (PreparedStatement ps = conn.prepareStatement(sqlStock);
+                 ResultSet rs = ps.executeQuery()) {
+                
+                while (rs.next()) {
+                    int realQty = rs.getInt("real_qty");
+                    int minAlert = rs.getInt("min_stock_alert");
+
+                    // Cộng dồn vào tổng tồn kho
+                    totalInStock += realQty;
+
+                    // Phân loại trạng thái
+                    if (realQty == 0) {
+                        totalOut++; // Hết hàng
+                    } else if (realQty <= minAlert) {
+                        totalLow++; // Sắp hết (Còn hàng nhưng ít)
+                    }
+                    // Ngược lại là OK, không cần đếm
+                }
+            }
+
+            // Đóng kết nối
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Put vào Map để trả về Controller
+        stats.put("totalInStock", totalInStock);
+        stats.put("totalSold", totalSold);
+        stats.put("totalLowStock", totalLow);
+        stats.put("totalOutStock", totalOut);
+        
         return stats;
     }
 
+    // Hàm lấy danh sách hiển thị bảng (Đã sửa để đếm số lượng thực tế)
     public List<CardProductDTO> getProductList(String keyword, String type, String status) {
         List<CardProductDTO> list = new ArrayList<>();
+        
+        // [CẬP NHẬT SQL]
+        // Thay "p.quantity" bằng sub-query đếm trực tiếp từ bảng cards với alias là "real_quantity"
         StringBuilder sql = new StringBuilder(
-            "SELECT p.product_id, p.type_name, p.value, p.quantity, p.min_stock_alert, " +
+            "SELECT p.product_id, p.type_name, p.value, p.min_stock_alert, " +
+            
+            // 1. Đếm số lượng thực tế (In Stock)
+            "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_quantity, " +
+            
+            // 2. Đếm số lượng đã bán
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count " +
+            
             "FROM card_products p WHERE p.is_active = 1 ");
 
-        // 1. Filter Keyword (Tên hoặc ID)
+        // Xử lý Filter (Giữ nguyên logic filter)
         if (keyword != null && !keyword.isEmpty()) {
             sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
         }
-        // 2. Filter Type (Viettel, Vina...)
         if (type != null && !type.isEmpty()) {
-            sql.append("AND p.type_name = ? "); // Lưu ý: DB bạn dùng type_name hay type_code thì sửa lại cho khớp
+            sql.append("AND p.type_name = ? ");
         }
         
-        // 3. [FIX] Filter Status (Logic phức tạp)
+        // [LƯU Ý] Logic filter Status vẫn đang dựa vào cột p.quantity cũ trong DB để so sánh cho nhanh.
+        // Nếu muốn filter chính xác tuyệt đối thì cần logic phức tạp hơn (HAVING), 
+        // nhưng hiện tại ta ưu tiên hiển thị đúng số lượng trước.
         if (status != null && !status.isEmpty()) {
             switch (status) {
                 case "OUT": // Hết hàng
                     sql.append("AND p.quantity = 0 ");
                     break;
-                case "LOW": // Sắp hết (Còn hàng nhưng dưới mức báo động)
+                case "LOW": // Sắp hết
                     sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert ");
                     break;
-                case "OK": // Sẵn sàng (Trên mức báo động)
+                case "OK": // Sẵn sàng
                     sql.append("AND p.quantity > p.min_stock_alert ");
                     break;
             }
@@ -95,12 +155,11 @@ public class InventoryDAO {
             int index = 1;
             if (keyword != null && !keyword.isEmpty()) {
                 ps.setString(index++, "%" + keyword + "%");
-                ps.setString(index++, "%" + keyword + "%"); // Set 2 lần cho 2 dấu ? của OR
+                ps.setString(index++, "%" + keyword + "%");
             }
             if (type != null && !type.isEmpty()) {
                 ps.setString(index++, type);
             }
-            // Status không dùng tham số ? mà nối chuỗi trực tiếp nên không cần setString ở đây
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -108,7 +167,10 @@ public class InventoryDAO {
                     dto.setProductId(rs.getInt("product_id"));
                     dto.setTypeName(rs.getString("type_name"));
                     dto.setValue(rs.getBigDecimal("value"));
-                    dto.setQuantity(rs.getInt("quantity"));
+                    
+                    // [QUAN TRỌNG] Lấy cột real_quantity vừa đếm được thay vì cột quantity cũ
+                    dto.setQuantity(rs.getInt("real_quantity"));
+                    
                     dto.setMinStockAlert(rs.getInt("min_stock_alert"));
                     dto.setSoldCount(rs.getInt("sold_count"));
                     list.add(dto);
@@ -119,7 +181,6 @@ public class InventoryDAO {
         }
         return list;
     }
-
     // --- [HÀM ĐÃ SỬA] IMPORT TRANSACTION ---
     public boolean importBatchTransaction(ImportBatch batch, List<Card> cards) {
         Connection conn = DBConnect.getConnection();
@@ -297,19 +358,20 @@ public class InventoryDAO {
     public CardProductDTO getProductDetail(int productId) {
         CardProductDTO dto = null;
         
-        // Sửa lại SQL: Không join quá phức tạp để đảm bảo luôn lấy được Product Info dù chưa có thẻ
-        String sql = "SELECT p.product_id, p.type_name, p.value, p.quantity, p.min_stock_alert, " +
+        // [CẬP NHẬT] Thay p.quantity bằng câu sub-query đếm trực tiếp (COUNT)
+        String sql = "SELECT p.product_id, p.type_name, p.value, p.min_stock_alert, " +
                      
-                     // Đếm Reserved (An toàn với IFNULL)
+                     // 1. Đếm thực tế số thẻ đang IN_STOCK
+                     "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_quantity, " +
+                     
+                     // 2. Đếm Reserved
                      "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'RESERVED') as reserved_count, " +
                      
-                     // Đếm Sold
+                     // 3. Đếm Sold
                      "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count, " +
                      
-                     // Lấy ngày bán gần nhất
+                     // 4. Các thông tin khác
                      "(SELECT MAX(sold_at) FROM cards c WHERE c.product_id = p.product_id) as last_sold_date, " +
-                     
-                     // Lấy ngày nhập gần nhất (Dựa trên bảng cards cho đơn giản và chính xác)
                      "(SELECT MAX(created_at) FROM cards c WHERE c.product_id = p.product_id) as last_import_date " +
                      
                      "FROM card_products p " +
@@ -325,15 +387,15 @@ public class InventoryDAO {
                     dto.setProductId(rs.getInt("product_id"));
                     dto.setTypeName(rs.getString("type_name"));
                     dto.setValue(rs.getBigDecimal("value"));
-                    dto.setQuantity(rs.getInt("quantity"));
-                    dto.setMinStockAlert(rs.getInt("min_stock_alert"));
                     
+                    // [SỬA] Lấy cột real_quantity thay vì quantity
+                    dto.setQuantity(rs.getInt("real_quantity")); 
+                    
+                    dto.setMinStockAlert(rs.getInt("min_stock_alert"));
                     dto.setReservedCount(rs.getInt("reserved_count"));
                     dto.setSoldCount(rs.getInt("sold_count"));
                     dto.setLastSoldDate(rs.getTimestamp("last_sold_date"));
                     dto.setLastImportDate(rs.getTimestamp("last_import_date"));
-                    
-                    dto.setLastImportQuantity(0); // Tạm để 0
                 }
             }
         } catch (Exception e) {
@@ -341,7 +403,6 @@ public class InventoryDAO {
         }
         return dto;
     }
-
     // [MỚI] Lấy danh sách thẻ cụ thể của 1 sản phẩm (Kèm thông tin Lô hàng để hiển thị chi tiết)
     public List<Card> getCardsByProductId(int productId) {
         List<Card> list = new ArrayList<>();
