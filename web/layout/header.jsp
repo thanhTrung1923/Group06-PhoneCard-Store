@@ -51,18 +51,23 @@
                         </span>
                     </c:if>
                 </a>
-                <c:if test="${empty sessionScope.account}">
-                    <a href="${pageContext.request.contextPath}/login">
-                        <button class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium">
-                            Đăng nhập
-                        </button>
-                    </a>
-                    <a href="${pageContext.request.contextPath}/register">
-                        <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium">
-                            Đăng kí
-                        </button>
-                    </a>
-                </c:if>
+                <c:choose>
+                    <c:when test="${empty sessionScope.account}">
+                        <a href="${pageContext.request.contextPath}/login">
+                            <button class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium">
+                                Đăng nhập
+                            </button>
+                        </a>
+                        <a href="${pageContext.request.contextPath}/register">
+                            <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium">
+                                Đăng kí
+                            </button>
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <p class="font-bold text-lg">${sessionScope.account.fullName}</p>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </div>
