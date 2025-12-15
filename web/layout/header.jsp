@@ -4,6 +4,7 @@
     Author     : trung
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,12 +51,18 @@
                         </span>
                     </c:if>
                 </a>
-                <button class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium">
-                    Đăng nhập
-                </button>
-                <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium">
-                    Đăng kí
-                </button>
+                <c:if test="${empty sessionScope.account}">
+                    <a href="${pageContext.request.contextPath}/login">
+                        <button class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium">
+                            Đăng nhập
+                        </button>
+                    </a>
+                    <a href="${pageContext.request.contextPath}/register">
+                        <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium">
+                            Đăng kí
+                        </button>
+                    </a>
+                </c:if>
             </div>
         </div>
     </div>
