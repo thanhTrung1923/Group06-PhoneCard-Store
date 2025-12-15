@@ -70,34 +70,44 @@ public class AdminCardProductController extends HttpServlet {
     }
 
     private void listProducts(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
-    String typeCode = request.getParameter("typeCode");
-    String order = request.getParameter("typeOrder");
+        String typeCode = request.getParameter("typeCode");
+        String order = request.getParameter("typeOrder");
 
-    Long value = null;
-    if (request.getParameter("value") != null && !request.getParameter("value").isBlank()) {
-        value = Long.parseLong(request.getParameter("value"));
+        // value
+        Long value = null;
+        if (request.getParameter("value") != null
+                && !request.getParameter("value").isBlank()) {
+            value = Long.parseLong(request.getParameter("value"));
+        }
+
+        // status
+        String statusStr = request.getParameter("status");
+        Boolean status = null;
+        if (statusStr != null && !statusStr.isBlank()) {
+            status = "1".equals(statusStr);
+        }
+
+        List<CardProduct> list;
+
+        // 👉 Lần đầu vào / Reset filter
+        if ((typeCode == null || typeCode.isBlank())
+                && value == null
+                && status == null) {
+
+            list = service.getAllProducts();
+
+        } else {
+            list = service.searchProducts(typeCode, value, status, order);
+        }
+
+        request.setAttribute("products", list);
+        request.setAttribute("valueList", service.getAvailableValues());
+
+        request.getRequestDispatcher("product-management-list.jsp")
+                .forward(request, response);
     }
-
-    List<CardProduct> list;
-
-    // Lần đầu vào
-    if ((typeCode == null || typeCode.isBlank()) && value == null) {
-        list = service.getAllProducts();
-    } 
-    // Search
-    else {
-        list = service.searchProducts(typeCode, value, order);
-    }
-
-    request.setAttribute("products", list);
-    request.setAttribute("valueList", service.getAvailableValues());
-
-    request.getRequestDispatcher("product-management-list.jsp")
-           .forward(request, response);
-}
-
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

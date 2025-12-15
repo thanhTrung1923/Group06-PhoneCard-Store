@@ -15,9 +15,10 @@ public class CardProductService {
     public List<CardProduct> searchProducts(
             String typeCode,
             Long value,
+            Boolean status,
             String order
     ) {
-        return dao.search(typeCode, value, order);
+        return dao.search(typeCode, value, status, order);
     }
 
     public CardProduct getProductById(int id) {

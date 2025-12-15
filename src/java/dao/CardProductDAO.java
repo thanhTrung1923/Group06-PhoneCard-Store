@@ -742,56 +742,65 @@ public class CardProductDAO {
     }
 
     public List<CardProduct> search(
-            String typeCode,
-            Long value,
-            String order
-    ) {
-        List<CardProduct> list = new ArrayList<>();
+        String typeCode,
+        Long value,
+        Boolean status,
+        String order
+) {
+    List<CardProduct> list = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder("""
-            SELECT *
-            FROM card_products
-            WHERE 1=1
-        """);
+    StringBuilder sql = new StringBuilder("""
+        SELECT *
+        FROM card_products
+        WHERE 1=1
+    """);
 
-        List<Object> params = new ArrayList<>();
+    List<Object> params = new ArrayList<>();
 
-        if (typeCode != null && !typeCode.isBlank()) {
-            sql.append(" AND type_code LIKE ?");
-            params.add("%" + typeCode.trim() + "%");
-        }
-
-        if (value != null && value > 0) {
-            sql.append(" AND value = ?");
-            params.add(value);
-        }
-
-        sql.append(" ORDER BY sell_price ")
-           .append("asc".equalsIgnoreCase(order) ? "ASC" : "DESC");
-
-        try (Connection con = DBConnect.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
-
-            int idx = 1;
-            for (Object p : params) {
-                if (p instanceof String) {
-                    ps.setString(idx++, (String) p);
-                } else if (p instanceof Long) {
-                    ps.setLong(idx++, (Long) p);
-                }
-            }
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(mapRow(rs));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
+    if (typeCode != null && !typeCode.isBlank()) {
+        sql.append(" AND type_code LIKE ?");
+        params.add("%" + typeCode.trim() + "%");
     }
+
+    if (value != null && value > 0) {
+        sql.append(" AND value = ?");
+        params.add(value);
+    }
+
+    if (status != null) {
+        sql.append(" AND is_active = ?");
+        params.add(status);
+    }
+
+    sql.append(" ORDER BY sell_price ")
+       .append("asc".equalsIgnoreCase(order) ? "ASC" : "DESC");
+
+    try (Connection con = DBConnect.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+        int idx = 1;
+        for (Object p : params) {
+            if (p instanceof String) {
+                ps.setString(idx++, (String) p);
+            } else if (p instanceof Long) {
+                ps.setLong(idx++, (Long) p);
+            } else if (p instanceof Boolean) {
+                ps.setBoolean(idx++, (Boolean) p);
+            }
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            list.add(mapRow(rs));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
 
     // Lấy danh sách mệnh giá cho combobox
     public List<Long> getDistinctValues() {

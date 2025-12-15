@@ -60,6 +60,14 @@
                             </select>
                         </div>
                         <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="">Trạng thái</option>
+                                <option value="1" ${param.status == '1' ? 'selected' : ''}>Đang bán</option>
+                                <option value="0" ${param.status == '0' ? 'selected' : ''}>Ngừng bán</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
                             <select name="orderBy" class="form-select">
                                 <option value="">Sắp xếp theo</option>
                                 <option value="price" ${param.orderBy == 'price' ? 'selected' : ''}>
@@ -80,12 +88,18 @@
                             </select>
 
                         </div>
-
                         <div class="col-md-1 d-grid">
                             <button class="btn btn-primary">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
+
+                        <div class="col-md-1 d-grid">
+                            <a href="admin-products" class="btn btn-secondary">
+                                <i class="fas fa-rotate-left"></i>
+                            </a>
+                        </div>
+
                     </form>
 
                     <table class="table table-hover table-bordered align-middle">
@@ -111,7 +125,7 @@
                                              class="card-img-small" alt="Img">
                                     </td>
 
-                                    <td>${p.typeName}</td>
+                                    <td>${p.typeCode}</td>
 
                                     <td class="text-end text-primary fw-bold">
                                         ${p.value}
