@@ -24,14 +24,36 @@ public class ForgotPasswordController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String email = req.getParameter("email");
-        UserDAO dao = new UserDAO();
-        User u = dao.getUserByEmail(email);
-        if (u == null) {
-            req.setAttribute("error", "Không tìm thấy email");
+      String rawEmail = req.getParameter("email");
+        String email = (rawEmail != null) ? rawEmail.trim() : "";
+
+        System.out.println("========== DEBUG FORGOT PASSWORD ==========");
+        System.out.println("1. Email nhận được từ Form: [" + email + "]");
+
+        if (email.isEmpty()) {
+            req.setAttribute("error", "Vui lòng nhập email.");
             req.getRequestDispatcher("forgot-password.jsp").forward(req, resp);
             return;
         }
+
+        // 2. Gọi DAO
+        UserDAO dao = new UserDAO();
+        System.out.println("2. Đang gọi DAO để tìm user...");
+        User u = dao.getUserByEmail(email);
+
+        // 3. Kiểm tra kết quả
+        if (u == null) {
+            System.out.println("❌ KẾT QUẢ: User bị NULL.");
+            System.out.println("-> Khả năng 1: Email sai hoặc chưa có trong DB.");
+            System.out.println("-> Khả năng 2: Kết nối DB lỗi (Check file DBContext).");
+            System.out.println("-> Khả năng 3: Tên cột trong UserDAO không khớp DB.");
+            
+            req.setAttribute("error", "Không tìm thấy email: " + email);
+            req.getRequestDispatcher("forgot-password.jsp").forward(req, resp);
+            return;
+        }
+
+        System.out.println("✅ KẾT QUẢ: Đã tìm thấy User ID: " + u.getUserId());
         String token = UUID.randomUUID().toString();
         tokens.put(token, email);
         String link = req.getRequestURL().toString().replace(req.getRequestURI(), req.getContextPath()) + "/reset-password?token=" + token;
