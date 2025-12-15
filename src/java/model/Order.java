@@ -10,6 +10,8 @@ package model;
  */
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class Order {
 
@@ -24,12 +26,12 @@ public class Order {
     // 1. Constructor mặc định (No-args constructor)
     public Order() {
         // Thiết lập giá trị mặc định giống như trong SQL
-        
+
     }
 
     // 2. Constructor đầy đủ tham số
-    public Order(Long orderId, Integer userId, BigDecimal totalAmount, String status, 
-                 LocalDateTime createdAt, LocalDateTime paidAt, LocalDateTime cancelledAt) {
+    public Order(Long orderId, Integer userId, BigDecimal totalAmount, String status,
+            LocalDateTime createdAt, LocalDateTime paidAt, LocalDateTime cancelledAt) {
         this.orderId = orderId;
         this.userId = userId;
         this.totalAmount = totalAmount;
@@ -40,7 +42,6 @@ public class Order {
     }
 
     // 3. Getters và Setters
-
     public Long getOrderId() {
         return orderId;
     }
@@ -100,14 +101,21 @@ public class Order {
     // 4. Override phương thức toString để in object dễ dàng hơn
     @Override
     public String toString() {
-        return "Order{" +
-                "orderId=" + orderId +
-                ", userId=" + userId +
-                ", totalAmount=" + totalAmount +
-                ", status=" + status +
-                ", createdAt=" + createdAt +
-                ", paidAt=" + paidAt +
-                ", cancelledAt=" + cancelledAt +
-                '}';
+        return "Order{"
+                + "orderId=" + orderId
+                + ", userId=" + userId
+                + ", totalAmount=" + totalAmount
+                + ", status=" + status
+                + ", createdAt=" + createdAt
+                + ", paidAt=" + paidAt
+                + ", cancelledAt=" + cancelledAt
+                + '}';
+    }
+
+    public Date getCreatedAtDate() {
+        if (createdAt == null) {
+            return null;
+        }
+        return Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

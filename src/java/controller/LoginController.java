@@ -93,7 +93,7 @@ public class LoginController extends HttpServlet {
             List<String> roles = user.getRoles();
             
             if (roles.contains("ADMIN")) {
-                response.sendRedirect("admin.jsp"); // Trang quản trị
+                response.sendRedirect("admin/dashboard"); // Trang quản trị
             } else if (roles.contains("STAFF")) {
                 response.sendRedirect("staff.jsp"); // Trang nhân viên
             } else {

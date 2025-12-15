@@ -126,5 +126,32 @@ public class OrderDAO extends DBConnect {
             ps.executeUpdate();
         }
     }
+    public Order getOrderById(long orderId) {
+    String sql = "SELECT * FROM orders WHERE order_id = ?";
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setLong(1, orderId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            Order o = new Order();
+            o.setOrderId(rs.getLong("order_id"));
+            o.setUserId(rs.getInt("user_id"));
+            o.setTotalAmount(rs.getBigDecimal("total_amount"));
+            o.setStatus(rs.getString("status"));
+
+            java.sql.Timestamp ts = rs.getTimestamp("created_at");
+            if (ts != null) {
+                o.setCreatedAt(ts.toLocalDateTime());
+            }
+            return o;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
 
 }
