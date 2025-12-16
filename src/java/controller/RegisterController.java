@@ -28,7 +28,7 @@ public class RegisterController extends HttpServlet {
         String email = request.getParameter("email");
         String pass = request.getParameter("password");
         String confirmPass = request.getParameter("confirmPassword");
-        if (fullName == null) {
+        if (fullName == null || fullName.isEmpty()) {
             request.setAttribute("error", "Tên không được để trống");
             request.setAttribute("fullName", fullName);
             request.setAttribute("phone", phone);
@@ -70,8 +70,8 @@ public class RegisterController extends HttpServlet {
             return;
         }
 
-        if (confirmPass == null) {
-            request.setAttribute("error", "Số điện thoại phải có 10 chữ số");
+        if (confirmPass == null || confirmPass.isEmpty()) {
+            request.setAttribute("error", "Không được để trống mật khẩu");
             request.setAttribute("fullName", fullName);
             request.setAttribute("phone", phone);
             request.setAttribute("email", email);
