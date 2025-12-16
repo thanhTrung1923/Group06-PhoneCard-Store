@@ -1,5 +1,6 @@
 package dtos;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class PromotionListDTO {
@@ -7,10 +8,17 @@ public class PromotionListDTO {
     private String promotionName;
     private Timestamp startAt;
     private Timestamp endAt;
-    private boolean activeFlag; // promotions.is_active
+
+    private String timeStatus; // UPCOMING / ONGOING / EXPIRED
+    private boolean active;
+
+    private int productCount;
+
     private String createdByName;
     private String createdByEmail;
-    private int productCount;   // count promotion_details
+
+    private BigDecimal minDiscountPercent;
+    private BigDecimal maxDiscountPercent;
 
     public int getPromotionId() { return promotionId; }
     public void setPromotionId(int promotionId) { this.promotionId = promotionId; }
@@ -24,8 +32,14 @@ public class PromotionListDTO {
     public Timestamp getEndAt() { return endAt; }
     public void setEndAt(Timestamp endAt) { this.endAt = endAt; }
 
-    public boolean isActiveFlag() { return activeFlag; }
-    public void setActiveFlag(boolean activeFlag) { this.activeFlag = activeFlag; }
+    public String getTimeStatus() { return timeStatus; }
+    public void setTimeStatus(String timeStatus) { this.timeStatus = timeStatus; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+
+    public int getProductCount() { return productCount; }
+    public void setProductCount(int productCount) { this.productCount = productCount; }
 
     public String getCreatedByName() { return createdByName; }
     public void setCreatedByName(String createdByName) { this.createdByName = createdByName; }
@@ -33,6 +47,9 @@ public class PromotionListDTO {
     public String getCreatedByEmail() { return createdByEmail; }
     public void setCreatedByEmail(String createdByEmail) { this.createdByEmail = createdByEmail; }
 
-    public int getProductCount() { return productCount; }
-    public void setProductCount(int productCount) { this.productCount = productCount; }
+    public BigDecimal getMinDiscountPercent() { return minDiscountPercent; }
+    public void setMinDiscountPercent(BigDecimal minDiscountPercent) { this.minDiscountPercent = minDiscountPercent; }
+
+    public BigDecimal getMaxDiscountPercent() { return maxDiscountPercent; }
+    public void setMaxDiscountPercent(BigDecimal maxDiscountPercent) { this.maxDiscountPercent = maxDiscountPercent; }
 }

@@ -12,9 +12,18 @@ public class OrderItemDTO {
     private BigDecimal unitPrice;
     private BigDecimal finalPrice;
     private BigDecimal profit;
+    private BigDecimal buyPriceAtSale;
 
     private Long assignedCardId;
     private String assignedSerial;
+    
+    public BigDecimal getBuyPriceAtSale() {
+        return buyPriceAtSale;
+    }
+
+    public void setBuyPriceAtSale(BigDecimal buyPriceAtSale) {
+        this.buyPriceAtSale = buyPriceAtSale;
+    }
 
     public long getItemId() { return itemId; }
     public void setItemId(long itemId) { this.itemId = itemId; }

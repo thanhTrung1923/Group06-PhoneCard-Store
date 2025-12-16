@@ -103,44 +103,49 @@ public class OrderController extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
-        String action = request.getParameter("action");
-        if (action == null) action = "";
+    String action = request.getParameter("action");
+    if (action == null) action = "";
 
-        try {
-            if ("updateStatus".equals(action)) {
-                long id = Long.parseLong(request.getParameter("id"));
-                String status = request.getParameter("status");
+    try {
+        if ("updateStatus".equals(action)) {
+            long id = Long.parseLong(request.getParameter("id"));
+            String newStatus = request.getParameter("status");
 
-                boolean ok = orderService.updateOrderStatus(id, status);
-                String msg = ok ? "updated" : "failed";
-
+            if (newStatus == null || newStatus.isBlank()) {
                 response.sendRedirect(request.getContextPath()
-                        + "/admin/orders?action=detail&id=" + id + "&msg=" + msg);
+                        + "/admin/orders?action=detail&id=" + id + "&msg=invalid_status");
                 return;
             }
 
-            response.sendRedirect(request.getContextPath() + "/admin/orders?action=list");
-        } catch (Exception e) {
-            throw new ServletException(e);
+            boolean ok = orderService.updateOrderStatus(id, newStatus);
+
+            response.sendRedirect(request.getContextPath()
+                    + "/admin/orders?action=detail&id=" + id + "&msg=" + (ok ? "updated" : "failed"));
+            return;
         }
+
+        response.sendRedirect(request.getContextPath() + "/admin/orders?action=list");
+    } catch (Exception e) {
+        throw new ServletException(e);
     }
+}
+
 
     private void handleDetail(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
         long id = Long.parseLong(request.getParameter("id"));
-        OrderDetailDTO detail = orderService.getOrderDetail(id);
+         var detail = orderService.getOrderDetail(id);
 
         if (detail == null) {
             request.setAttribute("error", "Order not found: " + id);
             request.getRequestDispatcher("/views/admin/orders/list.jsp").forward(request, response);
             return;
         }
-
-        List<OrderItemDTO> items = orderService.getOrderItems(id);
+        var items = orderService.getOrderItems(id);
 
         request.setAttribute("order", detail);
         request.setAttribute("items", items);
