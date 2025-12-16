@@ -100,23 +100,23 @@ public class LoginController extends HttpServlet {
             // 3. Phân quyền chuyển hướng
             List<String> roles = user.getRoles();
 
-            CartDAO cdao = new CartDAO();
-            Cart cart = cdao.getCartByUserId(user.getUserId());
-
-            List<CartItem> cartItems = cdao.getCartItemsByCartId(cart.getCartId());
-            Map<Integer, Map<String, Object>> productInfoMap = cdao.getProductInfoForCart(cartItems);
-
-            BigDecimal subTotal = BigDecimal.ZERO;
-            int totalQty = 0;
-
-            for (CartItem i : cartItems) {
-                subTotal = subTotal.add(
-                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
-                );
-                totalQty += i.getQuantity();
-            }
-
-            session.setAttribute("cartTotalQuantity", totalQty);
+//            CartDAO cdao = new CartDAO();
+//            Cart cart = cdao.getCartByUserId(user.getUserId());
+//
+//            List<CartItem> cartItems = cdao.getCartItemsByCartId(cart.getCartId());
+//            Map<Integer, Map<String, Object>> productInfoMap = cdao.getProductInfoForCart(cartItems);
+//
+//            BigDecimal subTotal = BigDecimal.ZERO;
+//            int totalQty = 0;
+//
+//            for (CartItem i : cartItems) {
+//                subTotal = subTotal.add(
+//                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
+//                );
+//                totalQty += i.getQuantity();
+//            }
+//
+//            session.setAttribute("cartTotalQuantity", totalQty);
 
             if (roles.contains("ADMIN")) {
                 response.sendRedirect("admin/dashboard"); // Trang quản trị
