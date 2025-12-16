@@ -4,20 +4,19 @@ import dao.admin.InventoryDAO;
 import model.Card;
 import model.CardProductDTO;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet; // [MỚI] Import annotation
+import jakarta.servlet.annotation.WebServlet; 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLEncoder; // [MỚI] Dùng cho doPost
-import java.nio.charset.StandardCharsets; // [MỚI] Dùng cho doPost
+import java.net.URLEncoder; 
+import java.nio.charset.StandardCharsets; 
 import java.util.List;
-import java.util.Arrays; // Có thể bỏ nếu không dùng trực tiếp Arrays.asList trong code này
+import java.util.Arrays; 
 
 
 public class ProductDetailController extends HttpServlet {
 
-    // --- XỬ LÝ GET: HIỂN THỊ TRANG CHI TIẾT ---
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -32,10 +31,8 @@ public class ProductDetailController extends HttpServlet {
             int productId = Integer.parseInt(idStr);
             InventoryDAO dao = new InventoryDAO();
 
-            // 1. Lấy thông tin chung của Sản phẩm (Header trang)
             CardProductDTO product = dao.getProductDetail(productId);
             
-            // 2. Lấy danh sách các thẻ con (Bảng bên dưới)
             List<Card> cardList = dao.getCardsByProductId(productId);
 
             if (product == null) {
@@ -44,13 +41,10 @@ public class ProductDetailController extends HttpServlet {
                 return;
             }
 
-            // [MỚI] 3. Lấy danh sách tất cả sản phẩm để dùng cho Modal "Move to Another Product"
-            // (Hàm này cần trả về danh sách rút gọn id và name để hiển thị trong thẻ <select>)
             req.setAttribute("allProducts", new InventoryDAO().getAllProductNames());
 
-            // 4. Đẩy dữ liệu sang JSP
-            req.setAttribute("p", product);      // Product Info
-            req.setAttribute("cards", cardList); // List Cards
+            req.setAttribute("p", product);   
+            req.setAttribute("cards", cardList); 
             
             req.getRequestDispatcher("/views/admin/product-detail.jsp").forward(req, resp);
             
@@ -61,16 +55,14 @@ public class ProductDetailController extends HttpServlet {
         }
     }
 
-    // --- [MỚI] XỬ LÝ POST: BULK ACTIONS (Move, Delete, Change Status) ---
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         
         String currentProductId = req.getParameter("currentProductId");
-        String action = req.getParameter("bulkAction"); // status, move, delete
-        String[] selectedIds = req.getParameterValues("selectedCards"); // Mảng ID các thẻ đã chọn
+        String action = req.getParameter("bulkAction"); 
+        String[] selectedIds = req.getParameterValues("selectedCards"); 
         
-        // Kiểm tra nếu chưa chọn thẻ nào
         if (selectedIds == null || selectedIds.length == 0) {
             resp.sendRedirect(req.getContextPath() + "/admin/inventory/detail?id=" + currentProductId + "&error=NoSelection");
             return;
@@ -109,8 +101,6 @@ public class ProductDetailController extends HttpServlet {
                     success = false;
             }
             
-            // (Optional) Cập nhật lại số lượng tồn kho nếu cần thiết logic DB không tự trigger
-            // dao.syncProductQuantity(Integer.parseInt(currentProductId)); 
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,7 +108,6 @@ public class ProductDetailController extends HttpServlet {
             msg = "Đã xảy ra lỗi hệ thống: " + e.getMessage();
         }
 
-        // Tạo URL redirect kèm thông báo
         String redirectUrl = req.getContextPath() + "/admin/inventory/detail?id=" + currentProductId;
         if (success) {
             redirectUrl += "&message=" + URLEncoder.encode(msg, StandardCharsets.UTF_8);

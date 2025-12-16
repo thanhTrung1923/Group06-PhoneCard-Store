@@ -17,8 +17,6 @@ import model.Supplier;
 
 public class InventoryDAO {
 
-    // --- CÁC HÀM GET DỮ LIỆU (Giữ nguyên) ---
-    
     public List<Supplier> getAllSuppliers() {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM suppliers WHERE is_active = 1";
@@ -29,18 +27,15 @@ public class InventoryDAO {
                 Supplier s = new Supplier();
                 s.setSupplierId(rs.getInt("supplier_id"));
                 s.setSupplierName(rs.getString("supplier_name"));
-                // Map thêm các trường khác nếu cần
                 list.add(s);
             }
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
 
-    // 1. Hàm lấy số liệu thống kê Header (ĐÃ SỬA: Tính toán dựa trên số lượng thực tế)
     public Map<String, Integer> getInventoryStats() {
         Map<String, Integer> stats = new HashMap<>();
-        
-        // Khởi tạo biến đếm
+
         int totalInStock = 0;
         int totalSold = 0;
         int totalLow = 0;
@@ -49,9 +44,6 @@ public class InventoryDAO {
         Connection conn = DBConnect.getConnection();
         
         try {
-            // -----------------------------------------------------------
-            // BƯỚC 1: Tính tổng số thẻ ĐÃ BÁN (Total Sold)
-            // -----------------------------------------------------------
             String sqlSold = "SELECT COUNT(*) FROM cards WHERE status = 'SOLD'";
             try (PreparedStatement ps = conn.prepareStatement(sqlSold);
                  ResultSet rs = ps.executeQuery()) {
@@ -60,14 +52,10 @@ public class InventoryDAO {
                 }
             }
 
-            // -----------------------------------------------------------
-            // BƯỚC 2: Tính Tồn kho, Sắp hết, Hết hàng
-            // (Phải Group By theo sản phẩm để so sánh với min_stock_alert của từng loại)
-            // -----------------------------------------------------------
             String sqlStock = "SELECT p.min_stock_alert, " +
                               "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_qty " +
                               "FROM card_products p " +
-                              "WHERE p.is_active = 1"; // Chỉ tính sản phẩm đang kinh doanh
+                              "WHERE p.is_active = 1"; 
 
             try (PreparedStatement ps = conn.prepareStatement(sqlStock);
                  ResultSet rs = ps.executeQuery()) {
@@ -76,27 +64,22 @@ public class InventoryDAO {
                     int realQty = rs.getInt("real_qty");
                     int minAlert = rs.getInt("min_stock_alert");
 
-                    // Cộng dồn vào tổng tồn kho
                     totalInStock += realQty;
 
-                    // Phân loại trạng thái
                     if (realQty == 0) {
-                        totalOut++; // Hết hàng
+                        totalOut++; 
                     } else if (realQty <= minAlert) {
-                        totalLow++; // Sắp hết (Còn hàng nhưng ít)
+                        totalLow++;
                     }
-                    // Ngược lại là OK, không cần đếm
                 }
             }
 
-            // Đóng kết nối
             conn.close();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Put vào Map để trả về Controller
         stats.put("totalInStock", totalInStock);
         stats.put("totalSold", totalSold);
         stats.put("totalLowStock", totalLow);
@@ -105,43 +88,31 @@ public class InventoryDAO {
         return stats;
     }
 
-    // Hàm lấy danh sách hiển thị bảng (Đã sửa để đếm số lượng thực tế)
     public List<CardProductDTO> getProductList(String keyword, String type, String status) {
         List<CardProductDTO> list = new ArrayList<>();
         
-        // [CẬP NHẬT SQL]
-        // Thay "p.quantity" bằng sub-query đếm trực tiếp từ bảng cards với alias là "real_quantity"
         StringBuilder sql = new StringBuilder(
             "SELECT p.product_id, p.type_name, p.value, p.min_stock_alert, " +
-            
-            // 1. Đếm số lượng thực tế (In Stock)
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_quantity, " +
-            
-            // 2. Đếm số lượng đã bán
-            "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count " +
-            
+            "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count " +          
             "FROM card_products p WHERE p.is_active = 1 ");
 
-        // Xử lý Filter (Giữ nguyên logic filter)
         if (keyword != null && !keyword.isEmpty()) {
             sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
         }
         if (type != null && !type.isEmpty()) {
             sql.append("AND p.type_name = ? ");
         }
-        
-        // [LƯU Ý] Logic filter Status vẫn đang dựa vào cột p.quantity cũ trong DB để so sánh cho nhanh.
-        // Nếu muốn filter chính xác tuyệt đối thì cần logic phức tạp hơn (HAVING), 
-        // nhưng hiện tại ta ưu tiên hiển thị đúng số lượng trước.
+
         if (status != null && !status.isEmpty()) {
             switch (status) {
-                case "OUT": // Hết hàng
+                case "OUT": 
                     sql.append("AND p.quantity = 0 ");
                     break;
-                case "LOW": // Sắp hết
+                case "LOW": 
                     sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert ");
                     break;
-                case "OK": // Sẵn sàng
+                case "OK":
                     sql.append("AND p.quantity > p.min_stock_alert ");
                     break;
             }
@@ -167,8 +138,6 @@ public class InventoryDAO {
                     dto.setProductId(rs.getInt("product_id"));
                     dto.setTypeName(rs.getString("type_name"));
                     dto.setValue(rs.getBigDecimal("value"));
-                    
-                    // [QUAN TRỌNG] Lấy cột real_quantity vừa đếm được thay vì cột quantity cũ
                     dto.setQuantity(rs.getInt("real_quantity"));
                     
                     dto.setMinStockAlert(rs.getInt("min_stock_alert"));
@@ -181,7 +150,7 @@ public class InventoryDAO {
         }
         return list;
     }
-    // --- [HÀM ĐÃ SỬA] IMPORT TRANSACTION ---
+
     public boolean importBatchTransaction(ImportBatch batch, List<Card> cards) {
         Connection conn = DBConnect.getConnection();
         PreparedStatement psBatch = null;
@@ -191,25 +160,19 @@ public class InventoryDAO {
 
         try {
             if (conn == null) return false;
-            
-            // 1. Tắt Auto Commit để chạy Transaction
+
             conn.setAutoCommit(false);
 
-            // 2. Insert Batch
             String sqlBatch = "INSERT INTO import_batches (supplier_id, filename, total_cards, total_amount, imported_by, note) VALUES (?, ?, ?, ?, ?, ?)";
             psBatch = conn.prepareStatement(sqlBatch, Statement.RETURN_GENERATED_KEYS);
-            
-            // Xử lý tham số an toàn (tránh null)
+
             if (batch.getSupplierId() != null) psBatch.setInt(1, batch.getSupplierId()); 
             else psBatch.setNull(1, java.sql.Types.INTEGER);
-            
-            // [SỬA LỖI] Dùng getFilename() (chữ n thường) khớp với Model
             psBatch.setString(2, batch.getFilename()); 
             
             psBatch.setInt(3, batch.getTotalCards());
-            psBatch.setDouble(4, batch.getTotalAmount()); // Model dùng Double, SQL DECIMAL
-            
-            // Kiểm tra imported_by (Admin ID), nếu null set về 1 (hoặc ID admin mặc định)
+            psBatch.setDouble(4, batch.getTotalAmount()); 
+
             if (batch.getImportedBy() != null) psBatch.setInt(5, batch.getImportedBy());
             else psBatch.setInt(5, 1); // Fallback về ID 1
             
@@ -218,7 +181,6 @@ public class InventoryDAO {
             int affectedRows = psBatch.executeUpdate();
             if (affectedRows == 0) throw new SQLException("Creating batch failed, no rows affected.");
 
-            // Lấy ID Batch vừa tạo
             long batchId = 0;
             try (ResultSet generatedKeys = psBatch.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -228,7 +190,6 @@ public class InventoryDAO {
                 }
             }
 
-            // 3. Insert Cards & Update Product Quantity
             String sqlCard = "INSERT INTO cards (product_id, batch_id, supplier_id, serial, code, status) VALUES (?, ?, ?, ?, ?, 'IN_STOCK')";
             psCard = conn.prepareStatement(sqlCard);
 
@@ -236,7 +197,6 @@ public class InventoryDAO {
             psUpdateProduct = conn.prepareStatement(sqlUpdateQty);
 
             for (Card c : cards) {
-                // Insert Card
                 psCard.setInt(1, c.getProductId());
                 psCard.setLong(2, batchId);
                 
@@ -245,44 +205,38 @@ public class InventoryDAO {
                 
                 psCard.setString(4, c.getSerial());
                 psCard.setString(5, c.getCode());
-                psCard.addBatch(); // Gom lệnh
+                psCard.addBatch();
 
-                // Update Qty
                 psUpdateProduct.setInt(1, c.getProductId());
-                psUpdateProduct.addBatch(); // Gom lệnh
+                psUpdateProduct.addBatch(); 
             }
 
-            // Thực thi hàng loạt
             psCard.executeBatch();
             psUpdateProduct.executeBatch();
 
-            // 4. Commit (Lưu)
             conn.commit();
             isSuccess = true;
 
         } catch (SQLException e) {
             try {
-                if (conn != null) conn.rollback(); // Lỗi -> Hoàn tác
+                if (conn != null) conn.rollback(); 
             } catch (SQLException ex) { ex.printStackTrace(); }
             
-            e.printStackTrace(); // In lỗi ra Server Log (xem Output Netbeans)
-            // Có thể throw e để Controller bắt được thông báo cụ thể
+            e.printStackTrace();
         } finally {
             try {
                 if (psBatch != null) psBatch.close();
                 if (psCard != null) psCard.close();
                 if (psUpdateProduct != null) psUpdateProduct.close();
                 if (conn != null) {
-                    conn.setAutoCommit(true); // Trả lại trạng thái mặc định
+                    conn.setAutoCommit(true); 
                     conn.close();
                 }
             } catch (SQLException e) { e.printStackTrace(); }
         }
         return isSuccess;
     }
-    
 
-    // 1. [MỚI] Lấy danh sách sản phẩm (Dropdown) cho form tạo thẻ
     public List<CardProductDTO> getAllProductNames() {
         List<CardProductDTO> list = new ArrayList<>();
         String sql = "SELECT product_id, type_name, value FROM card_products WHERE is_active = 1 ORDER BY type_name, value";
@@ -304,7 +258,6 @@ public class InventoryDAO {
         return list;
     }
 
-    // 2. [MỚI] Tạo thẻ thủ công (Transaction: Insert Card + Update Qty)
     public boolean createCardManual(Card card) {
         Connection conn = DBConnect.getConnection();
         PreparedStatement psCard = null;
@@ -313,10 +266,8 @@ public class InventoryDAO {
 
         try {
             if (conn == null) return false;
-            conn.setAutoCommit(false); // Bắt đầu Transaction
+            conn.setAutoCommit(false); 
 
-            // Bước 1: Insert vào bảng cards
-            // Lưu ý: batch_id để null vì tạo thủ công
             String sqlCard = "INSERT INTO cards (product_id, supplier_id, serial, code, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
             psCard = conn.prepareStatement(sqlCard);
             
@@ -324,19 +275,17 @@ public class InventoryDAO {
             psCard.setInt(2, card.getSupplierId());
             psCard.setString(3, card.getSerial());
             psCard.setString(4, card.getCode());
-            psCard.setString(5, card.getStatus()); // Thường là 'IN_STOCK'
+            psCard.setString(5, card.getStatus()); 
             psCard.setObject(6, card.getCreatedAt());
             
             int rows = psCard.executeUpdate();
             if (rows == 0) throw new SQLException("Insert card failed.");
 
-            // Bước 2: Cộng số lượng trong card_products
             String sqlUpdate = "UPDATE card_products SET quantity = quantity + 1 WHERE product_id = ?";
             psUpdateProduct = conn.prepareStatement(sqlUpdate);
             psUpdateProduct.setInt(1, card.getProductId());
             psUpdateProduct.executeUpdate();
 
-            // Bước 3: Chốt đơn
             conn.commit();
             isSuccess = true;
 
@@ -352,25 +301,14 @@ public class InventoryDAO {
         }
         return isSuccess;
     }
-    
-    // ... (Giữ nguyên hàm getProductDetail đã viết ở bước trước) ...
-// [ĐÃ SỬA LỖI] Lấy chi tiết sản phẩm
+
     public CardProductDTO getProductDetail(int productId) {
         CardProductDTO dto = null;
         
-        // [CẬP NHẬT] Thay p.quantity bằng câu sub-query đếm trực tiếp (COUNT)
-        String sql = "SELECT p.product_id, p.type_name, p.value, p.min_stock_alert, " +
-                     
-                     // 1. Đếm thực tế số thẻ đang IN_STOCK
+        String sql = "SELECT p.product_id, p.type_name, p.value, p.min_stock_alert, " +                   
                      "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_quantity, " +
-                     
-                     // 2. Đếm Reserved
                      "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'RESERVED') as reserved_count, " +
-                     
-                     // 3. Đếm Sold
                      "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count, " +
-                     
-                     // 4. Các thông tin khác
                      "(SELECT MAX(sold_at) FROM cards c WHERE c.product_id = p.product_id) as last_sold_date, " +
                      "(SELECT MAX(created_at) FROM cards c WHERE c.product_id = p.product_id) as last_import_date " +
                      
@@ -388,7 +326,6 @@ public class InventoryDAO {
                     dto.setTypeName(rs.getString("type_name"));
                     dto.setValue(rs.getBigDecimal("value"));
                     
-                    // [SỬA] Lấy cột real_quantity thay vì quantity
                     dto.setQuantity(rs.getInt("real_quantity")); 
                     
                     dto.setMinStockAlert(rs.getInt("min_stock_alert"));
@@ -403,10 +340,8 @@ public class InventoryDAO {
         }
         return dto;
     }
-    // [MỚI] Lấy danh sách thẻ cụ thể của 1 sản phẩm (Kèm thông tin Lô hàng để hiển thị chi tiết)
     public List<Card> getCardsByProductId(int productId) {
         List<Card> list = new ArrayList<>();
-        // Join bảng import_batches để lấy ngày nhập nếu cần, ở đây ta lấy cơ bản từ bảng cards
         String sql = "SELECT * FROM cards WHERE product_id = ? ORDER BY created_at DESC";
         
         try (Connection conn = DBConnect.getConnection();
@@ -423,8 +358,7 @@ public class InventoryDAO {
                     c.setCode(rs.getString("code"));
                     c.setStatus(rs.getString("status"));
                     c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime()); // Chuyển Timestamp -> LocalDateTime
-                    
-                    // Nếu có sold_at
+
                     if (rs.getTimestamp("sold_at") != null) {
                         c.setSoldAt(rs.getTimestamp("sold_at").toLocalDateTime());
                     }
@@ -437,8 +371,7 @@ public class InventoryDAO {
         }
         return list;
     }
-    
-    // 1. [MỚI] Cập nhật trạng thái hàng loạt (Change Status / Mark Defective)
+
     public boolean bulkUpdateStatus(String[] cardIds, String newStatus) {
         String sql = "UPDATE cards SET status = ? WHERE card_id = ?";
         try (Connection conn = DBConnect.getConnection();
@@ -461,10 +394,7 @@ public class InventoryDAO {
         }
     }
 
-    // 2. [MỚI] Xóa hàng loạt (Delete Selected)
     public boolean bulkDeleteCards(String[] cardIds) {
-        // Lưu ý: Cần trừ số lượng trong card_products trước khi xóa (hoặc dùng Trigger trong DB)
-        // Ở đây ta làm đơn giản là xóa cards, bạn cần chạy lại query đồng bộ số lượng sau.
         String sql = "DELETE FROM cards WHERE card_id = ?";
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -479,9 +409,6 @@ public class InventoryDAO {
             ps.executeBatch();
             conn.commit();
             
-            // [Quan trọng] Nên gọi hàm cập nhật lại quantity bảng product ở đây
-            // updateProductQuantity(productId); 
-            
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -489,7 +416,6 @@ public class InventoryDAO {
         }
     }
 
-    // 3. [MỚI] Di chuyển sang sản phẩm khác (Move Product)
     public boolean bulkMoveProduct(String[] cardIds, int newProductId) {
         String sql = "UPDATE cards SET product_id = ? WHERE card_id = ?";
         try (Connection conn = DBConnect.getConnection();
