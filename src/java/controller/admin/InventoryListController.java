@@ -24,8 +24,14 @@ public class InventoryListController extends HttpServlet {
         String status = req.getParameter("status");
         
         Map<String, Integer> stats = dao.getInventoryStats();
+        // 1. Lấy danh sách hiển thị bảng (Có phân trang/filter nếu cần)
         List<CardProductDTO> list = dao.getProductList(keyword, type, status);
         
+        // 2. [THÊM MỚI] Lấy danh sách TẤT CẢ tên sản phẩm để đổ vào Dropdown Import
+        List<CardProductDTO> allProducts = dao.getAllProductNames();
+        req.setAttribute("listProductsForImport", allProducts);
+
+        // (Code cũ: Lấy Supplier - Có thể xóa hoặc giữ nếu dùng cho việc khác, nhưng Import không dùng nữa)
         List<Supplier> suppliers = dao.getAllSuppliers(); 
         req.setAttribute("listSuppliers", suppliers);
 

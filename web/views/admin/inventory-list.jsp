@@ -205,19 +205,41 @@
                 </div>
                 <form action="${pageContext.request.contextPath}/admin/import" method="post" enctype="multipart/form-data">
                     <div class="modal-body">
+                        
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Nhà cung cấp</label>
-                            <select class="form-select" name="supplier_id" required>
-                                <option value="" disabled selected>-- Chọn Supplier --</option>
-                                <c:forEach var="sup" items="${listSuppliers}">
-                                    <option value="${sup.supplierId}">${sup.supplierName}</option>
+                            <label class="form-label fw-bold">Nhập thẻ cho Sản phẩm:</label>
+                            <select class="form-select" name="target_product_id" required>
+                                <option value="" disabled selected>-- Chọn loại thẻ muốn nhập --</option>
+                                <c:forEach var="p" items="${listProductsForImport}">
+                                    <option value="${p.productId}">
+                                        ${p.typeName} - <fmt:formatNumber value="${p.value}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                    </option>
                                 </c:forEach>
                             </select>
                         </div>
+
+                        <div class="alert alert-info border-info bg-light">
+                            <h6 class="alert-heading fw-bold"><i class="fa-solid fa-circle-info text-primary"></i> Quy định file Excel:</h6>
+                            <p class="mb-1 small">File chỉ cần 2 cột dữ liệu (Bỏ cột ID):</p>
+                            <table class="table table-bordered table-sm bg-white mb-2 small text-center">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Cột A (Cột 1)</th>
+                                        <th>Cột B (Cột 2)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Serial<br><span class="text-muted">(Chữ & Số)</span></td>
+                                        <td>Mã thẻ (Code)<br><span class="text-muted">(Chỉ số)</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">File dữ liệu (.xlsx)</label>
                             <input type="file" class="form-control" name="file_excel" accept=".xlsx, .xls" required>
-                            <div class="form-text text-muted">Cột A: Product ID | Cột B: Serial | Cột C: Code</div>
                         </div>
                     </div>
                     <div class="modal-footer">
