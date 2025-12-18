@@ -12,7 +12,7 @@
     }
     List<User> users = (List<User>) request.getAttribute("users");
 %>
-
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -57,7 +57,8 @@
         </style>
     </head>
     <body>
-        <a href="admin/dashboard" class="btn-home">
+       <a href="${ctx}/admin/dashboard" class="btn-home">
+
             <span>&#8592;</span> DashBoard
         </a>
         <div class="container mt-5">
@@ -93,7 +94,8 @@
             <div class="card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h3 class="mb-0"><i class="fas fa-users-cog me-2"></i>Quản lý User</h3>
-                    <a href="user-form" class="btn btn-light btn-sm fw-bold">
+                   <a href="${ctx}/admin/user-form" class="btn btn-light btn-sm fw-bold">
+
                         <i class="fas fa-plus me-1"></i> Tạo User mới
                     </a>
                 </div>
@@ -129,7 +131,8 @@
                                                 <span class="badge bg-secondary">${u.roles}</span>
                                             </td>
                                             <td>
-                                                <a href="/admin/user-edit?id=${u.userId}" class="btn btn-warning btn-sm" title="Sửa">
+                                                <a href="${ctx}/admin/user-form?id=${u.userId}" class="btn btn-warning btn-sm">
+
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
                                             </td>

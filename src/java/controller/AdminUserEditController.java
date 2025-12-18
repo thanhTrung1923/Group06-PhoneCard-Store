@@ -86,7 +86,7 @@ public class AdminUserEditController extends HttpServlet {
             req.setAttribute("user", user);
         }
 
-        req.getRequestDispatcher("admin-user-edit.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/admin/admin-user-edit.jsp").forward(req, resp);
     }
 
     @Override

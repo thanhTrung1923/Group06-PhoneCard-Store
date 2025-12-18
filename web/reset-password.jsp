@@ -136,7 +136,7 @@
                                 <label class="form-label text-muted small fw-bold">MẬT KHẨU MỚI</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                    <input type="password" name="password" id="newPass" class="form-control" placeholder="Nhập mật khẩu mới" required minlength="6">
+                                    <input type="password" name="password" id="newPass" class="form-control" placeholder="Nhập mật khẩu mới">
                                     <button class="btn btn-toggle" type="button" onclick="togglePassword('newPass', 'icon1')">
                                         <i class="bi bi-eye-slash" id="icon1"></i>
                                     </button>
@@ -147,7 +147,7 @@
                                 <label class="form-label text-muted small fw-bold">XÁC NHẬN MẬT KHẨU</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                                    <input type="password" name="confirmPassword" id="confirmPass" class="form-control" placeholder="Nhập lại mật khẩu" required>
+                                    <input type="password" name="confirmPassword" id="confirmPass" class="form-control" placeholder="Nhập lại mật khẩu" >
                                     <button class="btn btn-toggle" type="button" onclick="togglePassword('confirmPass', 'icon2')">
                                         <i class="bi bi-eye-slash" id="icon2"></i>
                                     </button>

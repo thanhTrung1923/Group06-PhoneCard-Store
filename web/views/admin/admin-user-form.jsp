@@ -8,7 +8,7 @@
     // Biến kiểm tra xem đang ở chế độ Edit hay Create
     boolean isEdit = (u != null);
 %>
-
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -50,7 +50,7 @@
                 </div>
             </c:if>
 
-            <form method="post" action="/admin/user-form">
+            <form method="post" action="${ctx}/admin/user-form">
                 <input type="hidden" name="userId" value="${u.userId}" />
 
                 <div class="row">
@@ -105,7 +105,8 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="/admin/users" class="btn btn-secondary">
+                    <a href="${ctx}/admin/users" class="btn btn-secondary">
+
                         <i class="fas fa-arrow-left me-1"></i> Quay lại
                     </a>
                     <button type="submit" class="btn btn-primary">

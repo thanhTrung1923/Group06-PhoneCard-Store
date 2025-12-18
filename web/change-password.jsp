@@ -149,7 +149,7 @@
                                 <label class="form-label">Mật khẩu mới</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                                    <input type="password" name="newPassword" id="newPass" class="form-control" placeholder="Nhập mật khẩu mới" required minlength="6">
+                                    <input type="password" name="newPassword" id="newPass" class="form-control" placeholder="Nhập mật khẩu mới">
                                     <button class="btn btn-toggle" type="button" onclick="togglePassword('newPass', 'icon2')">
                                         <i class="bi bi-eye-slash" id="icon2"></i>
                                     </button>
