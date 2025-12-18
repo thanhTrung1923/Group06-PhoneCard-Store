@@ -17,45 +17,35 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-dark bg-primary mb-3 shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="${pageContext.request.contextPath}/admin/inventory">
-                <i class="fa-solid fa-arrow-left me-2"></i> Quay lại Danh sách
-            </a>
-            <span class="navbar-text text-white fw-bold">PRODUCT DETAILS</span>
+            <span class="navbar-brand mb-0 h1"><i class="fa-solid fa-boxes-stacked me-2"></i> INVENTORY SYSTEM</span>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container pb-5">
         
+        <div class="mb-3">
+            <a href="${pageContext.request.contextPath}/admin/inventory" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Danh sách
+            </a>
+        </div>
+
         <div class="row g-4 mb-4">
             <div class="col-md-6">
                 <div class="p-4 detail-header h-100">
                     <h4 class="text-primary fw-bold mb-3">${p.typeName} - <fmt:formatNumber value="${p.value}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></h4>
                     <table class="table table-borderless">
-                        <tr>
-                            <td class="text-muted" width="150">Product ID:</td>
-                            <td class="fw-bold">#${p.productId}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Min Stock Alert:</td>
-                            <td class="fw-bold text-danger">${p.minStockAlert} cards</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Last Import:</td>
-                            <td>${p.lastImportDate}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Last Sold:</td>
-                            <td>${p.lastSoldDate != null ? p.lastSoldDate : 'Chưa có giao dịch'}</td>
-                        </tr>
+                        <tr><td class="text-muted" width="150">Product ID:</td><td class="fw-bold">#${p.productId}</td></tr>
+                        <tr><td class="text-muted">Min Stock Alert:</td><td class="fw-bold text-danger">${p.minStockAlert} cards</td></tr>
+                        <tr><td class="text-muted">Last Import:</td><td>${p.lastImportDate}</td></tr>
+                        <tr><td class="text-muted">Last Sold:</td><td>${p.lastSoldDate != null ? p.lastSoldDate : 'Chưa có giao dịch'}</td></tr>
                     </table>
                 </div>
             </div>
-
             <div class="col-md-6">
                 <div class="p-4 detail-header h-100 border-start border-5 border-primary">
-                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-boxes-stacked me-2"></i> Stock Status</h5>
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2"></i> Stock Status</h5>
                     <div class="row text-center g-3">
                         <div class="col-4">
                             <div class="p-3 bg-success bg-opacity-10 rounded">
@@ -76,198 +66,114 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <c:if test="${p.quantity <= p.minStockAlert}">
-                        <div class="alert alert-danger mt-3 mb-0">
-                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                            <strong>Cảnh báo:</strong> Tồn kho dưới mức tối thiểu (${p.minStockAlert} thẻ).
-                            <a href="#" class="alert-link">Nhập thêm ngay!</a>
-                        </div>
-                    </c:if>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow-sm mt-4">
+        <div class="card shadow-sm">
             
-            <form id="bulkForm" action="${pageContext.request.contextPath}/admin/inventory/detail" method="POST">
-                <input type="hidden" name="currentProductId" value="${p.productId}">
-                <input type="hidden" name="bulkAction" id="bulkActionInput">
-                
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-list me-2"></i> Danh sách thẻ</h5>
+            <div class="card-header bg-white py-3">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <h5 class="mb-0 fw-bold"><i class="fa-solid fa-list me-2"></i> Danh sách thẻ</h5>
+                    </div>
                     
-                    <div class="d-flex align-items-center">
-                        <div class="input-group">
-                            <span class="input-group-text bg-light fw-bold">Đã chọn: <span id="selectedCount" class="ms-1 text-primary">0</span></span>
+                    <div class="col-md-8">
+                        <form action="" method="GET" class="row g-2 justify-content-end">
+                            <input type="hidden" name="id" value="${p.productId}">
                             
-                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid me-1"></i> Hành động
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><h6 class="dropdown-header">Thay đổi trạng thái</h6></li>
-                                <li><a class="dropdown-item" href="#" onclick="submitBulk('change_status', 'IN_STOCK')">Set IN_STOCK</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="submitBulk('change_status', 'SOLD')">Set SOLD</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="submitBulk('change_status', 'RESERVED')">Set RESERVED</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-warning" href="#" onclick="submitBulk('mark_defective')">Mark as Defective</a></li>
-                                <li><a class="dropdown-item text-info" href="#" data-bs-toggle="modal" data-bs-target="#moveModal">Move to Product...</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete()">Delete Selected</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-0">
-                    <table class="table table-hover table-striped mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th width="40" class="text-center">
-                                    <input type="checkbox" class="form-check-input" id="selectAll">
-                                </th>
-                                <th>#</th>
-                                <th>Serial Number</th>
-                                <th>Code</th>
-                                <th>Ngày nhập</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="c" items="${cards}" varStatus="status">
-                                <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" class="form-check-input item-check" name="selectedCards" value="${c.cardId}">
-                                    </td>
-                                    <td>${status.index + 1}</td>
-                                    <td class="fw-bold font-monospace text-primary">${c.serial}</td>
-                                    <td class="font-monospace text-muted">
-                                        <c:choose>
-                                            <c:when test="${c.status == 'SOLD'}">*** (Sold)</c:when>
-                                            <c:otherwise>${c.code}</c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>${c.createdAt}</td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${c.status == 'IN_STOCK'}"><span class="badge bg-success">Sẵn sàng</span></c:when>
-                                            <c:when test="${c.status == 'SOLD'}"><span class="badge bg-secondary">Đã bán</span></c:when>
-                                            <c:when test="${c.status == 'RESERVED'}"><span class="badge bg-warning text-dark">Đang giữ</span></c:when>
-                                            <c:when test="${c.status == 'DEFECTIVE'}"><span class="badge bg-danger">Lỗi</span></c:when>
-                                            <c:otherwise><span class="badge bg-dark">${c.status}</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                            <c:if test="${empty cards}">
-                                <tr><td colspan="6" class="text-center py-4 text-muted">Chưa có thẻ nào.</td></tr>
-                            </c:if>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <c:if test="${totalPages > 0}">
-                    <div class="card-footer bg-white border-top-0">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination justify-content-end mb-0">
-                                
-                                <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
-                                    <a class="page-link" href="?id=${p.productId}&page=${currentPage - 1}">Trước</a>
-                                </li>
-                                
-                                <c:forEach begin="1" end="${totalPages}" var="i">
-                                    <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                        <a class="page-link" href="?id=${p.productId}&page=${i}">${i}</a>
-                                    </li>
-                                </c:forEach>
-                                
-                                <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
-                                    <a class="page-link" href="?id=${p.productId}&page=${currentPage + 1}">Sau</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </c:if>
-                
-                <input type="hidden" name="targetStatus" id="targetStatusInput">
-                
-                <div class="modal fade" id="moveModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Di chuyển sang sản phẩm khác</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <label class="form-label">Chọn sản phẩm đích:</label>
-                                <select class="form-select" name="targetProductId">
-                                    <c:forEach var="prod" items="${allProducts}">
-                                        <c:if test="${prod.productId != p.productId}">
-                                            <option value="${prod.productId}">${prod.typeName} - ${prod.value}</option>
-                                        </c:if>
-                                    </c:forEach>
+                            <div class="col-auto">
+                                <select class="form-select form-select-sm" name="status">
+                                    <option value="">-- Tất cả trạng thái --</option>
+                                    <option value="IN_STOCK" ${filterStatus == 'IN_STOCK' ? 'selected' : ''}>Sẵn sàng (IN_STOCK)</option>
+                                    <option value="SOLD" ${filterStatus == 'SOLD' ? 'selected' : ''}>Đã bán (SOLD)</option>
+                                    <option value="RESERVED" ${filterStatus == 'RESERVED' ? 'selected' : ''}>Đang giữ (RESERVED)</option>
                                 </select>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                <button type="button" class="btn btn-primary" onclick="submitBulk('move_product')">Di chuyển</button>
+                            
+                            <div class="col-auto">
+                                <select class="form-select form-select-sm" name="sort">
+                                    <option value="desc" ${filterSort == 'desc' ? 'selected' : ''}>Mới nhất trước</option>
+                                    <option value="asc" ${filterSort == 'asc' ? 'selected' : ''}>Cũ nhất trước</option>
+                                </select>
                             </div>
-                        </div>
+
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-sm btn-primary"><i class="fa-solid fa-filter"></i> Lọc</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
+            </div>
 
-            </form>
-        </div>
-
-    <script>
-        // 1. Xử lý Select All
-        document.getElementById('selectAll').addEventListener('change', function() {
-            var checkboxes = document.querySelectorAll('.item-check');
-            for (var checkbox of checkboxes) {
-                checkbox.checked = this.checked;
-            }
-            updateCount();
-        });
-
-        // 2. Cập nhật số lượng đã chọn
-        var checkboxes = document.querySelectorAll('.item-check');
-        for (var checkbox of checkboxes) {
-            checkbox.addEventListener('change', updateCount);
-        }
-
-        function updateCount() {
-            var checkedCount = document.querySelectorAll('.item-check:checked').length;
-            document.getElementById('selectedCount').innerText = checkedCount;
-        }
-
-        // 3. Xử lý Submit Form
-        function submitBulk(action, status = null) {
-            var checkedCount = document.querySelectorAll('.item-check:checked').length;
-            if (checkedCount === 0) {
-                alert("Vui lòng chọn ít nhất một thẻ!");
-                return;
-            }
-
-            document.getElementById('bulkActionInput').value = action;
-            if (status) {
-                document.getElementById('targetStatusInput').value = status;
-            }
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Serial Number</th>
+                            <th>Code</th>
+                            <th>Ngày nhập (Created)</th>
+                            <th>Batch ID</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="c" items="${cards}" varStatus="status">
+                            <tr>
+                                <td>${status.index + 1}</td>
+                                <td class="fw-bold font-monospace text-primary">${c.serial}</td>
+                                
+                                <td class="font-monospace text-muted">
+                                    <c:choose>
+                                        <c:when test="${c.status == 'SOLD'}">*** (Sold)</c:when>
+                                        <c:otherwise>${c.code}</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                
+                                <td>${c.createdAt}</td>
+                                <td><span class="badge bg-light text-dark border">Batch #${c.batchId}</span></td>
+                                
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${c.status == 'IN_STOCK'}"><span class="badge bg-success">Sẵn sàng</span></c:when>
+                                        <c:when test="${c.status == 'SOLD'}"><span class="badge bg-secondary">Đã bán</span></c:when>
+                                        <c:when test="${c.status == 'RESERVED'}"><span class="badge bg-warning text-dark">Đang giữ</span></c:when>
+                                        <c:otherwise><span class="badge bg-dark">${c.status}</span></c:otherwise>
+                                    </c:choose>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                        <c:if test="${empty cards}">
+                            <tr><td colspan="6" class="text-center py-5 text-muted">Không có thẻ nào phù hợp.</td></tr>
+                        </c:if>
+                    </tbody>
+                </table>
+            </div>
             
-            document.getElementById('bulkForm').submit();
-        }
-
-        function confirmDelete() {
-            var checkedCount = document.querySelectorAll('.item-check:checked').length;
-            if (checkedCount === 0) {
-                alert("Vui lòng chọn ít nhất một thẻ!");
-                return;
-            }
-            if (confirm("Bạn có chắc chắn muốn xóa vĩnh viễn " + checkedCount + " thẻ đã chọn?")) {
-                submitBulk('delete');
-            }
-        }
-    </script>
-
+            <c:if test="${totalPages > 0}">
+                <div class="card-footer bg-white border-top-0">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-end mb-0">
+                            
+                            <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                                <a class="page-link" href="?id=${p.productId}&page=${currentPage - 1}&status=${filterStatus}&sort=${filterSort}">Trước</a>
+                            </li>
+                            
+                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                    <a class="page-link" href="?id=${p.productId}&page=${i}&status=${filterStatus}&sort=${filterSort}">${i}</a>
+                                </li>
+                            </c:forEach>
+                            
+                            <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                                <a class="page-link" href="?id=${p.productId}&page=${currentPage + 1}&status=${filterStatus}&sort=${filterSort}">Sau</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </c:if>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

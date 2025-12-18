@@ -92,13 +92,28 @@ public class InventoryDAO {
     public int countProducts(String keyword, String type, String status) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM card_products p WHERE p.is_active = 1 ");
         
+        // [MỚI] Định nghĩa câu truy vấn đếm số lượng thực tế để dùng cho bộ lọc
+        String realQtySql = "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK')";
+
         if (keyword != null && !keyword.isEmpty()) sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
         if (type != null && !type.isEmpty()) sql.append("AND p.type_name = ? ");
+        
+        // [SỬA LỖI FILTER] Thay p.quantity bằng realQtySql
         if (status != null && !status.isEmpty()) {
             switch (status) {
-                case "OUT": sql.append("AND p.quantity = 0 "); break;
-                case "LOW": sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert "); break;
-                case "OK": sql.append("AND p.quantity > p.min_stock_alert "); break;
+                case "OUT": 
+                    // Hết hàng: Số lượng thực tế = 0
+                    sql.append("AND ").append(realQtySql).append(" = 0 ");
+                    break;
+                case "LOW": 
+                    // Sắp hết: 0 < Số lượng thực tế <= Min Stock
+                    sql.append("AND ").append(realQtySql).append(" > 0 ");
+                    sql.append("AND ").append(realQtySql).append(" <= p.min_stock_alert ");
+                    break;
+                case "OK": 
+                    // Sẵn sàng: Số lượng thực tế > Min Stock
+                    sql.append("AND ").append(realQtySql).append(" > p.min_stock_alert ");
+                    break;
             }
         }
         
@@ -111,7 +126,6 @@ public class InventoryDAO {
                 ps.setString(index++, "%" + keyword + "%");
             }
             if (type != null && !type.isEmpty()) ps.setString(index++, type);
-            // Status nối chuỗi trực tiếp nên không cần setString
              
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
@@ -123,23 +137,35 @@ public class InventoryDAO {
     public List<CardProductDTO> getProductList(String keyword, String type, String status, int pageIndex, int pageSize) {
         List<CardProductDTO> list = new ArrayList<>();
         
+        // Câu SELECT hiển thị (Giữ nguyên phần real_quantity đã sửa trước đó)
         StringBuilder sql = new StringBuilder(
             "SELECT p.product_id, p.type_name, p.value, p.min_stock_alert, " +
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_quantity, " +
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count " +          
             "FROM card_products p WHERE p.is_active = 1 ");
 
-       if (keyword != null && !keyword.isEmpty()) sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
+        // [MỚI] Định nghĩa câu truy vấn con để dùng cho WHERE
+        String realQtySql = "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK')";
+
+        if (keyword != null && !keyword.isEmpty()) sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
         if (type != null && !type.isEmpty()) sql.append("AND p.type_name = ? ");
+        
+        // [SỬA LỖI FILTER] Thay p.quantity bằng realQtySql
         if (status != null && !status.isEmpty()) {
             switch (status) {
-                case "OUT": sql.append("AND p.quantity = 0 "); break;
-                case "LOW": sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert "); break;
-                case "OK": sql.append("AND p.quantity > p.min_stock_alert "); break;
+                case "OUT": 
+                    sql.append("AND ").append(realQtySql).append(" = 0 ");
+                    break;
+                case "LOW": 
+                    sql.append("AND ").append(realQtySql).append(" > 0 ");
+                    sql.append("AND ").append(realQtySql).append(" <= p.min_stock_alert ");
+                    break;
+                case "OK": 
+                    sql.append("AND ").append(realQtySql).append(" > p.min_stock_alert ");
+                    break;
             }
         }
         
-        // [THÊM] LIMIT và OFFSET
         sql.append("ORDER BY p.type_name, p.value LIMIT ? OFFSET ?");
 
         try (Connection conn = DBConnect.getConnection();
@@ -152,9 +178,9 @@ public class InventoryDAO {
             }
             if (type != null && !type.isEmpty()) ps.setString(index++, type);
 
-            // [THÊM] Set tham số cho phân trang
+            // Tham số phân trang
             ps.setInt(index++, pageSize);
-            ps.setInt(index++, (pageIndex - 1) * pageSize); // Tính Offset
+            ps.setInt(index++, (pageIndex - 1) * pageSize);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -162,7 +188,10 @@ public class InventoryDAO {
                     dto.setProductId(rs.getInt("product_id"));
                     dto.setTypeName(rs.getString("type_name"));
                     dto.setValue(rs.getBigDecimal("value"));
+                    
+                    // Lấy số lượng thực tế
                     dto.setQuantity(rs.getInt("real_quantity"));
+                    
                     dto.setMinStockAlert(rs.getInt("min_stock_alert"));
                     dto.setSoldCount(rs.getInt("sold_count"));
                     list.add(dto);
@@ -393,78 +422,22 @@ public class InventoryDAO {
         return list;
     }
 
-    public boolean bulkUpdateStatus(String[] cardIds, String newStatus) {
-        String sql = "UPDATE cards SET status = ? WHERE card_id = ?";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            conn.setAutoCommit(false); // Transaction
-            
-            for (String id : cardIds) {
-                ps.setString(1, newStatus);
-                ps.setLong(2, Long.parseLong(id));
-                ps.addBatch(); // Gom lệnh
-            }
-            
-            ps.executeBatch(); // Chạy 1 lần
-            conn.commit();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean bulkDeleteCards(String[] cardIds) {
-        String sql = "DELETE FROM cards WHERE card_id = ?";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            conn.setAutoCommit(false);
-            
-            for (String id : cardIds) {
-                ps.setLong(1, Long.parseLong(id));
-                ps.addBatch();
-            }
-            
-            ps.executeBatch();
-            conn.commit();
-            
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean bulkMoveProduct(String[] cardIds, int newProductId) {
-        String sql = "UPDATE cards SET product_id = ? WHERE card_id = ?";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            conn.setAutoCommit(false);
-            
-            for (String id : cardIds) {
-                ps.setInt(1, newProductId);
-                ps.setLong(2, Long.parseLong(id));
-                ps.addBatch();
-            }
-            
-            ps.executeBatch();
-            conn.commit();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
     // 2.1. Đếm tổng số thẻ của 1 sản phẩm
-    public int countCardsByProductId(int productId) {
-        String sql = "SELECT COUNT(*) FROM cards WHERE product_id = ?";
+    public int countCardsByProductId(int productId, String status) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM cards WHERE product_id = ? ");
+        
+        if (status != null && !status.isEmpty()) {
+            sql.append("AND status = ? ");
+        }
+
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
             ps.setInt(1, productId);
+            if (status != null && !status.isEmpty()) {
+                ps.setString(2, status);
+            }
+            
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt(1);
             }
@@ -472,18 +445,39 @@ public class InventoryDAO {
         return 0;
     }
 
+
     // 2.2. Cập nhật hàm lấy thẻ có phân trang
-    public List<Card> getCardsByProductId(int productId, int pageIndex, int pageSize) {
+    public List<Card> getCardsByProductId(int productId, String status, String sortOrder, int pageIndex, int pageSize) {
         List<Card> list = new ArrayList<>();
-        // Thêm LIMIT OFFSET
-        String sql = "SELECT * FROM cards WHERE product_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        StringBuilder sql = new StringBuilder("SELECT * FROM cards WHERE product_id = ? ");
+
+        // 1. Filter Status
+        if (status != null && !status.isEmpty()) {
+            sql.append("AND status = ? ");
+        }
+
+        // 2. Sort Order (Mặc định là DESC - Mới nhất)
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            sql.append("ORDER BY created_at ASC "); // Cũ nhất
+        } else {
+            sql.append("ORDER BY created_at DESC "); // Mới nhất
+        }
+
+        // 3. Pagination
+        sql.append("LIMIT ? OFFSET ?");
         
         try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             
-            ps.setInt(1, productId);
-            ps.setInt(2, pageSize);
-            ps.setInt(3, (pageIndex - 1) * pageSize);
+            int index = 1;
+            ps.setInt(index++, productId);
+            
+            if (status != null && !status.isEmpty()) {
+                ps.setString(index++, status);
+            }
+            
+            ps.setInt(index++, pageSize);
+            ps.setInt(index++, (pageIndex - 1) * pageSize);
             
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

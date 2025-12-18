@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import model.CardProductDTO;
-import model.Supplier; 
 
 public class InventoryListController extends HttpServlet {
 
