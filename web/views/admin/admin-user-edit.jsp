@@ -69,7 +69,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Số điện thoại</label>
+<label class="form-label fw-bold">Số điện thoại</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
                             <input type="text" name="phone" class="form-control" value="${user.phone}" placeholder="09xxxxxxx"/>
@@ -101,7 +101,7 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="users" class="btn btn-secondary me-md-2">
+                        <a href="admin/users" class="btn btn-secondary me-md-2">
                             <i class="fas fa-arrow-left"></i> Quay lại
                         </a>
                         <button class="btn btn-primary px-4" type="submit">

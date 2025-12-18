@@ -98,7 +98,7 @@ public class AdminUserListController extends HttpServlet {
         req.setAttribute("totalPages", totalPages);
         req.setAttribute("q", q);
 
-        req.getRequestDispatcher("admin-user-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/admin/admin-user-list.jsp").forward(req, resp);
     }
 
     /**
