@@ -9,8 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-// Đường dẫn trang chủ Admin
-
 public class DashboardController extends HttpServlet {
 
     @Override
@@ -24,7 +22,6 @@ public class DashboardController extends HttpServlet {
         
         req.setAttribute("activePage", "dashboard");
         
-        // Forward sang trang JSP giao diện
         req.getRequestDispatcher("/views/admin/dashboard.jsp").forward(req, resp);
     }
 }

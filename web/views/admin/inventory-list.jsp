@@ -102,12 +102,15 @@
                         <label class="form-label fw-bold">Loại thẻ</label>
                         <select class="form-select" name="type">
                             <option value="">Tất cả</option>
-                            <option value="Viettel" ${filterType == 'Viettel' ? 'selected' : ''}>Viettel</option>
-                            <option value="Vinaphone" ${filterType == 'Vinaphone' ? 'selected' : ''}>Vinaphone</option>
-                            <option value="Mobifone" ${filterType == 'Mobifone' ? 'selected' : ''}>Mobifone</option>
+                            
+                            <c:forEach var="code" items="${listTypeCodes}">
+                                <option value="${code}" ${filterType == code ? 'selected' : ''}>
+                                    ${code}
+                                </option>
+                            </c:forEach>
+                            
                         </select>
                     </div>
-
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Trạng thái</label>
                         <select class="form-select" name="status">
