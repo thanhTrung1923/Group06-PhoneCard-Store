@@ -22,6 +22,8 @@ public class DashboardController extends HttpServlet {
         
         req.setAttribute("metrics", metrics);
         
+        req.setAttribute("activePage", "dashboard");
+        
         // Forward sang trang JSP giao diện
         req.getRequestDispatcher("/views/admin/dashboard.jsp").forward(req, resp);
     }

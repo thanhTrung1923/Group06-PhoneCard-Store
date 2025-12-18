@@ -273,15 +273,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Demo Chart Data
+        // Real Chart Data from DAO
         const ctx = document.getElementById('revenueChart').getContext('2d');
         const revenueChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['12/12', '13/12', '14/12', '15/12', '16/12', '17/12', '18/12'],
+                // Sử dụng biến từ Server gửi về
+                labels: ${metrics.chartLabels}, 
                 datasets: [{
                     label: 'Doanh thu (VNĐ)',
-                    data: [1200000, 1900000, 3000000, 5000000, 2300000, 3400000, 1500000],
+                    // Sử dụng biến từ Server gửi về
+                    data: ${metrics.chartData},
+                    
                     borderColor: '#4e73df',
                     backgroundColor: 'rgba(78, 115, 223, 0.05)',
                     pointRadius: 3,
@@ -299,12 +302,32 @@
             options: {
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    // Format tiền Việt
+                                    label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { borderDash: [2] }
+                        grid: { borderDash: [2] },
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', { maximumSignificantDigits: 3 }).format(value);
+                            }
+                        }
                     },
                     x: {
                         grid: { display: false }

@@ -13,6 +13,19 @@
         body { background-color: #f8f9fa; }
         .detail-header { background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .card-list-table th { background-color: #e9ecef; }
+        
+        /* Style cho phần nội dung bên phải để tránh Sidebar */
+.main-content {
+    margin-left: 260px; /* Bằng với width của Sidebar */
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    transition: margin-left 0.3s;
+}
+
+@media (max-width: 768px) {
+    .main-content { margin-left: 0; }
+}
     </style>
 </head>
 <body>

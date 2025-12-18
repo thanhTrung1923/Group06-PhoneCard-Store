@@ -60,6 +60,8 @@ public class InventoryListController extends HttpServlet {
         String error = req.getParameter("error");
         req.setAttribute("message", message);
         req.setAttribute("error", error);
+        
+        req.setAttribute("activePage", "inventory");
 
         req.getRequestDispatcher("/views/admin/inventory-list.jsp").forward(req, resp);
     }
