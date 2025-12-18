@@ -134,7 +134,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="${pageContext.request.contextPath}/admin/users">
+                <a class="nav-link" href="${pageContext.request.contextPath}/users">
                     <i class="fa-solid fa-users"></i> User Manager
                 </a>
             </li>

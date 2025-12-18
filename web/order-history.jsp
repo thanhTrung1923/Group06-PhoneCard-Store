@@ -52,7 +52,12 @@
                         </a>
                     </div>
                     <form method="get" action="order-history" class="row g-3 mb-4">
-
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted">
+                                Tổng số đơn hàng:
+                                <span class="fw-bold text-primary">${totalOrders}</span>
+                            </div>
+                        </div>
                         <!-- Trạng thái -->
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Trạng thái</label>
@@ -98,8 +103,11 @@
 
                             <%-- Trường hợp có đơn hàng --%>
                             <c:otherwise>
+
+
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle">
+
                                         <thead>
                                             <tr>
                                                 <th>Mã đơn</th>
@@ -157,6 +165,39 @@
                                 </div>
                             </c:otherwise>
                         </c:choose>
+                        <c:if test="${totalPages > 0}">
+                            <nav class="mt-4">
+                                <ul class="pagination justify-content-center">
+
+                                    <!-- Previous -->
+                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                        <a class="page-link"
+                                           href="order-history?page=${currentPage - 1}&status=${param.status}&fromDate=${param.fromDate}&toDate=${param.toDate}">
+                                            &laquo;
+                                        </a>
+                                    </li>
+
+                                    <!-- Page numbers -->
+                                    <c:forEach begin="1" end="${totalPages}" var="i">
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link"
+                                               href="order-history?page=${i}&status=${param.status}&fromDate=${param.fromDate}&toDate=${param.toDate}">
+                                                ${i}
+                                            </a>
+                                        </li>
+                                    </c:forEach>
+
+                                    <!-- Next -->
+                                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                        <a class="page-link"
+                                           href="order-history?page=${currentPage + 1}&status=${param.status}&fromDate=${param.fromDate}&toDate=${param.toDate}">
+                                            &raquo;
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </nav>
+                        </c:if>
                     </div>
                 </div>
             </div>

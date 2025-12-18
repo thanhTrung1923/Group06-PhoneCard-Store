@@ -10,7 +10,7 @@ import java.util.List;
 import model.User;
 
 public class UserDAO extends DBConnect {
-    
+
     // Hàm lấy tất cả user (Code cũ của bạn, mình sửa lại cho đúng bảng)
     public List<User> getAllUser() {
         List<User> list = new ArrayList<>();
@@ -38,17 +38,16 @@ public class UserDAO extends DBConnect {
      * @param password
      * @return User object nếu thành công (kèm roles), null nếu thất bại
      */
-   /**
+    /**
      * Hàm LOGIN chuẩn cho BCrypt
      */
     public User login(String email, String plainPassword) {
         User user = null;
-        
-        // 1. Chỉ tìm user theo Email và check xem có bị khóa không
-        String sql = "SELECT * FROM users WHERE email = ? AND is_locked = 0";
 
-        try (Connection conn = getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        // 1. Chỉ tìm user theo Email và check xem có bị khóa không
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, email);
 
@@ -66,7 +65,7 @@ public class UserDAO extends DBConnect {
                 // Lấy mật khẩu người dùng nhập (plainPassword) 
                 // so với mật khẩu mã hóa trong DB (user.getPasswordHash())
                 boolean isMatch = ulti.PasswordUtil.verify(plainPassword, user.getPasswordHash());
-                
+
                 if (isMatch) {
                     // Nếu mật khẩu đúng -> Load danh sách quyền (Role)
                     loadRoles(conn, user);
@@ -78,9 +77,9 @@ public class UserDAO extends DBConnect {
             System.out.println("Lỗi Login DAO: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         // Trả về null nếu: Không tìm thấy email HOẶC Mật khẩu sai
-        return null; 
+        return null;
     }
 
     public boolean register(User user) {
@@ -180,7 +179,7 @@ public class UserDAO extends DBConnect {
         u.setPhone(rs.getString("phone"));
         u.setPasswordHash(rs.getString("password_hash"));
         u.setFullName(rs.getString("full_name"));
-       // u.setAvatarUrl(rs.getString("avatar_url"));
+        // u.setAvatarUrl(rs.getString("avatar_url"));
         u.setIsLocked(rs.getBoolean("is_locked"));
         return u;
     }
@@ -303,4 +302,53 @@ public class UserDAO extends DBConnect {
             return true;
         }
     }
+
+    public int countUsers(String q) {
+        String sql = "SELECT COUNT(*) FROM users "
+                + (q != null && !q.isEmpty() ? "WHERE email LIKE ? OR full_name LIKE ?" : "");
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            int idx = 1;
+            if (q != null && !q.isEmpty()) {
+                ps.setString(idx++, "%" + q + "%");
+                ps.setString(idx++, "%" + q + "%");
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countActiveUsers() {
+        String sql = "SELECT COUNT(*) FROM users WHERE is_locked = 0";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countLockedUsers() {
+        String sql = "SELECT COUNT(*) FROM users WHERE is_locked = 1";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 }

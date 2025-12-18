@@ -33,30 +33,57 @@ public class OrderHistoryController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("text/html;charset=UTF-8");
-        resp.setCharacterEncoding("UTF-8");
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
         HttpSession session = req.getSession();
-        
         User u = (User) session.getAttribute("account");
+
         if (u == null) {
             resp.sendRedirect("login");
             return;
         }
+
         String status = req.getParameter("status");
         String fromDate = req.getParameter("fromDate");
         String toDate = req.getParameter("toDate");
 
+        int page = 1;
+        int pageSize = 5;
+
+        try {
+            if (req.getParameter("page") != null) {
+                page = Integer.parseInt(req.getParameter("page"));
+            }
+        } catch (NumberFormatException e) {
+            page = 1;
+        }
+
         OrderDAO dao = new OrderDAO();
-        List<Order> orders = dao.filterOrders(
+
+        List<Order> orders = dao.filterOrdersPaging(
+                u.getUserId(),
+                status,
+                fromDate,
+                toDate,
+                page,
+                pageSize
+        );
+
+        int totalOrders = dao.countOrders(
                 u.getUserId(),
                 status,
                 fromDate,
                 toDate
         );
 
+        int totalPages = (int) Math.ceil((double) totalOrders / pageSize);
+
         req.setAttribute("orders", orders);
+        req.setAttribute("currentPage", page);
+        req.setAttribute("totalPages", totalPages);
+        req.setAttribute("totalOrders", totalOrders);
+
         req.getRequestDispatcher("order-history.jsp").forward(req, resp);
     }
 }

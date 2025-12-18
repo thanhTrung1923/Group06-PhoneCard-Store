@@ -119,6 +119,12 @@
                                 <div class="btn-btn success"><%= request.getAttribute("message") %></div>
                             </div>
                         <% } %>
+                        <% if(request.getAttribute("error") != null) { %>
+                            <div class="alert alert-danger d-flex align-items-center" role="alert">
+ 
+                                <div><%= request.getAttribute("error") %></div>
+                            </div>
+                        <% } %>
 
                         <form action="login" method="post">
                             <div class="mb-4">

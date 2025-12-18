@@ -90,8 +90,14 @@ public class LoginController extends HttpServlet {
 
         if (user == null) {
             // Đăng nhập thất bại
-            request.setAttribute("message", "Sai tài khoản hoặc mật khẩu!");
+            request.setAttribute("error", "Sai tài khoản hoặc mật khẩu!");
             request.getRequestDispatcher("login.jsp").forward(request, response);
+        }
+        if (user.getIsLocked()) {
+            request.setAttribute("error",
+                    "Tài khoản đã bị vô hiệu hóa. Vui lòng liên hệ admin!");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
         } else {
             // Đăng nhập thành công -> Lưu vào Session
             HttpSession session = request.getSession();
@@ -117,7 +123,6 @@ public class LoginController extends HttpServlet {
 //            }
 //
 //            session.setAttribute("cartTotalQuantity", totalQty);
-
             if (roles.contains("ADMIN")) {
                 response.sendRedirect("admin/dashboard"); // Trang quản trị
 
