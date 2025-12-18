@@ -36,4 +36,39 @@
         <servlet-name>InventoryListController</servlet-name>
         <url-pattern>/admin/inventory</url-pattern>
     </servlet-mapping>
+   <servlet>
+        <servlet-name>ImportController</servlet-name>
+        <servlet-class>controller.admin.ImportController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ImportController</servlet-name>
+        <url-pattern>/admin/import</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CreateCardController</servlet-name>
+        <servlet-class>controller.admin.CreateCardController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateCardController</servlet-name>
+        <url-pattern>/admin/inventory/create</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ProductDetailController</servlet-name>
+        <servlet-class>controller.admin.ProductDetailController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ProductDetailController</servlet-name>
+        <url-pattern>/admin/inventory/detail</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DashboardController</servlet-name>
+        <servlet-class>controller.admin.DashboardController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardController</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
 </web-app>
