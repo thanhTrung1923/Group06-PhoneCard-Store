@@ -72,12 +72,12 @@
             <form action="${pageContext.request.contextPath}/admin/inventory" method="GET">
                 <div class="row g-3 align-items-end">
                     
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Tìm kiếm (Search)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input type="text" class="form-control" name="keyword" value="${filterKeyword}" 
-                                   placeholder="Nhập mã thẻ, serial hoặc tên sản phẩm...">
+                                   placeholder="Nhập tên sản phẩm hoặc mã sản phẩm...">
                         </div>
                     </div>
 
@@ -101,15 +101,20 @@
                         </select>
                     </div>
 
-                    <div class="col-md-1">
-                        <button class="btn btn-primary w-100" type="submit">Lọc</button>
+                    <div class="col-md-2 d-flex">
+                        <button class="btn btn-primary flex-grow-1 me-2" type="submit">
+                            <i class="fa-solid fa-filter"></i> Lọc
+                        </button>
+                        
+                        <a href="${pageContext.request.contextPath}/admin/inventory" class="btn btn-outline-secondary" title="Xóa bộ lọc (Reset)">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </a>
                     </div>
 
-                    <div class="col-md-3 text-end action-btn-group">
+                    <div class="col-md-2 text-end action-btn-group">
                         <a href="${pageContext.request.contextPath}/admin/inventory/create" class="btn btn-warning">
                             <i class="fa-solid fa-plus me-1"></i> Thêm Mới
                         </a>
-
                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="fa-solid fa-file-excel me-1"></i> Import Excel
                         </button>
@@ -164,15 +169,11 @@
                                 </td>
                                 
                                 <td class="text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="${pageContext.request.contextPath}/admin/inventory/edit?id=${p.productId}" class="btn btn-outline-primary" title="Sửa (Edit)">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-outline-secondary" title="Cập nhật trạng thái">
-                                            <i class="fa-solid fa-rotate"></i>
-                                        </button>
-                                    </div>
-                                </td>
+    <a href="${pageContext.request.contextPath}/admin/inventory/detail?id=${p.productId}" 
+       class="btn btn-sm btn-outline-info fw-bold">
+        <i class="fa-solid fa-circle-info me-1"></i> Chi tiết
+    </a>
+</td>
                             </tr>
                         </c:forEach>
                         <c:if test="${empty inventoryList}">
@@ -182,14 +183,28 @@
                 </table>
             </div>
             <div class="card-footer bg-white">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-end mb-0">
-                        <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Sau</a></li>
-                    </ul>
-                </nav>
+                <div class="card-footer bg-white">
+                <c:if test="${totalPages > 0}">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-end mb-0">
+                            
+                            <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                                <a class="page-link" href="?page=${currentPage - 1}&keyword=${filterKeyword}&type=${filterType}&status=${filterStatus}">Trước</a>
+                            </li>
+                            
+                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                    <a class="page-link" href="?page=${i}&keyword=${filterKeyword}&type=${filterType}&status=${filterStatus}">${i}</a>
+                                </li>
+                            </c:forEach>
+                            
+                            <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                                <a class="page-link" href="?page=${currentPage + 1}&keyword=${filterKeyword}&type=${filterType}&status=${filterStatus}">Sau</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </c:if>
+            </div>
             </div>
         </div>
 
@@ -204,19 +219,50 @@
                 </div>
                 <form action="${pageContext.request.contextPath}/admin/import" method="post" enctype="multipart/form-data">
                     <div class="modal-body">
+                        
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Nhà cung cấp</label>
-                            <select class="form-select" name="supplier_id" required>
-                                <option value="" disabled selected>-- Chọn Supplier --</option>
-                                <c:forEach var="sup" items="${listSuppliers}">
-                                    <option value="${sup.supplierId}">${sup.supplierName}</option>
+                            <label class="form-label fw-bold">Nhập thẻ cho Sản phẩm:</label>
+                            <select class="form-select" name="target_product_id" required>
+                                <option value="" disabled selected>-- Chọn loại thẻ muốn nhập --</option>
+                                <c:forEach var="p" items="${listProductsForImport}">
+                                    <option value="${p.productId}">
+                                        ${p.typeName} - <fmt:formatNumber value="${p.value}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                    </option>
                                 </c:forEach>
                             </select>
                         </div>
+
+                        <div class="alert alert-info border-info bg-light">
+                            <h6 class="alert-heading fw-bold"><i class="fa-solid fa-circle-info text-primary"></i> Hướng dẫn file Excel:</h6>
+                            <ul class="mb-1 small ps-3">
+                                <li>File cần có dòng tiêu đề (Header).</li>
+                                <li>Hệ thống tự động tìm cột có tên: <b>Serial</b> (hoặc Seri) và <b>Code</b> (hoặc Mã thẻ).</li>
+                                <li>Thứ tự cột không quan trọng, các cột thừa sẽ bị bỏ qua.</li>
+                            </ul>
+                            
+                            <table class="table table-bordered table-sm bg-white mb-2 small text-center">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th class="text-muted fst-italic">Ngày nhập...</th>
+                                        <th>Serial <span class="text-danger">*</span></th>
+                                        <th class="text-muted fst-italic">Ghi chú...</th>
+                                        <th>Mã thẻ <span class="text-danger">*</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted">...</td>
+                                        <td>SERI-001</td>
+                                        <td class="text-muted">...</td>
+                                        <td>123456</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">File dữ liệu (.xlsx)</label>
                             <input type="file" class="form-control" name="file_excel" accept=".xlsx, .xls" required>
-                            <div class="form-text text-muted">Cột A: Product ID | Cột B: Serial | Cột C: Code</div>
                         </div>
                     </div>
                     <div class="modal-footer">
