@@ -14,7 +14,9 @@ public class WalletDAO {
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getBigDecimal(1);
+            if (rs.next()) {
+                return rs.getBigDecimal(1);
+            }
         }
         return BigDecimal.ZERO;
     }
@@ -27,6 +29,48 @@ public class WalletDAO {
             ps.executeUpdate();
         }
     }
+
+    public BigDecimal getUserBallance(int userId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = """
+                     SELECT balance FROM wallets WHERE user_id = ?;
+                     """;
+
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql);
+
+            ps.setInt(1, userId);
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getBigDecimal("balance");
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return BigDecimal.valueOf(0);
+    }
 }
-
-
