@@ -50,18 +50,19 @@
                             </div>
                         </div>
                     </button>
-
-                    <button class="bg-white rounded-2xl shadow-sm p-8 hover:shadow-md transition-shadow group">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="text-left">
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">Lịch sử</h3>
-                                <p class="text-gray-600 text-sm">Xem tất cả giao dịch</p>
+                    <a class="bg-white rounded-2xl shadow-sm p-8 hover:shadow-md transition-shadow group" href="${pageContext.request.contextPath}/wallet/history">
+                        <button type="button">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="text-left">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Lịch sử</h3>
+                                    <p class="text-gray-600 text-sm">Xem tất cả giao dịch</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                    <i class="fas fa-history text-blue-600 text-xl"></i>
+                                </div>
                             </div>
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                                <i class="fas fa-history text-blue-600 text-xl"></i>
-                            </div>
-                        </div>
-                    </button>
+                        </button>
+                    </a>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -106,11 +107,10 @@
                     </div>
                 </div>
 
-                <!-- Recent Transactions -->
                 <div class="bg-white rounded-2xl shadow-sm p-8">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-2xl font-bold text-gray-900">Giao dịch gần đây</h2>
-                        <a href="${pageContext.request.contextPath}/wallet/transactions" class="text-blue-600 font-medium flex items-center gap-2 hover:text-blue-700">
+                        <a href="${pageContext.request.contextPath}/wallet/history" class="text-blue-600 font-medium flex items-center gap-2 hover:text-blue-700">
                             Xem tất cả
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -124,20 +124,31 @@
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 rounded-full flex items-center justify-center
                                          ${transaction.type == 'DEPOSIT' ? 'bg-green-100' : 
-                                           transaction.type == 'WITHDRAW' ? 'bg-orange-100' : 'bg-blue-100'}">
+                                           transaction.type == 'REFUND' ? 'bg-blue-100' : 'bg-orange-100'}">
                                         <i class="fas ${transaction.type == 'DEPOSIT' ? 'fa-plus text-green-600' : 
-                                                        transaction.type == 'WITHDRAW' ? 'fa-minus text-orange-600' : 
-                                                        'fa-shopping-cart text-blue-600'}"></i>
+                                                        transaction.type == 'REFUND' ? 'fa-undo text-blue-600' : 
+                                                        'fa-shopping-cart text-orange-600'}"></i>
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-gray-900">${transaction.reference}</p>
-                                        <p class="text-sm text-gray-500">${transaction.createdAt}</p>
+                                        <p class="font-semibold text-gray-900">
+                                            <c:choose>
+                                                <c:when test="${transaction.type == 'DEPOSIT'}">Nạp tiền</c:when>
+                                                <c:when test="${transaction.type == 'PURCHASE'}">Mua hàng</c:when>
+                                                <c:when test="${transaction.type == 'REFUND'}">Hoàn tiền</c:when>
+                                                <c:otherwise>${transaction.type}</c:otherwise>
+                                            </c:choose>
+                                        </p>
+                                        <p class="text-sm text-gray-500">${transaction.reference}</p>
+                                        <p class="text-xs text-gray-400 mt-1">
+                                            ${transaction.createdAt}
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-bold ${transaction.type == 'DEPOSIT' ? 'text-green-600' : 'text-red-600'}">
-                                        ${transaction.type == 'DEPOSIT' ? '+' : ''}
-                                        <fmt:formatNumber value="${transaction.amount}" type="currency" />
+                                    <p class="font-bold text-lg ${transaction.type == 'DEPOSIT' || transaction.type == 'REFUND' ? 'text-green-600' : 'text-red-600'}">
+                                        ${transaction.type == 'DEPOSIT' || transaction.type == 'REFUND' ? '+' : ''}
+                                        <fmt:formatNumber value="${transaction.amount}" pattern="#,###"/>
+                                        <i class="fa-solid fa-coins text-sm ml-1"></i>
                                     </p>
                                 </div>
                             </div>

@@ -231,4 +231,247 @@ public class WalletDAO {
 
         return trans;
     }
+
+    public List<WalletTransaction> getListWalletTransaction(int userId,
+            int limit, int offset, BigDecimal minAmount, BigDecimal maxAmount,
+            LocalDateTime fromDate, LocalDateTime toDate, String type) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        List<WalletTransaction> trans = new ArrayList<>();
+
+        // Xử lý minAmount và maxAmount
+        if (minAmount != null && maxAmount != null) {
+            if (minAmount.compareTo(maxAmount) > 0) {
+                // Swap nếu min > max
+                BigDecimal temp = minAmount;
+                minAmount = maxAmount;
+                maxAmount = temp;
+            }
+        }
+
+        // Xử lý fromDate và toDate
+        if (fromDate != null && toDate != null) {
+            if (fromDate.isAfter(toDate)) {
+                // Swap nếu from > to
+                LocalDateTime temp = fromDate;
+                fromDate = toDate;
+                toDate = temp;
+            }
+        }
+
+        StringBuilder sql = new StringBuilder("""
+                 SELECT wt.* FROM wallet_transactions wt
+                 JOIN wallets w ON wt.wallet_id = w.wallet_id
+                 WHERE w.user_id = ?
+                 """);
+
+        if (minAmount != null && maxAmount != null && minAmount.compareTo(maxAmount) == 0) {
+            // Nếu min = max thì dùng điều kiện bằng
+            sql.append(" AND wt.amount = ?");
+        } else {
+            if (minAmount != null) {
+                sql.append(" AND wt.amount >= ?");
+            }
+            if (maxAmount != null) {
+                sql.append(" AND wt.amount <= ?");
+            }
+        }
+
+        if (fromDate != null) {
+            sql.append(" AND wt.created_at >= ?");
+        }
+        if (toDate != null) {
+            sql.append(" AND wt.created_at <= ?");
+        }
+        if (type != null && !type.isBlank()) {
+            sql.append(" AND wt.type = ?");
+        }
+
+        sql.append(" ORDER BY wt.created_at DESC");
+        sql.append(" LIMIT ? OFFSET ?");
+
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql.toString());
+
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, userId);
+
+            if (minAmount != null && maxAmount != null && minAmount.compareTo(maxAmount) == 0) {
+                // Set giá trị bằng 1 lần
+                ps.setBigDecimal(paramIndex++, minAmount);
+            } else {
+                if (minAmount != null) {
+                    ps.setBigDecimal(paramIndex++, minAmount);
+                }
+                if (maxAmount != null) {
+                    ps.setBigDecimal(paramIndex++, maxAmount);
+                }
+            }
+
+            if (fromDate != null) {
+                ps.setObject(paramIndex++, fromDate);
+            }
+            if (toDate != null) {
+                ps.setObject(paramIndex++, toDate);
+            }
+            if (type != null && !type.isBlank()) {
+                ps.setString(paramIndex++, type);
+            }
+
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex++, offset);
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                WalletTransaction wt = new WalletTransaction(
+                        rs.getLong("transaction_id"),
+                        rs.getInt("wallet_id"),
+                        rs.getBigDecimal("amount"),
+                        rs.getString("type"),
+                        rs.getString("reference"),
+                        rs.getTimestamp("created_at").toLocalDateTime()
+                );
+
+                trans.add(wt);
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return trans;
+    }
+
+    public int countListWalletTransaction(int userId,
+            BigDecimal minAmount, BigDecimal maxAmount,
+            LocalDateTime fromDate, LocalDateTime toDate, String type) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        // Xử lý minAmount và maxAmount
+        if (minAmount != null && maxAmount != null) {
+            if (minAmount.compareTo(maxAmount) > 0) {
+                // Swap nếu min > max
+                BigDecimal temp = minAmount;
+                minAmount = maxAmount;
+                maxAmount = temp;
+            }
+        }
+
+        // Xử lý fromDate và toDate
+        if (fromDate != null && toDate != null) {
+            if (fromDate.isAfter(toDate)) {
+                // Swap nếu from > to
+                LocalDateTime temp = fromDate;
+                fromDate = toDate;
+                toDate = temp;
+            }
+        }
+
+        StringBuilder sql = new StringBuilder("""
+                 SELECT COUNT(*) FROM wallet_transactions wt
+                 JOIN wallets w ON wt.wallet_id = w.wallet_id
+                 WHERE w.user_id = ?
+                 """);
+
+        if (minAmount != null && maxAmount != null && minAmount.compareTo(maxAmount) == 0) {
+            // Nếu min = max thì dùng điều kiện bằng
+            sql.append(" AND wt.amount = ?");
+        } else {
+            if (minAmount != null) {
+                sql.append(" AND wt.amount >= ?");
+            }
+            if (maxAmount != null) {
+                sql.append(" AND wt.amount <= ?");
+            }
+        }
+
+        if (fromDate != null) {
+            sql.append(" AND wt.created_at >= ?");
+        }
+        if (toDate != null) {
+            sql.append(" AND wt.created_at <= ?");
+        }
+        if (type != null && !type.isBlank()) {
+            sql.append(" AND wt.type = ?");
+        }
+
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql.toString());
+
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, userId);
+
+            if (minAmount != null && maxAmount != null && minAmount.compareTo(maxAmount) == 0) {
+                // Set giá trị bằng 1 lần
+                ps.setBigDecimal(paramIndex++, minAmount);
+            } else {
+                if (minAmount != null) {
+                    ps.setBigDecimal(paramIndex++, minAmount);
+                }
+                if (maxAmount != null) {
+                    ps.setBigDecimal(paramIndex++, maxAmount);
+                }
+            }
+
+            if (fromDate != null) {
+                ps.setObject(paramIndex++, fromDate);
+            }
+            if (toDate != null) {
+                ps.setObject(paramIndex++, toDate);
+            }
+            if (type != null && !type.isBlank()) {
+                ps.setString(paramIndex++, type);
+            }
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return 0;
+    }
 }

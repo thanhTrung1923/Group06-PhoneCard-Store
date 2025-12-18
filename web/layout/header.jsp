@@ -26,19 +26,9 @@
             <nav class="hidden md:flex items-center gap-8">
                 <a href="${pageContext.request.contextPath}/home" class="text-gray-700 ${headerActive == 'home' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Trang chủ</a>
                 <a href="${pageContext.request.contextPath}/products" class="text-gray-700 ${headerActive == 'products' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Sản phẩm</a>
-<!--                <a href="${pageContext.request.contextPath}/news" class="text-gray-700 ${headerActive == 'news' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Bài viết</a>
-                <a href="${pageContext.request.contextPath}/ticket" class="text-gray-700 ${headerActive == 'ticket' ? 'font-medium text-green-500 hover:text-green-600' : 'hover:text-green-500'} transition">Ticket Hỗ trợ</a>-->
             </nav>
 
             <div class="flex items-center gap-4">
-
-                <!--                <button class="p-2 text-gray-600 hover:text-gray-900">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                    </svg>
-                                </button>-->
-
                 <a href="${pageContext.request.contextPath}/cart"
                    class="relative p-2 text-gray-600 hover:text-gray-900">
 
@@ -107,12 +97,12 @@
 
                                     <c:otherwise>
                                         <div class="flex items-center gap-2">
-                                            <a href="login">
+                                            <a href="${pageContext.request.contextPath}/login">
                                                 <button class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium hover:bg-gray-100 rounded-lg transition">
                                                     Đăng nhập
                                                 </button>
                                             </a>
-                                            <a href="register">
+                                            <a href="${pageContext.request.contextPath}/register">
                                                 <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium shadow-md transition transform hover:-translate-y-0.5">
                                                     Đăng kí
                                                 </button>
