@@ -62,4 +62,13 @@
         <servlet-name>ProductDetailController</servlet-name>
         <url-pattern>/admin/inventory/detail</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DashboardController</servlet-name>
+        <servlet-class>controller.admin.DashboardController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DashboardController</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
 </web-app>
