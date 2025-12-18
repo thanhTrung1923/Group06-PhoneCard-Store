@@ -29,7 +29,10 @@ public class ChangePasswordController extends HttpServlet {
         String current = req.getParameter("currentPassword");
         String newPass = req.getParameter("newPassword");
         String confirm = req.getParameter("confirmPassword");
-
+        
+        if(newPass.length() < 6){
+        req.setAttribute("error", "Mật khẩu phải > 6 kí tự");
+        }
         if (!newPass.equals(confirm)) {
             req.setAttribute("error", "Xác nhận mật khẩu không khớp");
             req.getRequestDispatcher("change-password.jsp").forward(req, resp);
