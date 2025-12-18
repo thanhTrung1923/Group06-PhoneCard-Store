@@ -6,6 +6,10 @@ package dao;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import model.WalletTransaction;
 
 public class WalletDAO {
 
@@ -72,5 +76,159 @@ public class WalletDAO {
         }
 
         return BigDecimal.valueOf(0);
+    }
+
+    public int getTotalWalletTransactionInMonth(int userId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = """
+                     SELECT COUNT(*) FROM wallet_transactions wt
+                     JOIN wallets w ON wt.wallet_id = w.wallet_id
+                     WHERE w.user_id = ?
+                       AND MONTH(wt.created_at) = MONTH(CURRENT_DATE())
+                       AND YEAR(wt.created_at) = YEAR(CURRENT_DATE());
+                     """;
+
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql);
+
+            ps.setInt(1, userId);
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return 0;
+    }
+
+    public BigDecimal getUserTotalCash(int userId, String type) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sql = """
+                     SELECT SUM(wt.amount) as total FROM wallet_transactions wt
+                     JOIN wallets w ON wt.wallet_id = w.wallet_id
+                     WHERE wt.type = ? AND w.user_id = ?;
+                     """;
+
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql);
+
+            ps.setString(1, type);
+            ps.setInt(2, userId);
+
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getBigDecimal("total");
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return BigDecimal.valueOf(0);
+    }
+
+    public List<WalletTransaction> getListRecentWalletTransaction(int userId) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        List<WalletTransaction> trans = new ArrayList<>();
+
+        String sql = """
+                     SELECT * FROM wallet_transactions wt
+                     JOIN wallets w ON wt.wallet_id = w.wallet_id
+                     WHERE w.user_id = ?
+                     ORDER BY wt.created_at
+                     LIMIT 5;
+                     """;
+
+        try {
+            con = DBConnect.getConnection();
+            ps = con.prepareStatement(sql);
+
+            ps.setInt(1, userId);
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                WalletTransaction wt = new WalletTransaction(
+                        rs.getInt("transaction_id"),
+                        rs.getInt("wallet_id"),
+                        rs.getBigDecimal("amount"),
+                        rs.getString("type"),
+                        rs.getString("reference"),
+                        rs.getTimestamp("created_at").toLocalDateTime()
+                );
+
+                trans.add(wt);
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return trans;
     }
 }
