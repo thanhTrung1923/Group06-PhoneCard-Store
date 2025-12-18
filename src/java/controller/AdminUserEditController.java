@@ -23,7 +23,7 @@ import ulti.PasswordUtil;
  *
  * @author ADMIN
  */
-@WebServlet(name="AdminUserEditController", urlPatterns={"/user-edit"})
+@WebServlet(name="AdminUserEditController", urlPatterns={"/admin/user-edit"})
 public class AdminUserEditController extends HttpServlet {
    
     /** 

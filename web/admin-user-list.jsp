@@ -129,7 +129,7 @@
                                                 <span class="badge bg-secondary">${u.roles}</span>
                                             </td>
                                             <td>
-                                                <a href="user-edit?id=${u.userId}" class="btn btn-warning btn-sm" title="Sửa">
+                                                <a href="/admin/user-edit?id=${u.userId}" class="btn btn-warning btn-sm" title="Sửa">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
                                             </td>

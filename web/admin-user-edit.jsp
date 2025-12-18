@@ -52,7 +52,7 @@
             </c:if>
 
             <c:if test="${not empty user}">
-                <form method="post" action="user-edit">
+                <form method="post" action="/admin/user-edit">
                     <input type="hidden" name="userId" value="${user.userId}" />
 
                     <div class="mb-3">
@@ -114,7 +114,7 @@
             <c:if test="${empty user}">
                 <div class="alert alert-warning text-center">
                     Không tìm thấy thông tin người dùng. <br>
-                    <a href="users" class="alert-link">Quay lại danh sách</a>
+                    <a href="/admin/users" class="alert-link">Quay lại danh sách</a>
                 </div>
             </c:if>
         </div>

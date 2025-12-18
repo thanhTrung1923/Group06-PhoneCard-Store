@@ -20,7 +20,7 @@ import model.User;
  *
  * @author ADMIN
  */
-@WebServlet(name = "AdminUserListController", urlPatterns = {"/users"})
+@WebServlet(name = "AdminUserListController", urlPatterns = {"/admin/users"})
 public class AdminUserListController extends HttpServlet {
 
     /**

@@ -20,7 +20,7 @@ import ulti.PasswordUtil;
  *
  * @author ADMIN
  */
-@WebServlet(name = "AdminUserFormController", urlPatterns = {"/user-form"})
+@WebServlet(name = "AdminUserFormController", urlPatterns = {"/admin/user-form"})
 public class AdminUserFormController extends HttpServlet {
 
     /**
