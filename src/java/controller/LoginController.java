@@ -119,11 +119,13 @@ public class LoginController extends HttpServlet {
             session.setAttribute("cartTotalQuantity", totalQty);
 
             if (roles.contains("ADMIN")) {
-                response.sendRedirect("admin.jsp"); // Trang quản trị
+                response.sendRedirect("admin/dashboard"); // Trang quản trị
+
             } else if (roles.contains("STAFF")) {
-                response.sendRedirect("staff.jsp"); // Trang nhân viên
+                response.sendRedirect("staff"); // Trang nhân viên
             } else {
                 response.sendRedirect(request.getContextPath() + "/home"); // Trang khách hàng
+
             }
         }
     }

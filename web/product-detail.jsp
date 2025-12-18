@@ -152,10 +152,11 @@
                                                     <i class="fas fa-shopping-cart mr-2"></i>
                                                     Thêm vào giỏ hàng
                                                 </button>
-                                                <button type="button" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition-all duration-300 transform shadow-sm hover:shadow-md">
-                                                    <i class="fas fa-bolt mr-2"></i>
-                                                    Mua ngay
-                                                </button>
+                                                <a href="${pageContext.request.contextPath}/checkout?action=buyNow&productId=${cp.product_id}&quantity=1&unitPrice=${cp.final_price}">
+                                                    <button type="button" class="mt-2 w-full bg-gradient-to-r from-yellow-500 to-yellow-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition-all duration-300 transform shadow-sm hover:shadow-md">
+                                                        Mua ngay
+                                                    </button>
+                                                </a>
                                             </c:when>
                                             <c:otherwise>
                                                 <button disabled class="w-full bg-gray-300 text-gray-500 font-bold py-4 rounded-xl cursor-not-allowed">

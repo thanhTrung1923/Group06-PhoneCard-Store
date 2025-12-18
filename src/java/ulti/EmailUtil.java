@@ -14,7 +14,7 @@ public class EmailUtil {
     // Lưu ý: Với Gmail, bạn cần dùng "App Password" chứ không phải mật khẩu đăng nhập thường
     private static final String SMTP_HOST = "smtp.gmail.com"; 
     private static final String SMTP_USER = "anhlhhe153263@fpt.edu.vn"; 
-    private static final String SMTP_PASS = "@Huyanh2001"; 
+    private static final String SMTP_PASS = "tfxz hnec oheo rmpk"; 
     private static final String SMTP_PORT = "587"; // Cổng TLS thường là 587
 
     public static boolean send(String to, String subject, String htmlContent) {
