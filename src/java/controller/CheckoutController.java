@@ -5,6 +5,7 @@
 
 package controller;
 
+import dao.WalletDAO;
 import java.io.PrintWriter;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
+import java.math.BigDecimal;
 import model.User;
 import service.CheckoutService;
 /**
@@ -62,6 +64,10 @@ public class CheckoutController extends HttpServlet {
             CheckoutService service = new CheckoutService();
             service.checkout(user.getUserId());
             request.getSession().setAttribute("checkoutSuccess", true);
+            WalletDAO wDao = new WalletDAO();
+            BigDecimal balance = wDao.getUserBallance(user.getUserId());
+
+            session.setAttribute("balance", balance);
             request.getRequestDispatcher("/cart").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("checkoutError", e.getMessage());
