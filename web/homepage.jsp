@@ -15,6 +15,17 @@
         <title>Trang chủ</title>
         <jsp:include page="/layout/global-import-header.jsp" />
     </head>
+    <c:if test="${not empty errorMessage}">
+        <div class="max-w-7xl mx-auto px-4 mt-6">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span class="font-medium">
+                    ${errorMessage}
+                </span>
+            </div>
+        </div>
+    </c:if>
+
     <body class="bg-gray-50">
         <jsp:include page="/layout/header.jsp" />
 

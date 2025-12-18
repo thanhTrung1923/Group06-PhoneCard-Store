@@ -131,4 +131,6 @@ public class User {
         return "User{" + "userId=" + userId + ", email=" + email + ", phone=" + phone + ", passwordHash=" + passwordHash + ", fullName=" + fullName + ", avatarUrl=" + avatarUrl + ", isLocked=" + isLocked + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", roles=" + roles + '}';
     }
 
+    
+
 }

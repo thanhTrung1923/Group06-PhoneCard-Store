@@ -14,11 +14,19 @@ public class SupportTicket {
     private String priority; // LOW, MEDIUM, HIGH, URGENT
     private String status;   // NEW, PROCESSING, RESOLVED, CLOSED
     private Timestamp createdAt;
-    
+    private Long orderId;
     // Trường bổ sung để hiển thị tên người gửi (Lấy từ bảng users)
     private String userName; 
-
+    
     public SupportTicket() {
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     // Getters và Setters

@@ -110,7 +110,7 @@
             <div class="sidebar-heading text-white-50 px-3 mt-3 mb-1 small text-uppercase">Management</div>
 
             <li class="nav-item">
-                <a class="nav-link" href="${pageContext.request.contextPath}/admin/products">
+                <a class="nav-link" href="${pageContext.request.contextPath}/admin-products">
                     <i class="fa-solid fa-box-open"></i> Product Manager
                 </a>
             </li>

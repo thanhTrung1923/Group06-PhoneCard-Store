@@ -102,8 +102,13 @@ public class LoginController extends HttpServlet {
 
             CartDAO cdao = new CartDAO();
             Cart cart = cdao.getCartByUserId(user.getUserId());
+            if (cart == null) {
+                cdao.createCartForUserId(user.getUserId());
+                cart = cdao.getCartByUserId(user.getUserId());
+            }
 
             List<CartItem> cartItems = cdao.getCartItemsByCartId(cart.getCartId());
+
             Map<Integer, Map<String, Object>> productInfoMap = cdao.getProductInfoForCart(cartItems);
 
             BigDecimal subTotal = BigDecimal.ZERO;

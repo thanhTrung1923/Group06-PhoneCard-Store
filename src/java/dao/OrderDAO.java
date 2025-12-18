@@ -236,7 +236,7 @@ public class OrderDAO extends DBConnect {
 
         return list;
     }
-    
+
     public void checkoutFromCart(int userId) throws Exception {
         Connection con = null;
 
@@ -303,4 +303,30 @@ public class OrderDAO extends DBConnect {
         }
     }
 
+    public List<Order> getOrdersByUser(int userId) {
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT order_id, total_amount, created_at "
+                + "FROM orders WHERE user_id = ? "
+                + "ORDER BY created_at DESC";
+
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Order o = new Order();
+                o.setOrderId(rs.getLong("order_id"));
+                o.setTotalAmount(rs.getBigDecimal("total_amount"));
+                Timestamp ts = rs.getTimestamp("created_at");
+                if (ts != null) {
+                    o.setCreatedAt(ts.toLocalDateTime());
+                }
+                list.add(o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

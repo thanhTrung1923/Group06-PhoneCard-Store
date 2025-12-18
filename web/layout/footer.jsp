@@ -28,7 +28,13 @@
             <div>
                 <h3 class="text-lg font-semibold mb-3">Hỗ trợ</h3>
                 <ul class="space-y-2">
-                    <li><a href="#" class="text-gray-300 hover:text-white text-sm">Tạo ticket hỗ trợ</a></li>
+                    <form action="${pageContext.request.contextPath}/support" method="get" style="display:inline;">
+                        <input type="hidden" name="action" value="create">
+                        <button type="submit"
+                                class="text-gray-300 hover:text-white text-sm bg-transparent border-none cursor-pointer">
+                            Yêu cầu hỗ trợ
+                        </button>
+                    </form>
                 </ul>
             </div>
         </div>
