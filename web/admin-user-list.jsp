@@ -93,7 +93,7 @@
             <div class="card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h3 class="mb-0"><i class="fas fa-users-cog me-2"></i>Quản lý User</h3>
-                    <a href="user-form" class="btn btn-light btn-sm fw-bold">
+                    <a href="/admin/user-form" class="btn btn-light btn-sm fw-bold">
                         <i class="fas fa-plus me-1"></i> Tạo User mới
                     </a>
                 </div>
