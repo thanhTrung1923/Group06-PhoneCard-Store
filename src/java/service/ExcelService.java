@@ -2,63 +2,101 @@ package service;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import model.Card;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelService {
 
-    // [THAY ĐỔI] Thêm tham số targetProductId vào hàm
     public List<Card> parseExcel(InputStream is, int targetProductId) throws Exception {
         List<Card> list = new ArrayList<>();
         Workbook workbook = new XSSFWorkbook(is);
         Sheet sheet = workbook.getSheetAt(0);
 
-        // Bỏ qua dòng tiêu đề (Header row index = 0)
-        // Bắt đầu duyệt từ dòng 1
+        // ---------------------------------------------------------
+        // BƯỚC 1: ĐỌC HEADER ĐỂ TÌM VỊ TRÍ CỘT
+        // ---------------------------------------------------------
+        Row headerRow = sheet.getRow(0); // Giả sử dòng 1 là tiêu đề
+        if (headerRow == null) throw new Exception("File Excel rỗng (thiếu dòng tiêu đề)!");
+
+        Map<String, Integer> colMap = new HashMap<>();
+        for (Cell cell : headerRow) {
+            // Đưa về chữ thường, xóa khoảng trắng thừa để dễ so sánh
+            // Ví dụ: "  Serial Number " -> "serial number"
+            String header = cell.getStringCellValue().trim().toLowerCase();
+            colMap.put(header, cell.getColumnIndex());
+        }
+
+        // Tìm index của cột Serial (Hỗ trợ nhiều tên gọi khác nhau)
+        Integer idxSerial = findColumnIndex(colMap, "serial", "seri", "số seri", "serial number");
+        
+        // Tìm index của cột Code (Hỗ trợ nhiều tên gọi)
+        Integer idxCode = findColumnIndex(colMap, "code", "mã thẻ", "card code", "mã nạp");
+
+        // VALIDATE: Nếu không tìm thấy cột cần thiết -> Báo lỗi ngay
+        if (idxSerial == null) {
+            throw new Exception("Không tìm thấy cột 'Serial'. Vui lòng đặt tên cột là 'Serial' hoặc 'Seri'.");
+        }
+        if (idxCode == null) {
+            throw new Exception("Không tìm thấy cột 'Code'. Vui lòng đặt tên cột là 'Code' hoặc 'Mã thẻ'.");
+        }
+
+        // ---------------------------------------------------------
+        // BƯỚC 2: DUYỆT DỮ LIỆU TỪ DÒNG 2 (Index 1)
+        // ---------------------------------------------------------
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row == null) continue;
 
-            // Kiểm tra ô Serial (Cột 0) có dữ liệu không, nếu rỗng thì bỏ qua dòng này
-            Cell cellSerial = row.getCell(0);
+            // Lấy ô Serial dựa trên Index tìm được
+            Cell cellSerial = row.getCell(idxSerial);
+            
+            // Nếu ô Serial rỗng -> Coi như dòng rác, bỏ qua
             if (cellSerial == null || cellSerial.getCellType() == CellType.BLANK) continue;
 
             Card c = new Card();
-
-            // 1. GÁN PRODUCT ID (Lấy từ tham số người dùng chọn)
             c.setProductId(targetProductId);
 
-            // 2. LẤY SERIAL (Cột A - Index 0)
+            // --- XỬ LÝ SERIAL ---
             DataFormatter fmt = new DataFormatter();
             String serial = fmt.formatCellValue(cellSerial).trim();
-            
-            // Validate Serial
-            if (serial.length() < 5) {
-                // throw new Exception("Lỗi dòng " + (i + 1) + ": Serial quá ngắn.");
-                // Hoặc bỏ qua dòng lỗi tùy nghiệp vụ
-                continue; 
-            }
+            if (serial.length() < 3) continue; // Bỏ qua nếu quá ngắn
             c.setSerial(serial);
 
-            // 3. LẤY CODE (Cột B - Index 1)
-            Cell cellCode = row.getCell(1);
+            // --- XỬ LÝ CODE ---
+            Cell cellCode = row.getCell(idxCode);
             String code = (cellCode != null) ? fmt.formatCellValue(cellCode).trim() : "";
             
-            // Validate Code (Chỉ số)
+            // Validate Code (Chỉ chứa số)
             if (!code.matches("^[0-9]+$")) {
-                 throw new Exception("Lỗi dòng " + (i + 1) + ": Mã thẻ '" + code + "' sai định dạng (chỉ được chứa số).");
+                throw new Exception("Lỗi dòng " + (i + 1) + ": Mã thẻ '" + code + "' chứa ký tự không hợp lệ (chỉ được là số).");
             }
             c.setCode(code);
 
             // Trạng thái mặc định
-            c.setStatus("IN_STOCK"); // Dùng String trực tiếp hoặc Constant từ Model
+            c.setStatus("IN_STOCK");
             
             list.add(c);
         }
         workbook.close();
         
+        if (list.isEmpty()) {
+            throw new Exception("Không đọc được dữ liệu nào! Vui lòng kiểm tra lại tên cột trong file Excel.");
+        }
+        
         return list;
+    }
+
+    // Hàm phụ trợ: Tìm vị trí cột dựa trên 1 danh sách các từ khóa
+    private Integer findColumnIndex(Map<String, Integer> map, String... keywords) {
+        for (String key : keywords) {
+            if (map.containsKey(key)) {
+                return map.get(key);
+            }
+        }
+        return null; // Không tìm thấy
     }
 }

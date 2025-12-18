@@ -233,19 +233,28 @@
                         </div>
 
                         <div class="alert alert-info border-info bg-light">
-                            <h6 class="alert-heading fw-bold"><i class="fa-solid fa-circle-info text-primary"></i> Quy định file Excel:</h6>
-                            <p class="mb-1 small">File chỉ cần 2 cột dữ liệu (Bỏ cột ID):</p>
+                            <h6 class="alert-heading fw-bold"><i class="fa-solid fa-circle-info text-primary"></i> Hướng dẫn file Excel:</h6>
+                            <ul class="mb-1 small ps-3">
+                                <li>File cần có dòng tiêu đề (Header).</li>
+                                <li>Hệ thống tự động tìm cột có tên: <b>Serial</b> (hoặc Seri) và <b>Code</b> (hoặc Mã thẻ).</li>
+                                <li>Thứ tự cột không quan trọng, các cột thừa sẽ bị bỏ qua.</li>
+                            </ul>
+                            
                             <table class="table table-bordered table-sm bg-white mb-2 small text-center">
                                 <thead class="table-secondary">
                                     <tr>
-                                        <th>Cột A (Cột 1)</th>
-                                        <th>Cột B (Cột 2)</th>
+                                        <th class="text-muted fst-italic">Ngày nhập...</th>
+                                        <th>Serial <span class="text-danger">*</span></th>
+                                        <th class="text-muted fst-italic">Ghi chú...</th>
+                                        <th>Mã thẻ <span class="text-danger">*</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Serial<br><span class="text-muted">(Chữ & Số)</span></td>
-                                        <td>Mã thẻ (Code)<br><span class="text-muted">(Chỉ số)</span></td>
+                                        <td class="text-muted">...</td>
+                                        <td>SERI-001</td>
+                                        <td class="text-muted">...</td>
+                                        <td>123456</td>
                                     </tr>
                                 </tbody>
                             </table>

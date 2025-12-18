@@ -26,7 +26,7 @@
     <div class="container pb-5">
         
         <div class="mb-3">
-            <a href="${pageContext.request.contextPath}/admin/inventory" class="btn btn-outline-secondary">
+            <a href="${pageContext.request.contextPath}/admin/inventory" class="btn btn-primary btn-sm">
                 <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Danh sách
             </a>
         </div>
