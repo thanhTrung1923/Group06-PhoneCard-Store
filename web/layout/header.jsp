@@ -13,7 +13,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
 
-            <a href="home" class="flex items-center gap-3 no-underline">
+            <a href="${pageContext.request.contextPath}/home" class="flex items-center gap-3 no-underline">
                 <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600 font-semibold">
                     Logo
                 </div>

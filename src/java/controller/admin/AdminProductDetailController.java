@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class ProductDetailController extends HttpServlet {
+public class AdminProductDetailController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)

@@ -143,24 +143,39 @@
                         </c:forEach>
                     </div>
 
-                    <div class="flex items-center justify-center gap-2">
-                        <a href="?page=${currentPage > 1 ? currentPage - 1 : 1}" 
-                           class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </a>
+                    <c:if test="${empty cpList}">
+                        <div class="flex justify-center items-center">
+                            Hiện tại không có sản phẩm nào, hãy thử chỉnh sửa bộ lọc 
+                        </div>
+                    </c:if>
 
-                        <c:forEach begin="1" end="${totalPages}" var="i">
-                            <a href="?page=${i}" 
-                               class="w-10 h-10 rounded-lg font-semibold transition-all flex items-center justify-center ${currentPage == i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
-                                ${i}
+                    <c:if test="${not empty cpList}">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="?page=${currentPage > 1 ? currentPage - 1 : 1}" 
+                               class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
+                                <i class="fa-solid fa-chevron-left"></i>
                             </a>
-                        </c:forEach>
 
-                        <a href="?page=${currentPage < totalPages ? currentPage + 1 : totalPages}" 
-                           class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </a>
-                    </div>
+                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                <c:if test="${totalPages > 1}">
+                                    <a href="?page=${i}" 
+                                       class="w-10 h-10 rounded-lg font-semibold transition-all flex items-center justify-center ${currentPage == i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                                        ${i}
+                                    </a>
+                                </c:if>
+                                <c:if test="${totalPages <= 1}">
+                                    <p class="w-10 h-10 cursor-pointer rounded-lg font-semibold transition-all flex items-center justify-center ${currentPage == i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                                        ${i}
+                                    </p>
+                                </c:if>
+                            </c:forEach>
+
+                            <a href="?page=${currentPage < totalPages ? currentPage + 1 : totalPages}" 
+                               class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </c:if>
                 </div>
             </div>
         </div>
