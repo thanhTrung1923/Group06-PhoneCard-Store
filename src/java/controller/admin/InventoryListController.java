@@ -23,29 +23,44 @@ public class InventoryListController extends HttpServlet {
         String type = req.getParameter("type");
         String status = req.getParameter("status");
         
-        Map<String, Integer> stats = dao.getInventoryStats();
-        // 1. Lấy danh sách hiển thị bảng (Có phân trang/filter nếu cần)
-        List<CardProductDTO> list = dao.getProductList(keyword, type, status);
+        // --- XỬ LÝ PHÂN TRANG ---
+        int page = 1;
+        int pageSize = 5; // Ví dụ: 5 sản phẩm mỗi trang
+        if (req.getParameter("page") != null) {
+            try {
+                page = Integer.parseInt(req.getParameter("page"));
+            } catch (NumberFormatException e) { page = 1; }
+        }
+
+        // 1. Đếm tổng số bản ghi thỏa mãn điều kiện tìm kiếm
+        int totalRecords = dao.countProducts(keyword, type, status);
+        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+
+        // 2. Lấy danh sách cho trang hiện tại
+        List<CardProductDTO> list = dao.getProductList(keyword, type, status, page, pageSize);
         
-        // 2. [THÊM MỚI] Lấy danh sách TẤT CẢ tên sản phẩm để đổ vào Dropdown Import
+        // ... (Các phần lấy stats, listProductsForImport giữ nguyên) ...
+        Map<String, Integer> stats = dao.getInventoryStats();
         List<CardProductDTO> allProducts = dao.getAllProductNames();
         req.setAttribute("listProductsForImport", allProducts);
 
-        // (Code cũ: Lấy Supplier - Có thể xóa hoặc giữ nếu dùng cho việc khác, nhưng Import không dùng nữa)
-        List<Supplier> suppliers = dao.getAllSuppliers(); 
-        req.setAttribute("listSuppliers", suppliers);
-
-        String message = req.getParameter("message");
-        String error = req.getParameter("error");
-        
-        req.setAttribute("stats", stats);
+        // Gửi dữ liệu phân trang sang JSP
         req.setAttribute("inventoryList", list);
-        req.setAttribute("message", message);
-        req.setAttribute("error", error);
-
+        req.setAttribute("stats", stats);
+        
+        req.setAttribute("currentPage", page);
+        req.setAttribute("totalPages", totalPages);
+        
+        // Gửi lại các bộ lọc để giữ trạng thái khi chuyển trang
         req.setAttribute("filterKeyword", keyword);
         req.setAttribute("filterType", type);
         req.setAttribute("filterStatus", status);
+        
+        // ... (Phần message/error giữ nguyên) ...
+        String message = req.getParameter("message");
+        String error = req.getParameter("error");
+        req.setAttribute("message", message);
+        req.setAttribute("error", error);
 
         req.getRequestDispatcher("/views/admin/inventory-list.jsp").forward(req, resp);
     }

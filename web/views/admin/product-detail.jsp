@@ -166,6 +166,29 @@
                     </table>
                 </div>
                 
+                <c:if test="${totalPages > 0}">
+                    <div class="card-footer bg-white border-top-0">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-end mb-0">
+                                
+                                <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="?id=${p.productId}&page=${currentPage - 1}">Trước</a>
+                                </li>
+                                
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+                                    <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                        <a class="page-link" href="?id=${p.productId}&page=${i}">${i}</a>
+                                    </li>
+                                </c:forEach>
+                                
+                                <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                                    <a class="page-link" href="?id=${p.productId}&page=${currentPage + 1}">Sau</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </c:if>
+                
                 <input type="hidden" name="targetStatus" id="targetStatusInput">
                 
                 <div class="modal fade" id="moveModal" tabindex="-1">

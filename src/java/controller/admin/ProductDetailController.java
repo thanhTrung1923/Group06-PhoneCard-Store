@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 public class ProductDetailController extends HttpServlet {
 
-    @Override
+   @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         
@@ -31,23 +31,40 @@ public class ProductDetailController extends HttpServlet {
             int productId = Integer.parseInt(idStr);
             InventoryDAO dao = new InventoryDAO();
 
+            // --- XỬ LÝ PHÂN TRANG CARD ---
+            int page = 1;
+            int pageSize = 10; // Yêu cầu: 10 card mỗi trang
+            if (req.getParameter("page") != null) {
+                try {
+                    page = Integer.parseInt(req.getParameter("page"));
+                } catch (NumberFormatException e) { page = 1; }
+            }
+
+            // 1. Lấy thông tin sản phẩm
             CardProductDTO product = dao.getProductDetail(productId);
             
-            List<Card> cardList = dao.getCardsByProductId(productId);
-
             if (product == null) {
                 req.setAttribute("error", "Sản phẩm không tồn tại!");
                 req.getRequestDispatcher("/views/admin/inventory-list.jsp").forward(req, resp);
                 return;
             }
 
-            req.setAttribute("allProducts", new InventoryDAO().getAllProductNames());
+            // 2. Tính toán phân trang thẻ
+            int totalCards = dao.countCardsByProductId(productId);
+            int totalPages = (int) Math.ceil((double) totalCards / pageSize);
 
+            // 3. Lấy danh sách thẻ theo trang
+            List<Card> cardList = dao.getCardsByProductId(productId, page, pageSize);
+
+            req.setAttribute("allProducts", dao.getAllProductNames());
             req.setAttribute("p", product);   
-            req.setAttribute("cards", cardList); 
+            req.setAttribute("cards", cardList);
+            
+            // Gửi thông tin phân trang sang JSP
+            req.setAttribute("currentPage", page);
+            req.setAttribute("totalPages", totalPages);
             
             req.getRequestDispatcher("/views/admin/product-detail.jsp").forward(req, resp);
-            
 
         } catch (Exception e) {
             e.printStackTrace();

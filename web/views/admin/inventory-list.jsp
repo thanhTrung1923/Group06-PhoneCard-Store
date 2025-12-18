@@ -183,14 +183,28 @@
                 </table>
             </div>
             <div class="card-footer bg-white">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-end mb-0">
-                        <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Sau</a></li>
-                    </ul>
-                </nav>
+                <div class="card-footer bg-white">
+                <c:if test="${totalPages > 0}">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-end mb-0">
+                            
+                            <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                                <a class="page-link" href="?page=${currentPage - 1}&keyword=${filterKeyword}&type=${filterType}&status=${filterStatus}">Trước</a>
+                            </li>
+                            
+                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                    <a class="page-link" href="?page=${i}&keyword=${filterKeyword}&type=${filterType}&status=${filterStatus}">${i}</a>
+                                </li>
+                            </c:forEach>
+                            
+                            <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                                <a class="page-link" href="?page=${currentPage + 1}&keyword=${filterKeyword}&type=${filterType}&status=${filterStatus}">Sau</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </c:if>
+            </div>
             </div>
         </div>
 

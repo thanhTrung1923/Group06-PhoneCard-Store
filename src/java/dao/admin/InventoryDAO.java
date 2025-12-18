@@ -87,8 +87,40 @@ public class InventoryDAO {
         
         return stats;
     }
+    
+    // 1.1. Hàm đếm tổng số sản phẩm theo bộ lọc (Để tính tổng số trang)
+    public int countProducts(String keyword, String type, String status) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM card_products p WHERE p.is_active = 1 ");
+        
+        if (keyword != null && !keyword.isEmpty()) sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
+        if (type != null && !type.isEmpty()) sql.append("AND p.type_name = ? ");
+        if (status != null && !status.isEmpty()) {
+            switch (status) {
+                case "OUT": sql.append("AND p.quantity = 0 "); break;
+                case "LOW": sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert "); break;
+                case "OK": sql.append("AND p.quantity > p.min_stock_alert "); break;
+            }
+        }
+        
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+             
+            int index = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(index++, "%" + keyword + "%");
+                ps.setString(index++, "%" + keyword + "%");
+            }
+            if (type != null && !type.isEmpty()) ps.setString(index++, type);
+            // Status nối chuỗi trực tiếp nên không cần setString
+             
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
 
-    public List<CardProductDTO> getProductList(String keyword, String type, String status) {
+    public List<CardProductDTO> getProductList(String keyword, String type, String status, int pageIndex, int pageSize) {
         List<CardProductDTO> list = new ArrayList<>();
         
         StringBuilder sql = new StringBuilder(
@@ -97,28 +129,18 @@ public class InventoryDAO {
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count " +          
             "FROM card_products p WHERE p.is_active = 1 ");
 
-        if (keyword != null && !keyword.isEmpty()) {
-            sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
-        }
-        if (type != null && !type.isEmpty()) {
-            sql.append("AND p.type_name = ? ");
-        }
-
+       if (keyword != null && !keyword.isEmpty()) sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
+        if (type != null && !type.isEmpty()) sql.append("AND p.type_name = ? ");
         if (status != null && !status.isEmpty()) {
             switch (status) {
-                case "OUT": 
-                    sql.append("AND p.quantity = 0 ");
-                    break;
-                case "LOW": 
-                    sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert ");
-                    break;
-                case "OK":
-                    sql.append("AND p.quantity > p.min_stock_alert ");
-                    break;
+                case "OUT": sql.append("AND p.quantity = 0 "); break;
+                case "LOW": sql.append("AND p.quantity > 0 AND p.quantity <= p.min_stock_alert "); break;
+                case "OK": sql.append("AND p.quantity > p.min_stock_alert "); break;
             }
         }
         
-        sql.append("ORDER BY p.type_name, p.value");
+        // [THÊM] LIMIT và OFFSET
+        sql.append("ORDER BY p.type_name, p.value LIMIT ? OFFSET ?");
 
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
@@ -128,9 +150,11 @@ public class InventoryDAO {
                 ps.setString(index++, "%" + keyword + "%");
                 ps.setString(index++, "%" + keyword + "%");
             }
-            if (type != null && !type.isEmpty()) {
-                ps.setString(index++, type);
-            }
+            if (type != null && !type.isEmpty()) ps.setString(index++, type);
+
+            // [THÊM] Set tham số cho phân trang
+            ps.setInt(index++, pageSize);
+            ps.setInt(index++, (pageIndex - 1) * pageSize); // Tính Offset
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -139,15 +163,12 @@ public class InventoryDAO {
                     dto.setTypeName(rs.getString("type_name"));
                     dto.setValue(rs.getBigDecimal("value"));
                     dto.setQuantity(rs.getInt("real_quantity"));
-                    
                     dto.setMinStockAlert(rs.getInt("min_stock_alert"));
                     dto.setSoldCount(rs.getInt("sold_count"));
                     list.add(dto);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
 
@@ -436,6 +457,52 @@ public class InventoryDAO {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    // 2.1. Đếm tổng số thẻ của 1 sản phẩm
+    public int countCardsByProductId(int productId) {
+        String sql = "SELECT COUNT(*) FROM cards WHERE product_id = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    // 2.2. Cập nhật hàm lấy thẻ có phân trang
+    public List<Card> getCardsByProductId(int productId, int pageIndex, int pageSize) {
+        List<Card> list = new ArrayList<>();
+        // Thêm LIMIT OFFSET
+        String sql = "SELECT * FROM cards WHERE product_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, productId);
+            ps.setInt(2, pageSize);
+            ps.setInt(3, (pageIndex - 1) * pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Card c = new Card();
+                    c.setCardId(rs.getLong("card_id"));
+                    c.setProductId(rs.getInt("product_id"));
+                    c.setBatchId(rs.getLong("batch_id"));
+                    c.setSerial(rs.getString("serial"));
+                    c.setCode(rs.getString("code"));
+                    c.setStatus(rs.getString("status"));
+                    c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime()); 
+                    if (rs.getTimestamp("sold_at") != null) {
+                        c.setSoldAt(rs.getTimestamp("sold_at").toLocalDateTime());
+                    }
+                    list.add(c);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
     }
     
 }
