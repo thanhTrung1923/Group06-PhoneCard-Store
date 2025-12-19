@@ -170,13 +170,13 @@
             </button>
           </form>
 
-          <div class="muted" style="margin-top:10px;line-height:1.5">
+<!--          <div class="muted" style="margin-top:10px;line-height:1.5">
             Notes:
             <ul style="margin:8px 0 0 18px;">
               <li>If order is CANCELLED/REFUNDED (final), update may be rejected.</li>
               <li>PaidAt/CancelledAt will be updated automatically by DAO.</li>
             </ul>
-          </div>
+          </div>-->
         </div>
 
       </div>
