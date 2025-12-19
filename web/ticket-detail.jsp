@@ -50,7 +50,7 @@
         <c:forEach items="${replies}" var="r">
             <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded shadow-sm">
                 <p class="font-medium text-green-700">
-                    ${r.userName} (Nhân viên)
+                    ${r.userName} (Nhân viên chăm sóc khách hàng)
                 </p>
 
                 <p class="mt-2">

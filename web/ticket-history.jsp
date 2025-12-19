@@ -62,7 +62,6 @@
                             <tr>
                                 <th class="px-4 py-3 text-left">Mã</th>
                                 <th class="px-4 py-3 text-left">Tiêu đề</th>
-                                <th class="px-4 py-3 text-center">Đơn hàng</th>
                                 <th class="px-4 py-3 text-center">Trạng thái</th>
                                 <th class="px-4 py-3 text-right">Ngày tạo</th>
                                 <th class="px-4 py-3 text-center">Hành động</th>
@@ -80,7 +79,7 @@
                                     <td class="px-4 py-3">
                                         ${t.subject}
                                     </td>
-                                    <!-- ORDER -->
+<!--                                     ORDER 
                                     <td class="px-4 py-3 text-center">
                                         <c:choose>
                                             <c:when test="${not empty t.orderId}">
@@ -94,7 +93,7 @@
                                                 </span>
                                             </c:otherwise>
                                         </c:choose>
-                                    </td>
+                                    </td>-->
 
                                     <!-- PRIORITY -->
 <!--                                    <td class="px-4 py-3 text-center">

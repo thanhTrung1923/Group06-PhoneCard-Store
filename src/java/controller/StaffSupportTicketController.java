@@ -20,10 +20,6 @@ import java.util.Set;
 import model.SupportTicket;
 import model.User;
 
-/**
- *
- * @author dotri
- */
 @WebServlet("/staff/support")
 public class StaffSupportTicketController extends HttpServlet {
 
@@ -47,11 +43,9 @@ public class StaffSupportTicketController extends HttpServlet {
 
         String action = request.getParameter("action");
 
-        // ================= CHI TIẾT TICKET =================
         if ("detail".equals(action)) {
             long ticketId = Long.parseLong(request.getParameter("ticketId"));
 
-            // Staff có thể xem tất cả tickets, không giới hạn theo user_id
             SupportTicket ticket = ticketDAO.getTicketByIdForStaff(ticketId);
             if (ticket == null) {
                 response.sendRedirect(request.getContextPath() + "/staff/support");
@@ -82,7 +76,6 @@ public class StaffSupportTicketController extends HttpServlet {
         HttpSession session = request.getSession(false);
         User staff = (User) session.getAttribute("account");
         
-        // Kiểm tra role STAFF
         if (staff == null || !staff.getRoles().contains("STAFF")) {
             response.sendRedirect(request.getContextPath() + "/logout");
             return;

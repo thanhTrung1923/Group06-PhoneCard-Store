@@ -22,7 +22,7 @@ public class UserSupportTicketServlet extends HttpServlet {
 
     private SupportTicketDAO dao = new SupportTicketDAO();
     private OrderDAO orderDAO = new OrderDAO();
-    private TicketReplyDAO replyDAO = new TicketReplyDAO(); // ✅ THÊM
+    private TicketReplyDAO replyDAO = new TicketReplyDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -30,7 +30,7 @@ public class UserSupportTicketServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("account") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/logout");
             return;
         }
 
@@ -85,7 +85,7 @@ public class UserSupportTicketServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("account") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/logout");
             return;
         }
 
