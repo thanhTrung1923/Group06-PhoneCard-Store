@@ -114,9 +114,15 @@
                     
                     <div class="card-body">
                         <% if(request.getAttribute("message") != null) { %>
+                            <div class="alert alert-success d-flex align-items-center" role="alert">
+ 
+                                <div class="btn-btn success"><%= request.getAttribute("message") %></div>
+                            </div>
+                        <% } %>
+                        <% if(request.getAttribute("error") != null) { %>
                             <div class="alert alert-danger d-flex align-items-center" role="alert">
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                <div><%= request.getAttribute("message") %></div>
+ 
+                                <div><%= request.getAttribute("error") %></div>
                             </div>
                         <% } %>
 

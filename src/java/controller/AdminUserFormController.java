@@ -20,7 +20,7 @@ import ulti.PasswordUtil;
  *
  * @author ADMIN
  */
-@WebServlet(name = "AdminUserFormController", urlPatterns = {"/user-form"})
+@WebServlet(name = "AdminUserFormController", urlPatterns = {"/admin/user-form"})
 public class AdminUserFormController extends HttpServlet {
 
     /**
@@ -63,7 +63,7 @@ public class AdminUserFormController extends HttpServlet {
         HttpSession session = req.getSession();
         User admin = (User) session.getAttribute("account");
         if (admin == null || !admin.getRoles().contains("ADMIN")) {
-            resp.sendRedirect("login.jsp");
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
@@ -73,7 +73,7 @@ public class AdminUserFormController extends HttpServlet {
             User u = dao.getUserById(Integer.parseInt(id));
             req.setAttribute("user", u);
         }
-        req.getRequestDispatcher("admin-user-form.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/admin/admin-user-form.jsp").forward(req, resp);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class AdminUserFormController extends HttpServlet {
             req.setAttribute("error", "Lỗi khi lưu user: " + e.getMessage());
         }
 
-        req.getRequestDispatcher("admin-user-form.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/admin/admin-user-form.jsp").forward(req, resp);
     }
 
     /**

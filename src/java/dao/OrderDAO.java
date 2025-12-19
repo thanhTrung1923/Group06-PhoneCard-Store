@@ -302,5 +302,121 @@ public class OrderDAO extends DBConnect {
             }
         }
     }
+    public List<Order> filterOrdersPaging(
+        int userId,
+        String status,
+        String fromDate,
+        String toDate,
+        int page,
+        int pageSize
+) {
+
+    List<Order> list = new ArrayList<>();
+
+    StringBuilder sql = new StringBuilder(
+            "SELECT * FROM orders WHERE user_id = ? "
+    );
+
+    List<Object> params = new ArrayList<>();
+    params.add(userId);
+
+    if (status != null && !status.isEmpty()) {
+        sql.append(" AND status = ? ");
+        params.add(status);
+    }
+
+    if (fromDate != null && !fromDate.isEmpty()) {
+        sql.append(" AND DATE(created_at) >= ? ");
+        params.add(fromDate);
+    }
+
+    if (toDate != null && !toDate.isEmpty()) {
+        sql.append(" AND DATE(created_at) <= ? ");
+        params.add(toDate);
+    }
+
+    sql.append(" ORDER BY created_at DESC LIMIT ? OFFSET ? ");
+
+    int offset = (page - 1) * pageSize;
+    params.add(pageSize);
+    params.add(offset);
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Order o = new Order();
+            o.setOrderId(rs.getLong("order_id"));
+            o.setUserId(rs.getInt("user_id"));
+            o.setTotalAmount(rs.getBigDecimal("total_amount"));
+            o.setStatus(rs.getString("status"));
+
+            Timestamp ts = rs.getTimestamp("created_at");
+            if (ts != null) {
+                o.setCreatedAt(ts.toLocalDateTime());
+            }
+            list.add(o);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+public int countOrders(
+        int userId,
+        String status,
+        String fromDate,
+        String toDate
+) {
+
+    StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(*) FROM orders WHERE user_id = ? "
+    );
+
+    List<Object> params = new ArrayList<>();
+    params.add(userId);
+
+    if (status != null && !status.isEmpty()) {
+        sql.append(" AND status = ? ");
+        params.add(status);
+    }
+
+    if (fromDate != null && !fromDate.isEmpty()) {
+        sql.append(" AND DATE(created_at) >= ? ");
+        params.add(fromDate);
+    }
+
+    if (toDate != null && !toDate.isEmpty()) {
+        sql.append(" AND DATE(created_at) <= ? ");
+        params.add(toDate);
+    }
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return 0;
+}
+
 
 }

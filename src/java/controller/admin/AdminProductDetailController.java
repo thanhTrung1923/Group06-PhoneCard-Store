@@ -28,9 +28,8 @@ public class AdminProductDetailController extends HttpServlet {
             int productId = Integer.parseInt(idStr);
             InventoryDAO dao = new InventoryDAO();
 
-            // --- LẤY THAM SỐ FILTER & SORT ---
-            String status = req.getParameter("status"); // Lọc theo trạng thái
-            String sort = req.getParameter("sort");     // asc (Cũ nhất) hoặc desc (Mới nhất)
+            String status = req.getParameter("status");
+            String sort = req.getParameter("sort");   
             
             int page = 1;
             int pageSize = 10;
@@ -40,7 +39,6 @@ public class AdminProductDetailController extends HttpServlet {
                 } catch (NumberFormatException e) { page = 1; }
             }
 
-            // 1. Lấy thông tin Header
             CardProductDTO product = dao.getProductDetail(productId);
             if (product == null) {
                 req.setAttribute("error", "Sản phẩm không tồn tại!");
@@ -48,19 +46,16 @@ public class AdminProductDetailController extends HttpServlet {
                 return;
             }
 
-            // 2. Lấy danh sách thẻ (Có Filter + Sort + Paging)
             int totalCards = dao.countCardsByProductId(productId, status);
             int totalPages = (int) Math.ceil((double) totalCards / pageSize);
             List<Card> cardList = dao.getCardsByProductId(productId, status, sort, page, pageSize);
 
-            // 3. Đẩy dữ liệu sang JSP
             req.setAttribute("p", product);   
             req.setAttribute("cards", cardList);
             
             req.setAttribute("currentPage", page);
             req.setAttribute("totalPages", totalPages);
             
-            // Giữ trạng thái filter để hiển thị lại trên UI
             req.setAttribute("filterStatus", status);
             req.setAttribute("filterSort", sort);
 
@@ -71,6 +66,5 @@ public class AdminProductDetailController extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/admin/inventory");
         }
     }
-    
-    // Đã XÓA hàm doPost vì không còn chức năng Edit/Delete hàng loạt
+
 }

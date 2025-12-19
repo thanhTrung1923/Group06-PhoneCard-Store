@@ -164,7 +164,7 @@
                                 <label class="form-label">Họ và tên</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                    <input type="text" name="fullName" class="form-control" placeholder="Nguyễn Văn A" required>
+                                    <input type="text" name="fullName" class="form-control" value="${fullName}" placeholder="Nguyễn Văn A" >
                                 </div>
                             </div>
 
@@ -173,14 +173,14 @@
                                     <label class="form-label">Số điện thoại</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                                        <input type="tel" name="phone" class="form-control" placeholder="09xxxxxxx" required pattern="[0-9]{10,11}">
+                                        <input type="tel" name="phone" class="form-control" value="${phone}" placeholder="0xxxxxxxx" >
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Email</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                        <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+                                        <input type="email" name="email" class="form-control" value="${email}" placeholder="name@example.com" >
                                     </div>
                                 </div>
                             </div>
@@ -189,7 +189,7 @@
                                 <label class="form-label">Mật khẩu</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                    <input type="password" name="password" id="regPass" class="form-control" placeholder="Nhập mật khẩu" required minlength="6">
+                                    <input type="password" name="password" id="regPass" class="form-control" value="${password}" placeholder="Nhập mật khẩu" >
                                     <button class="btn btn-toggle" type="button" onclick="togglePassword('regPass', 'icon1')">
                                         <i class="bi bi-eye-slash" id="icon1"></i>
                                     </button>
@@ -201,7 +201,7 @@
                                 <label class="form-label">Xác nhận mật khẩu</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                                    <input type="password" name="confirmPassword" id="confirmPass" class="form-control" placeholder="Nhập lại mật khẩu" required>
+                                    <input type="password" name="confirmPassword" id="confirmPass" class="form-control" value="${confirmPass}" placeholder="Nhập lại mật khẩu" >
                                     <button class="btn btn-toggle" type="button" onclick="togglePassword('confirmPass', 'icon2')">
                                         <i class="bi bi-eye-slash" id="icon2"></i>
                                     </button>

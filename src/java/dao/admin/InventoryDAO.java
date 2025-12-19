@@ -88,32 +88,23 @@ public class InventoryDAO {
         return stats;
     }
     
-    // 1.1. Hàm đếm tổng số sản phẩm theo bộ lọc (Để tính tổng số trang)
     public int countProducts(String keyword, String type, String status) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM card_products p WHERE p.is_active = 1 ");
         
-        // [MỚI] Định nghĩa câu truy vấn đếm số lượng thực tế để dùng cho bộ lọc
-        String realQtySql = "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK')";
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
+        }
 
-        if (keyword != null && !keyword.isEmpty()) sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
-        if (type != null && !type.isEmpty()) sql.append("AND p.type_name = ? ");
+        if (type != null && !type.isEmpty()) {
+            sql.append("AND p.type_code = ? ");
+        }
         
-        // [SỬA LỖI FILTER] Thay p.quantity bằng realQtySql
+        String realQtySql = "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK')";
         if (status != null && !status.isEmpty()) {
             switch (status) {
-                case "OUT": 
-                    // Hết hàng: Số lượng thực tế = 0
-                    sql.append("AND ").append(realQtySql).append(" = 0 ");
-                    break;
-                case "LOW": 
-                    // Sắp hết: 0 < Số lượng thực tế <= Min Stock
-                    sql.append("AND ").append(realQtySql).append(" > 0 ");
-                    sql.append("AND ").append(realQtySql).append(" <= p.min_stock_alert ");
-                    break;
-                case "OK": 
-                    // Sẵn sàng: Số lượng thực tế > Min Stock
-                    sql.append("AND ").append(realQtySql).append(" > p.min_stock_alert ");
-                    break;
+                case "OUT": sql.append("AND ").append(realQtySql).append(" = 0 "); break;
+                case "LOW": sql.append("AND ").append(realQtySql).append(" > 0 AND ").append(realQtySql).append(" <= p.min_stock_alert "); break;
+                case "OK":  sql.append("AND ").append(realQtySql).append(" > p.min_stock_alert "); break;
             }
         }
         
@@ -137,32 +128,26 @@ public class InventoryDAO {
     public List<CardProductDTO> getProductList(String keyword, String type, String status, int pageIndex, int pageSize) {
         List<CardProductDTO> list = new ArrayList<>();
         
-        // Câu SELECT hiển thị (Giữ nguyên phần real_quantity đã sửa trước đó)
         StringBuilder sql = new StringBuilder(
             "SELECT p.product_id, p.type_name, p.value, p.min_stock_alert, " +
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK') as real_quantity, " +
             "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'SOLD') as sold_count " +          
             "FROM card_products p WHERE p.is_active = 1 ");
 
-        // [MỚI] Định nghĩa câu truy vấn con để dùng cho WHERE
-        String realQtySql = "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK')";
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
+        }
 
-        if (keyword != null && !keyword.isEmpty()) sql.append("AND (p.type_name LIKE ? OR p.product_id LIKE ?) ");
-        if (type != null && !type.isEmpty()) sql.append("AND p.type_name = ? ");
-        
-        // [SỬA LỖI FILTER] Thay p.quantity bằng realQtySql
+        if (type != null && !type.isEmpty()) {
+            sql.append("AND p.type_code = ? ");
+        }
+
+        String realQtySql = "(SELECT COUNT(*) FROM cards c WHERE c.product_id = p.product_id AND c.status = 'IN_STOCK')";
         if (status != null && !status.isEmpty()) {
             switch (status) {
-                case "OUT": 
-                    sql.append("AND ").append(realQtySql).append(" = 0 ");
-                    break;
-                case "LOW": 
-                    sql.append("AND ").append(realQtySql).append(" > 0 ");
-                    sql.append("AND ").append(realQtySql).append(" <= p.min_stock_alert ");
-                    break;
-                case "OK": 
-                    sql.append("AND ").append(realQtySql).append(" > p.min_stock_alert ");
-                    break;
+                case "OUT": sql.append("AND ").append(realQtySql).append(" = 0 "); break;
+                case "LOW": sql.append("AND ").append(realQtySql).append(" > 0 AND ").append(realQtySql).append(" <= p.min_stock_alert "); break;
+                case "OK":  sql.append("AND ").append(realQtySql).append(" > p.min_stock_alert "); break;
             }
         }
         
@@ -176,9 +161,11 @@ public class InventoryDAO {
                 ps.setString(index++, "%" + keyword + "%");
                 ps.setString(index++, "%" + keyword + "%");
             }
-            if (type != null && !type.isEmpty()) ps.setString(index++, type);
 
-            // Tham số phân trang
+            if (type != null && !type.isEmpty()) {
+                ps.setString(index++, type);
+            }
+
             ps.setInt(index++, pageSize);
             ps.setInt(index++, (pageIndex - 1) * pageSize);
 
@@ -188,10 +175,7 @@ public class InventoryDAO {
                     dto.setProductId(rs.getInt("product_id"));
                     dto.setTypeName(rs.getString("type_name"));
                     dto.setValue(rs.getBigDecimal("value"));
-                    
-                    // Lấy số lượng thực tế
                     dto.setQuantity(rs.getInt("real_quantity"));
-                    
                     dto.setMinStockAlert(rs.getInt("min_stock_alert"));
                     dto.setSoldCount(rs.getInt("sold_count"));
                     list.add(dto);
@@ -224,7 +208,7 @@ public class InventoryDAO {
             psBatch.setDouble(4, batch.getTotalAmount()); 
 
             if (batch.getImportedBy() != null) psBatch.setInt(5, batch.getImportedBy());
-            else psBatch.setInt(5, 1); // Fallback về ID 1
+            else psBatch.setInt(5, 1); 
             
             psBatch.setString(6, batch.getNote());
             
@@ -422,7 +406,6 @@ public class InventoryDAO {
         return list;
     }
 
-    // 2.1. Đếm tổng số thẻ của 1 sản phẩm
     public int countCardsByProductId(int productId, String status) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM cards WHERE product_id = ? ");
         
@@ -446,24 +429,20 @@ public class InventoryDAO {
     }
 
 
-    // 2.2. Cập nhật hàm lấy thẻ có phân trang
     public List<Card> getCardsByProductId(int productId, String status, String sortOrder, int pageIndex, int pageSize) {
         List<Card> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM cards WHERE product_id = ? ");
 
-        // 1. Filter Status
         if (status != null && !status.isEmpty()) {
             sql.append("AND status = ? ");
         }
 
-        // 2. Sort Order (Mặc định là DESC - Mới nhất)
         if ("asc".equalsIgnoreCase(sortOrder)) {
-            sql.append("ORDER BY created_at ASC "); // Cũ nhất
+            sql.append("ORDER BY created_at ASC ");
         } else {
-            sql.append("ORDER BY created_at DESC "); // Mới nhất
+            sql.append("ORDER BY created_at DESC "); 
         }
 
-        // 3. Pagination
         sql.append("LIMIT ? OFFSET ?");
         
         try (Connection conn = DBConnect.getConnection();
@@ -498,5 +477,20 @@ public class InventoryDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
-    
+    public List<String> getAllTypeCodes() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT type_code FROM card_products WHERE is_active = 1 ORDER BY type_code";
+        
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                list.add(rs.getString("type_code"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

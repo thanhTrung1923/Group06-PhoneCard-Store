@@ -13,6 +13,19 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        /* 1. CSS CHO LAYOUT (QUAN TRỌNG) */
+        .main-content {
+            margin-left: 260px; /* Đẩy nội dung sang phải để nhường chỗ cho Sidebar */
+            padding: 1.5rem;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+
+        /* Các CSS cũ của trang Inventory giữ nguyên ở đây */
+        .stats-card { transition: all 0.3s; border: none; border-radius: 10px; }
+        .stats-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .table-hover tbody tr:hover { background-color: #f1f1f1; }
+        
         body { background-color: #f8f9fa; }
         .stats-card { transition: all 0.3s; border: none; border-radius: 10px; }
         .stats-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -23,13 +36,17 @@
     </style>
 </head>
 <body>
+    <jsp:include page="components/admin-sidebar.jsp"></jsp:include>
 
-    <nav class="navbar navbar-dark bg-primary mb-4">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1"><i class="fa-solid fa-boxes-stacked me-2"></i> INVENTORY SYSTEM</span>
-            <div class="d-flex text-white">Hi, Admin</div>
-        </div>
-    </nav>
+    <div class="main-content">
+        
+        <nav class="navbar navbar-light bg-white shadow-sm rounded mb-4 px-3">
+            <span class="navbar-brand mb-0 h1"><i class="fa-solid fa-list me-2"></i> DANH SÁCH TỒN KHO</span>
+            <div class="d-flex align-items-center">
+                <span class="me-2 text-secondary">Hi, Admin</span>
+                <i class="fa-solid fa-circle-user fa-2x text-primary"></i>
+            </div>
+        </nav>
 
     <div class="container-fluid px-4">
         
@@ -85,12 +102,15 @@
                         <label class="form-label fw-bold">Loại thẻ</label>
                         <select class="form-select" name="type">
                             <option value="">Tất cả</option>
-                            <option value="Viettel" ${filterType == 'Viettel' ? 'selected' : ''}>Viettel</option>
-                            <option value="Vinaphone" ${filterType == 'Vinaphone' ? 'selected' : ''}>Vinaphone</option>
-                            <option value="Mobifone" ${filterType == 'Mobifone' ? 'selected' : ''}>Mobifone</option>
+                            
+                            <c:forEach var="code" items="${listTypeCodes}">
+                                <option value="${code}" ${filterType == code ? 'selected' : ''}>
+                                    ${code}
+                                </option>
+                            </c:forEach>
+                            
                         </select>
                     </div>
-
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Trạng thái</label>
                         <select class="form-select" name="status">

@@ -28,6 +28,12 @@ public class ResetPasswordController extends HttpServlet {
         String token = req.getParameter("token");
         String newPass = req.getParameter("password");
         String confirm = req.getParameter("confirmPassword");
+        if (newPass == null || newPass.length() < 6) {
+            req.setAttribute("error", "Mật khẩu phải có ít nhất 6 ký tự");
+            req.setAttribute("token", token);
+            req.getRequestDispatcher("reset-password.jsp").forward(req, resp);
+            return;
+        }
         if (!newPass.equals(confirm)) {
             req.setAttribute("error", "Mật khẩu xác nhận không khớp");
             req.setAttribute("token", token);

@@ -20,7 +20,7 @@ import model.User;
  *
  * @author ADMIN
  */
-@WebServlet(name = "AdminUserListController", urlPatterns = {"/users"})
+@WebServlet(name = "AdminUserListController", urlPatterns = {"/admin/users"})
 public class AdminUserListController extends HttpServlet {
 
     /**
@@ -59,25 +59,46 @@ public class AdminUserListController extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
         HttpSession session = req.getSession();
         User admin = (User) session.getAttribute("account");
+
         if (admin == null || !admin.getRoles().contains("ADMIN")) {
             resp.sendRedirect("login.jsp");
             return;
         }
 
         String q = req.getParameter("q");
+
         int page = 1;
+        int pageSize = 10;
+
         try {
             page = Integer.parseInt(req.getParameter("page"));
         } catch (Exception e) {
         }
-        int pageSize = 20;
+
         UserDAO dao = new UserDAO();
+
+        int totalUsers = dao.countUsers(q);
+        int totalPages = (int) Math.ceil((double) totalUsers / pageSize);
+
         List<User> users = dao.getUsers((page - 1) * pageSize, pageSize, q);
+
+        // ====== Thống kê ======
+        req.setAttribute("totalUsers", totalUsers);
+        req.setAttribute("activeUsers", dao.countActiveUsers());
+        req.setAttribute("lockedUsers", dao.countLockedUsers());
+
+        // ====== Phân trang ======
         req.setAttribute("users", users);
-        req.getRequestDispatcher("admin-user-list.jsp").forward(req, resp);
+        req.setAttribute("currentPage", page);
+        req.setAttribute("totalPages", totalPages);
+        req.setAttribute("q", q);
+
+        req.getRequestDispatcher("/views/admin/admin-user-list.jsp").forward(req, resp);
     }
 
     /**
