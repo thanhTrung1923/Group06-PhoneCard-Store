@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -10,10 +11,10 @@ package model;
  */
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class Order {
-
-    // Định nghĩa Enum cho trạng thái để đảm bảo Type Safe
 
     private Long orderId;
     private Integer userId;
@@ -112,4 +113,9 @@ public class Order {
                 ", cancelledAt=" + cancelledAt +
                 '}';
     }
+    
+public Date getCreatedAtDate() {
+    if (createdAt == null) return null;
+    return Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
+}
 }

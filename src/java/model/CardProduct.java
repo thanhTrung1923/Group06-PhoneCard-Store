@@ -6,6 +6,8 @@ package model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.text.NumberFormat;
+import java.util.Locale;
 /**
  *
  * @author dotri
@@ -172,5 +174,10 @@ public class CardProduct {
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
-    
+    public String getFormattedPrice() {
+        if (sellPrice == null) return "0 đ";
+        Locale localeVN = new Locale("vi", "VN");
+        NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
+        return currencyVN.format(sellPrice);
+    }
 }

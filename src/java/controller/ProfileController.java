@@ -34,14 +34,14 @@ public class ProfileController extends HttpServlet {
         Part avatarPart = req.getPart("avatar");
         String avatarPath = user.getAvatarUrl();
         if (avatarPart != null && avatarPart.getSize() > 0) {
-            String uploadDir = req.getServletContext().getRealPath("/uploads");
+            String uploadDir = req.getServletContext().getRealPath("");
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
             String fileName = "avatar_user_" + user.getUserId() + "_" + System.currentTimeMillis() + ".jpg";
             avatarPart.write(uploadDir + File.separator + fileName);
-            avatarPath = "uploads/" + fileName;
+            avatarPath = "" + fileName;
         }
 
         UserDAO dao = new UserDAO();
