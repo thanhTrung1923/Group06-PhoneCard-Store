@@ -6,6 +6,7 @@ package controller;
 
 import dao.CartDAO;
 import dao.UserDAO;
+import dao.WalletDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -103,6 +104,11 @@ public class LoginController extends HttpServlet {
             CartDAO cdao = new CartDAO();
             Cart cart = cdao.getCartByUserId(user.getUserId());
 
+            if (cart == null) {
+                cdao.createCartForUserId(user.getUserId());
+                cart = cdao.getCartByUserId(user.getUserId());
+            }
+
             List<CartItem> cartItems = cdao.getCartItemsByCartId(cart.getCartId());
             Map<Integer, Map<String, Object>> productInfoMap = cdao.getProductInfoForCart(cartItems);
 
@@ -116,6 +122,10 @@ public class LoginController extends HttpServlet {
                 totalQty += i.getQuantity();
             }
 
+            WalletDAO wDao = new WalletDAO();
+            BigDecimal balance = wDao.getUserBallance(user.getUserId());
+
+            session.setAttribute("balance", balance);
             session.setAttribute("cartTotalQuantity", totalQty);
 
             if (roles.contains("ADMIN")) {

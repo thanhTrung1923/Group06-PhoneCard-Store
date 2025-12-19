@@ -87,7 +87,7 @@
 
                                     <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden relative">
                                         <img src="${cp.thumbnail_url}" 
-                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110 
+                                             class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-110
                                              ${cp.stock_quantity <= 0 ? 'filter grayscale' : ''}" 
                                              alt="${cp.type_name}">
                                     </div>
@@ -122,9 +122,16 @@
                                                 </button>
                                             </c:when>
                                             <c:otherwise>
-                                                <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                                    Mua ngay
-                                                </button>
+                                                <form action="${pageContext.request.contextPath}/checkout" method="get">
+                                                    <input type="hidden" name="action" value="buyNow"/>
+                                                    <input type="hidden" name="productId" value="${cp.product_id}"/>
+                                                    <input type="hidden" name="quantity" value="1"/>
+                                                    <input type="hidden" name="unitPrice" value="${cp.final_price}"/>
+
+                                                    <button class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg">
+                                                        Mua ngay
+                                                    </button>
+                                                </form>
                                                 <button type="button" class="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600 transition-colors">
                                                     <a href="${pageContext.request.contextPath}/products/detail?productId=${cp.product_id}">Chi tiết</a>
                                                 </button>
@@ -136,24 +143,39 @@
                         </c:forEach>
                     </div>
 
-                    <div class="flex items-center justify-center gap-2">
-                        <a href="?page=${currentPage > 1 ? currentPage - 1 : 1}" 
-                           class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </a>
+                    <c:if test="${empty cpList}">
+                        <div class="flex justify-center items-center">
+                            Hiện tại không có sản phẩm nào, hãy thử chỉnh sửa bộ lọc 
+                        </div>
+                    </c:if>
 
-                        <c:forEach begin="1" end="${totalPages}" var="i">
-                            <a href="?page=${i}" 
-                               class="w-10 h-10 rounded-lg font-semibold transition-all flex items-center justify-center ${currentPage == i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
-                                ${i}
+                    <c:if test="${not empty cpList}">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="?page=${currentPage > 1 ? currentPage - 1 : 1}" 
+                               class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
+                                <i class="fa-solid fa-chevron-left"></i>
                             </a>
-                        </c:forEach>
 
-                        <a href="?page=${currentPage < totalPages ? currentPage + 1 : totalPages}" 
-                           class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </a>
-                    </div>
+                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                <c:if test="${totalPages > 1}">
+                                    <a href="?page=${i}" 
+                                       class="w-10 h-10 rounded-lg font-semibold transition-all flex items-center justify-center ${currentPage == i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                                        ${i}
+                                    </a>
+                                </c:if>
+                                <c:if test="${totalPages <= 1}">
+                                    <p class="w-10 h-10 cursor-pointer rounded-lg font-semibold transition-all flex items-center justify-center ${currentPage == i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                                        ${i}
+                                    </p>
+                                </c:if>
+                            </c:forEach>
+
+                            <a href="?page=${currentPage < totalPages ? currentPage + 1 : totalPages}" 
+                               class="px-4 py-2 rounded-lg font-semibold transition-all ${currentPage == totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none' : 'bg-green-500 text-white hover:bg-green-600'}">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </c:if>
                 </div>
             </div>
         </div>
