@@ -6,6 +6,7 @@ package controller;
 
 import dao.CartDAO;
 import dao.UserDAO;
+import dao.WalletDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -90,14 +91,8 @@ public class LoginController extends HttpServlet {
 
         if (user == null) {
             // Đăng nhập thất bại
-            request.setAttribute("error", "Sai tài khoản hoặc mật khẩu!");
+            request.setAttribute("message", "Sai tài khoản hoặc mật khẩu!");
             request.getRequestDispatcher("login.jsp").forward(request, response);
-        }
-        if (user.getIsLocked()) {
-            request.setAttribute("error",
-                    "Tài khoản đã bị vô hiệu hóa. Vui lòng liên hệ admin!");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-            return;
         } else {
             // Đăng nhập thành công -> Lưu vào Session
             HttpSession session = request.getSession();
@@ -106,23 +101,33 @@ public class LoginController extends HttpServlet {
             // 3. Phân quyền chuyển hướng
             List<String> roles = user.getRoles();
 
-//            CartDAO cdao = new CartDAO();
-//            Cart cart = cdao.getCartByUserId(user.getUserId());
-//
-//            List<CartItem> cartItems = cdao.getCartItemsByCartId(cart.getCartId());
-//            Map<Integer, Map<String, Object>> productInfoMap = cdao.getProductInfoForCart(cartItems);
-//
-//            BigDecimal subTotal = BigDecimal.ZERO;
-//            int totalQty = 0;
-//
-//            for (CartItem i : cartItems) {
-//                subTotal = subTotal.add(
-//                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
-//                );
-//                totalQty += i.getQuantity();
-//            }
-//
-//            session.setAttribute("cartTotalQuantity", totalQty);
+            CartDAO cdao = new CartDAO();
+            Cart cart = cdao.getCartByUserId(user.getUserId());
+
+            if (cart == null) {
+                cdao.createCartForUserId(user.getUserId());
+                cart = cdao.getCartByUserId(user.getUserId());
+            }
+
+            List<CartItem> cartItems = cdao.getCartItemsByCartId(cart.getCartId());
+            Map<Integer, Map<String, Object>> productInfoMap = cdao.getProductInfoForCart(cartItems);
+
+            BigDecimal subTotal = BigDecimal.ZERO;
+            int totalQty = 0;
+
+            for (CartItem i : cartItems) {
+                subTotal = subTotal.add(
+                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
+                );
+                totalQty += i.getQuantity();
+            }
+
+            WalletDAO wDao = new WalletDAO();
+            BigDecimal balance = wDao.getUserBallance(user.getUserId());
+
+            session.setAttribute("balance", balance);
+            session.setAttribute("cartTotalQuantity", totalQty);
+
             if (roles.contains("ADMIN")) {
                 response.sendRedirect("admin/dashboard"); // Trang quản trị
 
