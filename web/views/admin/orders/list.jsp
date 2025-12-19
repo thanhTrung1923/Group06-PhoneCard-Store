@@ -5,7 +5,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Order Management</title>
+    <title>Admin - Quản lý đơn hàng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <style>
@@ -266,23 +266,23 @@
 
     <div class="topbar">
         <div class="title">
-            <h1>Order Management</h1>
-            <p>Search, filter and view customer orders</p>
+            <h1>Quản lý đơn hàng</h1>
+            <p>Tìm kiếm, lọc và xem danh sách đơn hàng</p>
         </div>
     </div>
 
     <div class="card">
         <div class="card-hd">
             <div class="hd-left">
-                <strong>Orders</strong>
-                <span>Filter by status, keyword and date range</span>
+                <strong>Danh sách đơn hàng</strong>
+                <span>Lọc theo trạng thái, từ khóa và khoảng thời gian</span>
             </div>
         </div>
 
         <div class="card-bd">
 
             <c:if test="${not empty error}">
-                <div class="alert">Error: ${error}</div>
+                <div class="alert">Lỗi: ${error}</div>
             </c:if>
 
             <c:if test="${not empty dateError}">
@@ -292,40 +292,41 @@
             <form id="filterForm" method="get" action="${pageContext.request.contextPath}/admin/orders">
                 <input type="hidden" name="action" value="list"/>
 
-                <!-- ✅ hidden sort/dir/page -->
+                <!-- hidden sort/dir/page -->
                 <input type="hidden" name="sort" value="${sort}"/>
                 <input type="hidden" name="dir" value="${dir}"/>
-                <input type="hidden" name="page" value="${page}"/>
+                <!-- Khi search/filter thì luôn về trang 1 -->
+                <input type="hidden" name="page" value="1"/>
 
                 <div class="filters">
-                    <div class="field">
-                        <div class="label">Status</div>
+                    <div class="field"
+                        <div class="label">Trạng thái</div>
                         <select name="status">
-                            <option value="">All</option>
-                            <option value="PAID"      ${status=='PAID' ? 'selected' : ''}>PAID</option>
-                            <option value="CANCELLED" ${status=='CANCELLED' ? 'selected' : ''}>CANCELLED</option>
-                            <option value="REFUNDED"  ${status=='REFUNDED' ? 'selected' : ''}>REFUNDED</option>
+                            <option value="">Tất cả</option>
+                            <option value="PAID"      ${status=='PAID' ? 'selected' : ''}>Đã thanh toán</option>
+                            <option value="CANCELLED" ${status=='CANCELLED' ? 'selected' : ''}>Đã hủy</option>
+                            <option value="REFUNDED"  ${status=='REFUNDED' ? 'selected' : ''}>Đã hoàn tiền</option>
                         </select>
                     </div>
 
                     <div class="field">
-                        <div class="label">Keyword</div>
+                        <div class="label">Từ khóa</div>
                         <input type="text" name="keyword" value="${keyword}"
-                               placeholder="Order ID / Email / Phone / Name"/>
+                               placeholder="Mã đơn / Email / SĐT / Tên khách hàng"/>
                     </div>
 
                     <div class="field">
-                        <div class="label">From</div>
+                        <div class="label">Từ ngày</div>
                         <input id="fromDate" type="date" name="fromDate" value="${fromDate}"/>
                     </div>
 
                     <div class="field">
-                        <div class="label">To</div>
+                        <div class="label">Đến ngày</div>
                         <input id="toDate" type="date" name="toDate" value="${toDate}"/>
                     </div>
 
-                    <button class="btn btn-primary" type="submit">Search</button>
-                    <a class="btn btn-ghost" href="${pageContext.request.contextPath}/admin/orders?action=list">Reset</a>
+                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                    <a class="btn btn-ghost" href="${pageContext.request.contextPath}/admin/orders?action=list">Đặt lại</a>
                 </div>
             </form>
 
@@ -334,36 +335,36 @@
                     <thead>
                     <tr>
                         <th style="width:110px;">
-                            <a href="#" onclick="return sortBy('orderId')">Order ID <span id="s_orderId"></span></a>
+                            <a href="#" onclick="return sortBy('orderId')">Mã đơn <span id="s_orderId"></span></a>
                         </th>
                         <th>
-                            <a href="#" onclick="return sortBy('customer')">Customer <span id="s_customer"></span></a>
+                            <a href="#" onclick="return sortBy('customer')">Khách hàng <span id="s_customer"></span></a>
                         </th>
                         <th>
                             <a href="#" onclick="return sortBy('email')">Email <span id="s_email"></span></a>
                         </th>
                         <th style="width:140px;">
-                            <a href="#" onclick="return sortBy('phone')">Phone <span id="s_phone"></span></a>
+                            <a href="#" onclick="return sortBy('phone')">SĐT <span id="s_phone"></span></a>
                         </th>
                         <th style="width:120px;" class="right">
-                            <a href="#" onclick="return sortBy('total')">Total <span id="s_total"></span></a>
+                            <a href="#" onclick="return sortBy('total')">Tổng tiền <span id="s_total"></span></a>
                         </th>
                         <th style="width:130px;">
-                            <a href="#" onclick="return sortBy('status')">Status <span id="s_status"></span></a>
+                            <a href="#" onclick="return sortBy('status')">Trạng thái <span id="s_status"></span></a>
                         </th>
                         <th style="width:80px;" class="right">
-                            <a href="#" onclick="return sortBy('items')">Items <span id="s_items"></span></a>
+                            <a href="#" onclick="return sortBy('items')">Số SP <span id="s_items"></span></a>
                         </th>
                         <th style="width:180px;">
-                            <a href="#" onclick="return sortBy('created')">Created At <span id="s_created"></span></a>
+                            <a href="#" onclick="return sortBy('created')">Ngày tạo <span id="s_created"></span></a>
                         </th>
-                        <th style="width:120px;">Action</th>
+                        
                     </tr>
                     </thead>
 
                     <tbody>
                     <c:if test="${empty orders}">
-                        <tr><td colspan="9" class="empty">No orders found.</td></tr>
+                        <tr><td colspan="9" class="empty">Không có đơn hàng nào.</td></tr>
                     </c:if>
 
                     <c:forEach var="o" items="${orders}">
@@ -376,13 +377,13 @@
                             <td>
                                 <c:choose>
                                     <c:when test="${o.status == 'PAID'}">
-                                        <span class="badge paid"><span class="dot"></span>PAID</span>
+                                        <span class="badge paid"><span class="dot"></span>Đã thanh toán</span>
                                     </c:when>
                                     <c:when test="${o.status == 'CANCELLED'}">
-                                        <span class="badge cancel"><span class="dot"></span>CANCELLED</span>
+                                        <span class="badge cancel"><span class="dot"></span>Đã hủy</span>
                                     </c:when>
                                     <c:when test="${o.status == 'REFUNDED'}">
-                                        <span class="badge refund"><span class="dot"></span>REFUNDED</span>
+                                        <span class="badge refund"><span class="dot"></span>Đã hoàn tiền</span>
                                     </c:when>
                                     <c:otherwise>
                                         <span class="badge"><span class="dot"></span>${o.status}</span>
@@ -391,11 +392,7 @@
                             </td>
                             <td class="right mono">${o.itemCount}</td>
                             <td class="muted">${o.createdAt}</td>
-                            <td>
-                                <a class="link" href="${pageContext.request.contextPath}/admin/orders?action=detail&id=${o.orderId}">
-                                    View
-                                </a>
-                            </td>
+                            
                         </tr>
                     </c:forEach>
                     </tbody>
@@ -404,7 +401,7 @@
 
             <c:if test="${totalPages > 1}">
                 <div class="pager">
-                    <div class="hint">Page ${page} / ${totalPages}</div>
+                    <div class="hint">Trang ${page} / ${totalPages}</div>
                     <div class="pages">
                         <c:forEach var="p" begin="1" end="${totalPages}">
                             <c:choose>
@@ -438,7 +435,7 @@
     const from = fromEl ? fromEl.value : "";
     const to   = toEl ? toEl.value : "";
     if (from && to && from > to) {
-      alert("Ngày From không được lớn hơn ngày To.");
+      alert("Ngày 'Từ ngày' không được lớn hơn 'Đến ngày'.");
       return false;
     }
     return true;
@@ -465,7 +462,7 @@
 
     sortInput.value = col;
     dirInput.value = nextDir;
-    pageInput.value = "1"; // change sort => go to page 1
+    pageInput.value = "1"; // đổi sort => quay về trang 1
     f.submit();
     return false;
   }
